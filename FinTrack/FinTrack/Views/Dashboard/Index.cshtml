@@ -1,0 +1,11 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Dashboard";
+}
+<h1 style="color:white;padding:2rem;">Welcome to FinTrack! You are logged in.</h1>
+<form asp-action="Logout" asp-controller="Account" method="post" style="padding:2rem;">
+    @Html.AntiForgeryToken()
+    <button type="submit" style="background:#f43f5e;color:white;padding:0.5rem 1.5rem;border:none;border-radius:8px;cursor:pointer;">
+        Test Logout
+    </button>
+</form>

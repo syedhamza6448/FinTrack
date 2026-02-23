@@ -1,13 +1,16 @@
 ﻿<!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — FinTrack</title>
+    <link rel="stylesheet" href="~/css/style.css" />
 </head>
 <body>
-    <div>
-        @RenderBody()
-    </div>
+    @RenderBody()
+    <script src="~/js/icons.js"></script>
+    <script src="~/js/animations.js"></script>
+    <script src="~/js/main.js"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

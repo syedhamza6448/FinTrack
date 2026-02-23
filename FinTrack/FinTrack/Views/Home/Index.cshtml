@@ -1,9 +1,299 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Home";
+}
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>FinTrack</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinTrack — Personal Finance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="~/css/style.css" />
+    <style>
+        .hero-glow {
+          position: absolute;
+          width: 600px; height: 600px;
+          background: radial-gradient(circle, rgba(244,63,94,0.12) 0%, transparent 70%);
+          top: -100px; right: -100px;
+          pointer-events: none;
+        }
+        .hero-glow2 {
+          position: absolute;
+          width: 400px; height: 400px;
+          background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
+          bottom: -50px; left: -50px;
+          pointer-events: none;
+        }
+        .landing-nav {
+          position: fixed; top: 0; left: 0; right: 0;
+          z-index: 100;
+          background: rgba(13,13,15,0.85);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          transition: background 0.2s;
+        }
+        body.light .landing-nav {
+          background: rgba(245,245,247,0.9);
+          border-color: rgba(0,0,0,0.07);
+        }
+        .feature-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-dark);
+          border-radius: var(--radius);
+          padding: 1.75rem;
+          transition: all 0.2s;
+        }
+        body.light .feature-card {
+          background: var(--bg-card-light);
+          border-color: var(--border-light);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .feature-card:hover {
+          border-color: rgba(244,63,94,0.3);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 32px rgba(244,63,94,0.1);
+        }
+        .feature-icon {
+          width: 44px; height: 44px;
+          background: var(--accent-glow);
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 1rem;
+          color: var(--accent);
+        }
+        .stat-pill {
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border-dark);
+          border-radius: 99px;
+          padding: 0.5rem 1rem;
+          font-size: 0.85rem;
+          font-weight: 500;
+        }
+        body.light .stat-pill {
+          background: var(--bg-card-light);
+          border-color: var(--border-light);
+        }
+        .mockup-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-dark);
+          border-radius: var(--radius);
+          padding: 1rem 1.25rem;
+        }
+        body.light .mockup-card {
+          background: var(--bg-card-light);
+          border-color: var(--border-light);
+        }
+        .bar {
+          border-radius: 4px 4px 0 0;
+          background: var(--accent);
+          min-width: 22px;
+        }
+        .bar.dim { background: var(--bg-card2); }
+        body.light .bar.dim { background: var(--bg-card2-light); }
+    </style>
 </head>
 <body>
-    <h1>FinTrack is working</h1>
+
+    <!-- NAV -->
+    <nav class="landing-nav">
+        <div style="max-width:1200px; margin:0 auto; padding:0 1.5rem; display:flex; align-items:center; justify-content:space-between; height:60px;">
+            <a href="index.html" style="display:flex; align-items:center; gap:0.6rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem;">
+                <div class="logo-icon">₦</div>
+                FinTrack
+            </a>
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <button class="icon-btn theme-toggle-btn" title="Toggle theme">
+                    <svg class="theme-icon-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg class="theme-icon-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline" style="padding:0.4rem 1rem; font-size:0.85rem;">Login</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary" style="padding:0.4rem 1rem; font-size:0.85rem;">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section style="position:relative; overflow:hidden; padding: 140px 1.5rem 80px; max-width:1200px; margin:0 auto;">
+        <div class="hero-glow"></div>
+        <div class="hero-glow2"></div>
+
+        <div style="max-width:680px; margin:0 auto; text-align:center; position:relative;">
+            <div class="badge badge-rose" style="margin-bottom:1.25rem; font-size:0.75rem; padding:0.35rem 0.9rem;">
+                Your Financial Command Center
+            </div>
+            <h1 style="font-size:clamp(2.5rem,6vw,4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem;">
+                Take Control of<br />
+                <span style="color:var(--accent);">Every Dollar</span> You Own
+            </h1>
+            <p style="font-size:1.05rem; color:var(--text-secondary-dark); max-width:520px; margin:0 auto 2rem; line-height:1.7;">
+                Track spending, set budgets, manage investments, and reach your financial goals — all in one beautifully designed dashboard.
+            </p>
+            <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; opacity: 1;">
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary" style="font-size:0.95rem; padding:0.7rem 1.75rem;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    Start for Free
+                </a>
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline" style="font-size:0.95rem; padding:0.7rem 1.75rem;">
+                    View Demo →
+                </a>
+            </div>
+            <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; margin-top:2rem;">
+                <div class="stat-pill"><span style="color:#22c55e;font-size:8px;">●</span> 14 pages included</div>
+                <div class="stat-pill"><span style="color:var(--accent);font-size:8px;">●</span> Dark & Light mode</div>
+                <div class="stat-pill"><span style="color:#3b82f6;font-size:8px;">●</span> Fully responsive</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MOCKUP -->
+    <section style="padding: 0 1.5rem 80px; max-width:1100px; margin:0 auto;">
+        <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:20px; padding:1.5rem; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--accent), #7c3aed);"></div>
+            <!-- Mini dashboard mockup -->
+            <div style="display:grid; grid-template-columns:180px 1fr; gap:1rem; min-height:320px;">
+                <!-- Fake sidebar -->
+                <div style="background:var(--bg-card2); border-radius:12px; padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                        <div style="width:24px;height:24px;background:var(--accent);border-radius:6px;"></div>
+                        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;">FinTrack</span>
+                    </div>
+                    <div style="background:var(--accent);border-radius:6px;padding:0.4rem 0.6rem;font-size:0.72rem;font-weight:600;color:white;">▪ Dashboard</div>
+                    <div style="padding:0.4rem 0.6rem;font-size:0.72rem;color:var(--text-secondary-dark);">Transactions</div>
+                    <div style="padding:0.4rem 0.6rem;font-size:0.72rem;color:var(--text-secondary-dark);">Budget</div>
+                    <div style="padding:0.4rem 0.6rem;font-size:0.72rem;color:var(--text-secondary-dark);">Investments</div>
+                    <div style="padding:0.4rem 0.6rem;font-size:0.72rem;color:var(--text-secondary-dark);">Debt</div>
+                    <div style="padding:0.4rem 0.6rem;font-size:0.72rem;color:var(--text-secondary-dark);">Savings</div>
+                </div>
+                <!-- Fake content -->
+                <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+                        <div class="mockup-card">
+                            <div style="font-size:0.65rem;color:var(--text-secondary-dark);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.08em;">Balance</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;">₦248K</div>
+                            <div style="font-size:0.65rem;color:#22c55e;margin-top:0.1rem;">▲ 12.4%</div>
+                        </div>
+                        <div class="mockup-card">
+                            <div style="font-size:0.65rem;color:var(--text-secondary-dark);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.08em;">Spent</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;">₦52K</div>
+                            <div style="font-size:0.65rem;color:var(--accent);margin-top:0.1rem;">▼ 3.1%</div>
+                        </div>
+                        <div class="mockup-card">
+                            <div style="font-size:0.65rem;color:var(--text-secondary-dark);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.08em;">Savings</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;">₦84K</div>
+                            <div style="font-size:0.65rem;color:#22c55e;margin-top:0.1rem;">▲ 8.7%</div>
+                        </div>
+                        <div class="mockup-card">
+                            <div style="font-size:0.65rem;color:var(--text-secondary-dark);margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.08em;">Budget</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;">₦120K</div>
+                            <div style="font-size:0.65rem;color:#fbbf24;margin-top:0.1rem;">● On track</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;flex:1;">
+                        <div class="mockup-card" style="display:flex;flex-direction:column;gap:0.5rem;">
+                            <div style="font-size:0.7rem;font-weight:600;margin-bottom:0.25rem;">Recent Transactions</div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;">
+                                <span style="color:var(--text-secondary-dark);">Netflix</span>
+                                <span style="color:var(--accent);">-₦5,000</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;">
+                                <span style="color:var(--text-secondary-dark);">Salary</span>
+                                <span style="color:#22c55e;">+₦180,000</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;">
+                                <span style="color:var(--text-secondary-dark);">Grocery</span>
+                                <span style="color:var(--accent);">-₦12,400</span>
+                            </div>
+                        </div>
+                        <div class="mockup-card" style="display:flex;flex-direction:column;">
+                            <div style="font-size:0.7rem;font-weight:600;margin-bottom:0.5rem;">Spending Chart</div>
+                            <div style="display:flex;align-items:flex-end;gap:4px;flex:1;padding-bottom:4px;">
+                                <div class="bar dim" style="height:40%;flex:1;"></div>
+                                <div class="bar" style="height:60%;flex:1;"></div>
+                                <div class="bar dim" style="height:35%;flex:1;"></div>
+                                <div class="bar" style="height:75%;flex:1;"></div>
+                                <div class="bar dim" style="height:50%;flex:1;"></div>
+                                <div class="bar" style="height:85%;flex:1;opacity:0.6;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section style="padding:0 1.5rem 100px; max-width:1100px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:3rem;">
+            <h2 style="font-size:2rem; margin-bottom:0.75rem;">Everything you need to<br />manage your money</h2>
+            <p style="color:var(--text-secondary-dark); font-size:0.95rem;">Powerful tools, beautifully organized.</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.25rem;">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Budget Tracking</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">Set monthly budgets per category and get real-time visual feedback on your spending progress.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Investment Portfolio</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">Track stocks, bonds, and real estate. Understand your asset allocation and portfolio performance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Savings Goals</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">Create short and long-term savings goals, track progress visually, and stay motivated to save.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Debt Management</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">Track loans and debts, set payment reminders, and see projected payoff timelines at a glance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Spending Insights</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">Visual charts and trend analysis help you understand where your money goes and how to optimize.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055" /></svg>
+                </div>
+                <h3 style="font-size:1rem; margin-bottom:0.4rem;">Financial Education</h3>
+                <p style="font-size:0.85rem; color:var(--text-secondary-dark); line-height:1.6;">In-app resources, calculators, and tips to improve your financial literacy and decision making.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding:0 1.5rem 100px; max-width:700px; margin:0 auto; text-align:center;">
+        <div style="background:var(--bg-card); border:1px solid rgba(244,63,94,0.2); border-radius:20px; padding:3rem 2rem; position:relative; overflow:hidden;">
+            <div style="position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(244,63,94,0.08), transparent 60%); pointer-events:none;"></div>
+            <h2 style="font-size:1.75rem; margin-bottom:0.75rem;">Ready to take control?</h2>
+            <p style="color:var(--text-secondary-dark); margin-bottom:1.75rem; font-size:0.95rem;">Start managing your finances smarter today. It's free.</p>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary" style="font-size:0.95rem; padding:0.75rem 2rem;">
+                Create Free Account →
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer style="border-top:1px solid var(--border-dark); padding:1.5rem; text-align:center; font-size:0.8rem; color:var(--text-secondary-dark);">
+        © 2025 FinTrack. Built by <a style="color: var(--accent)" href="https://syed-hamza.vercel.app">Syed Hamza Imran</a>.
+    </footer>
+
+    <script src="~/js/icons.js"></script>
+    <script src="~/js/animations.js"></script>
+    <script src="~/js/main.js"></script>
 </body>
 </html>
