@@ -1,111 +1,90 @@
-// ── Theme Toggle ──
-const html = document.documentElement;
-const body = document.body;
+document.addEventListener('DOMContentLoaded', function () {
 
-function getTheme() {
-  return localStorage.getItem('theme') || 'dark';
-}
+    // ── Theme Toggle ──────────────────────────────────────
+    const body = document.body;
+    const themeBtn = document.querySelector('.theme-toggle-btn');
+    const lightIcon = document.querySelector('.theme-icon-light');
+    const darkIcon = document.querySelector('.theme-icon-dark');
 
-function applyTheme(theme) {
-  if (theme === 'light') {
-    body.classList.add('light');
-  } else {
-    body.classList.remove('light');
-  }
-  // Update all theme toggle icons
-  document.querySelectorAll('.theme-icon-dark').forEach(el => {
-    el.style.display = theme === 'dark' ? 'none' : 'block';
-  });
-  document.querySelectorAll('.theme-icon-light').forEach(el => {
-    el.style.display = theme === 'light' ? 'none' : 'block';
-  });
-}
-
-function toggleTheme() {
-  const current = getTheme();
-  const next = current === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('theme', next);
-  applyTheme(next);
-}
-
-// ── Sidebar Toggle (mobile) ──
-function initSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.querySelector('.sidebar-overlay');
-  const hamburger = document.querySelector('.hamburger');
-
-  if (!sidebar) return;
-
-  hamburger?.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('open');
-  });
-
-  overlay?.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-  });
-}
-
-// ── Active nav item ──
-function setActiveNav() {
-  const path = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
-    if (item.dataset.page === path) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        body.classList.add('light');
+        if (lightIcon) lightIcon.style.display = 'none';
+        if (darkIcon) darkIcon.style.display = '';
     }
-  });
-}
 
-// ── Animate elements on load ──
-function animateOnLoad() {
-  document.querySelectorAll('.card').forEach((card, i) => {
-    card.style.animationDelay = `${i * 0.04}s`;
-    card.classList.add('fade-up');
-  });
-}
-
-// ── GSAP Loader ──
-function loadGSAP(callback) {
-  if (window.gsap) { callback(); return; }
-
-  const scripts = [
-    'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js'
-  ];
-
-  let loaded = 0;
-  scripts.forEach(src => {
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = () => { if (++loaded === scripts.length) callback(); };
-    document.head.appendChild(s);
-  });
-}
-
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-  applyTheme(getTheme());
-  initSidebar();
-  setActiveNav();
-
-  // Theme toggle buttons
-  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-    btn.addEventListener('click', toggleTheme);
-  });
-
-  // Pre-load GSAP so it's available when layout.js calls initAllAnimations
-  loadGSAP(() => {
-    // For landing & auth pages (no layout.js), run animations directly
-    const isAppPage = !!document.getElementById('layout-root');
-    if (!isAppPage) {
-      const isAuth = !!document.querySelector('.auth-card') || !!document.querySelector('.auth-bg');
-      const type = isAuth ? 'auth' : 'landing';
-      if (window.initAllAnimations) initAllAnimations(type);
+    if (themeBtn) {
+        themeBtn.addEventListener('click', function () {
+            body.classList.toggle('light');
+            const isLight = body.classList.contains('light');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            if (lightIcon) lightIcon.style.display = isLight ? 'none' : '';
+            if (darkIcon) darkIcon.style.display = isLight ? '' : 'none';
+        });
     }
-    // App pages: animations are triggered inside initLayout() after DOM injection
-  });
+
+    // ── Sidebar Toggle (Desktop) ──────────────────────────
+    const sidebar = document.getElementById('sidebar');
+    const mainWrap = document.getElementById('mainWrap');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const tooltip = document.getElementById('navTooltip');
+
+    // Restore collapse state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed && sidebar) {
+        sidebar.classList.add('collapsed');
+        mainWrap?.classList.add('expanded');
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            const collapsed = sidebar.classList.toggle('collapsed');
+            mainWrap?.classList.toggle('expanded', collapsed);
+            localStorage.setItem('sidebarCollapsed', collapsed);
+            if (tooltip) tooltip.classList.remove('visible');
+        });
+    }
+
+    // ── Tooltip (collapsed sidebar only) ─────────────────
+    if (tooltip) {
+        const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-tooltip], .sidebar-footer .nav-item[data-tooltip]');
+
+        navItems.forEach(function (item) {
+            item.addEventListener('mouseenter', function () {
+                if (!sidebar?.classList.contains('collapsed')) return;
+
+                const label = item.getAttribute('data-tooltip');
+                tooltip.textContent = label;
+
+                const rect = item.getBoundingClientRect();
+                tooltip.style.top = (rect.top + rect.height / 2) + 'px';
+                tooltip.classList.add('visible');
+            });
+
+            item.addEventListener('mouseleave', function () {
+                tooltip.classList.remove('visible');
+            });
+
+            item.addEventListener('click', function () {
+                tooltip.classList.remove('visible');
+            });
+        });
+    }
+
+    // ── Mobile More Menu ──────────────────────────────────
+    const moreBtn = document.getElementById('moreBtn');
+    const moreMenu = document.getElementById('moreMenu');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    if (moreBtn && moreMenu) {
+        moreBtn.addEventListener('click', function () {
+            moreMenu.classList.toggle('open');
+            mobileOverlay?.classList.toggle('open');
+        });
+
+        mobileOverlay?.addEventListener('click', function () {
+            moreMenu.classList.remove('open');
+            mobileOverlay.classList.remove('open');
+        });
+    }
 });

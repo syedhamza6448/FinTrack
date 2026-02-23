@@ -4,10 +4,200 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] — FinTrack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="~/css/style.css" />
 </head>
 <body>
-    @RenderBody()
+
+    <div class="nav-tooltip" id="navTooltip"></div>
+
+    <div class="app-container">
+
+        <!-- ── Sidebar (Desktop + Tablet) ── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a asp-controller="Home" asp-action="Index" class="brand">
+                    <div class="logo-icon">₦</div>
+                    <span class="brand-name">FinTrack</span>
+                </a>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a asp-controller="Dashboard" asp-action="Index" data-tooltip="Dashboard"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a asp-controller="Transactions" asp-action="Index" data-tooltip="Transactions"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Transactions" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" /></svg>
+                    <span class="nav-label">Transactions</span>
+                </a>
+                <a asp-controller="Budget" asp-action="Index" data-tooltip="Budget"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Budget" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1-4h-4a1 1 0 00-1 1v4h6V4a1 1 0 00-1-1z" /></svg>
+                    <span class="nav-label">Budget</span>
+                </a>
+                <a asp-controller="Expenses" asp-action="Index" data-tooltip="Expenses"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Expenses" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    <span class="nav-label">Expenses</span>
+                </a>
+                <a asp-controller="Investments" asp-action="Index" data-tooltip="Investments"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Investments" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    <span class="nav-label">Investments</span>
+                </a>
+                <a asp-controller="Debt" asp-action="Index" data-tooltip="Debt"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Debt" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+                    <span class="nav-label">Debt</span>
+                </a>
+                <a asp-controller="Savings" asp-action="Index" data-tooltip="Savings"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Savings" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3" /><path d="M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z" /></svg>
+                    <span class="nav-label">Savings</span>
+                </a>
+                <a asp-controller="Reports" asp-action="Index" data-tooltip="Reports"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Reports" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    <span class="nav-label">Reports</span>
+                </a>
+                <a asp-controller="Notifications" asp-action="Index" data-tooltip="Notifications"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Notifications" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
+                    <span class="nav-label">Notifications</span>
+                </a>
+                <a asp-controller="Education" asp-action="Index" data-tooltip="Education"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Education" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
+                    <span class="nav-label">Education</span>
+                </a>
+                <a asp-controller="Settings" asp-action="Index" data-tooltip="Settings"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Settings" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+                    <span class="nav-label">Settings</span>
+                </a>
+                <a asp-controller="Home" asp-action="Sitemap" data-tooltip="Sitemap"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Sitemap" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="4" rx="1" /><rect x="16" y="3" width="6" height="4" rx="1" /><rect x="9" y="17" width="6" height="4" rx="1" /><path d="M5 7v4h14V7M12 11v6" /></svg>
+                    <span class="nav-label">Sitemap</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form asp-action="Logout" asp-controller="Account" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="nav-item" data-tooltip="Sign Out"
+                            style="width:100%;background:none;border:none;cursor:pointer;color:var(--accent);">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                        <span class="nav-label">Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- ── Main ── -->
+        <div class="main-wrap" id="mainWrap">
+
+            <div class="topbar">
+                <div class="topbar-title">@ViewData["Title"]</div>
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-left:auto;">
+                    <button class="icon-btn theme-toggle-btn" title="Toggle theme">
+                        <svg class="theme-icon-light" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg class="theme-icon-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                    <a asp-controller="Notifications" asp-action="Index" class="icon-btn" title="Notifications">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
+                    </a>
+                    <a asp-controller="Settings" asp-action="Index" class="icon-btn" title="Profile"
+                       style="width:34px;height:34px;border-radius:50%;background:var(--accent-glow);border:1px solid rgba(244,63,94,0.3);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </a>
+                </div>
+            </div>
+
+            <main class="main-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- ── Bottom Nav (Mobile only) ── -->
+    <nav class="bottom-nav">
+        <a asp-controller="Dashboard" asp-action="Index"
+           class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Dashboard" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+            Home
+        </a>
+        <a asp-controller="Transactions" asp-action="Index"
+           class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Transactions" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" /></svg>
+            Transactions
+        </a>
+        <a asp-controller="Budget" asp-action="Index"
+           class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Budget" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1-4h-4a1 1 0 00-1 1v4h6V4a1 1 0 00-1-1z" /></svg>
+            Budget
+        </a>
+        <a asp-controller="Notifications" asp-action="Index"
+           class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Notifications" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
+            Alerts
+        </a>
+        <button class="bottom-nav-item" id="moreBtn" style="background:none;border:none;cursor:pointer;color:var(--text-secondary-dark);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></svg>
+            More
+        </button>
+    </nav>
+
+    <!-- Mobile More Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-more-menu" id="moreMenu">
+        <a asp-controller="Expenses" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Expenses" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            Expenses
+        </a>
+        <a asp-controller="Investments" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Investments" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            Investments
+        </a>
+        <a asp-controller="Debt" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Debt" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
+            Debt
+        </a>
+        <a asp-controller="Savings" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Savings" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3" /><path d="M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z" /></svg>
+            Savings
+        </a>
+        <a asp-controller="Reports" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Reports" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            Reports
+        </a>
+        <a asp-controller="Education" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Education" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
+            Education
+        </a>
+        <a asp-controller="Settings" asp-action="Index" class="mobile-more-item @(ViewData["Title"]?.ToString() == "Settings" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+            Settings
+        </a>
+        <form asp-action="Logout" asp-controller="Account" method="post" style="display:contents;">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="mobile-more-item" style="background:rgba(244,63,94,0.08);color:var(--accent);border:none;cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                Sign Out
+            </button>
+        </form>
+    </div>
+
     <script src="~/js/icons.js"></script>
     <script src="~/js/animations.js"></script>
     <script src="~/js/main.js"></script>

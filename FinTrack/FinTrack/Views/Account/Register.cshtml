@@ -73,7 +73,7 @@
             <form asp-action="Register" asp-controller="Account" method="post" style="display:flex;flex-direction:column;gap:1rem;">
                 @Html.AntiForgeryToken()
 
-                <div asp-validation-summary="ModelOnly" style="color:var(--accent);font-size:0.85rem;padding:0.5rem;background:rgba(244,63,94,0.08);border-radius:8px;display:none;" id="validation-summary"></div>
+                <div asp-validation-summary="ModelOnly" style="color:var(--accent);font-size:0.85rem;padding:0.5rem;background:rgba(244,63,94,0.08);border-radius:8px;" id="validation-summary"></div>
 
                 <div class="grid-2">
                     <div>
