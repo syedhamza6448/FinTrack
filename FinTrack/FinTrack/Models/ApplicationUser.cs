@@ -18,7 +18,7 @@ namespace FinTrack.Models
         public ICollection<Budget> Budgets { get; set; }
         public ICollection<Investment> Investments { get; set; }
         public ICollection<Debt> Debts { get; set; }
-        public ICollection<SavingGoal> SavingGoals { get; set; }
+        public ICollection<SavingsGoal> SavingsGoals { get; set; }
         public ICollection<Notification> Notifications { get; set; }
 
 

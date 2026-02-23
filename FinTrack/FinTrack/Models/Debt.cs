@@ -8,6 +8,7 @@
         public string DebtType { get; set; }
         public decimal OriginalAmount { get; set; }
         public decimal RemainingBalance { get; set; }
+        public decimal MonthlyPayment { get; set; }
         public decimal InterestRate {  get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpectedPayoffDate { get; set; }
