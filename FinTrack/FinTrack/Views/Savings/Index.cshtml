@@ -1,0 +1,403 @@
+﻿@model FinTrack.Models.ViewModels.SavingsViewModel
+@{
+    ViewData["Title"] = "Savings";
+}
+
+<div class="page-header">
+    <h1>Savings Goals</h1>
+    <p>Set targets and track your progress</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.25rem;color:#22c55e;font-size:0.875rem;">
+        ✓ @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div style="background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.25rem;color:var(--accent);font-size:0.875rem;">
+        ✕ @TempData["Error"]
+    </div>
+}
+
+<!-- Summary Stats -->
+<div class="grid-4" style="margin-bottom:1.25rem;">
+    <div class="card stat-card">
+        <div class="stat-label">Total Saved</div>
+        <div class="stat-value" style="color:#22c55e;">₦@Model.TotalSaved.ToString("N0")</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Total Target</div>
+        <div class="stat-value">₦@Model.TotalTarget.ToString("N0")</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Active Goals</div>
+        <div class="stat-value">@Model.ActiveGoals</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="color:#22c55e;">@Model.CompletedGoals</div>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start;">
+
+    <!-- ── Goals List ── -->
+    <div>
+        @if (!Model.Goals.Any())
+        {
+            <div class="card" style="text-align:center;padding:3rem 1rem;color:var(--text-secondary-dark);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" style="margin:0 auto 1rem;display:block;opacity:0.4;"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3"/><path d="M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z"/></svg>
+                <p style="font-size:0.9rem;margin-bottom:0.25rem;">No savings goals yet</p>
+                <p style="font-size:0.8rem;">Create your first goal using the form</p>
+            </div>
+        }
+        else
+        {
+            <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                @foreach (var goal in Model.Goals)
+                {
+                    var pct = goal.TargetAmount > 0
+                        ? (int)Math.Min((goal.SavedAmount / goal.TargetAmount) * 100, 100)
+                        : 0;
+                    var daysLeft = goal.TargetDate.HasValue
+                    ? (int)(goal.TargetDate.Value - DateTime.Today).TotalDays
+                    : 0;
+
+                    <div class="card" style="border-left:3px solid @goal.Color;">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                <div style="width:40px;height:40px;border-radius:10px;background:@(goal.Color)22;display:flex;align-items:center;justify-content:center;color:@goal.Color;flex-shrink:0;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.95rem;">@goal.Name</div>
+                                    <div style="font-size:0.75rem;color:var(--text-secondary-dark);">
+                                        Target: @(goal.TargetDate.HasValue? goal.TargetDate.Value.ToString("MMM dd, yyyy") : "No date set")
+                                        @if (goal.Status == "Active")
+                                        {
+                                            if (daysLeft > 0)
+                                            {
+                                                <span> · @daysLeft days left</span>
+                                            }
+                                            else
+                                            {
+                                                <span style="color:var(--accent);"> · Overdue</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div style="display:flex;align-items:center;gap:0.5rem;">
+                                <span style="font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:99px;font-weight:600;
+                                    background:@(goal.Status == "Completed" ? "rgba(34,197,94,0.1)" : goal.Status == "Paused" ? "rgba(234,179,8,0.1)" : "rgba(59,130,246,0.1)");
+                                    color:@(goal.Status == "Completed" ? "#22c55e" : goal.Status == "Paused" ? "#eab308" : "#60a5fa");">
+                                    @goal.Status
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Progress -->
+                        <div style="margin-bottom:0.75rem;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.4rem;">
+                                <span style="color:var(--text-secondary-dark);">
+                                    ₦@goal.SavedAmount.ToString("N0") saved
+                                </span>
+                                <span style="font-weight:600;color:@goal.Color;">@pct%</span>
+                            </div>
+                            <div style="height:8px;background:var(--bg-card2);border-radius:99px;overflow:hidden;">
+                                <div style="height:100%;width:@(pct)%;background:@goal.Color;border-radius:99px;transition:width 0.6s ease;"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-secondary-dark);margin-top:0.3rem;">
+                                <span>₦0</span>
+                                <span>₦@goal.TargetAmount.ToString("N0")</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                            @if (goal.Status != "Completed")
+                            {
+                                <!-- Add Funds -->
+                                <button type="button"
+                                        onclick="openAddFunds(@goal.Id, '@goal.Name')"
+                                        style="font-size:0.78rem;padding:0.35rem 0.85rem;border-radius:7px;border:1px solid @goal.Color;color:@goal.Color;background:@(goal.Color)11;cursor:pointer;font-weight:600;">
+                                    + Add Funds
+                                </button>
+
+                                <!-- Pause / Resume -->
+                                <form asp-action="TogglePause" asp-controller="Savings" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@goal.Id" />
+                                    <button type="submit"
+                                            style="font-size:0.78rem;padding:0.35rem 0.85rem;border-radius:7px;border:1px solid var(--border-dark);color:var(--text-secondary-dark);background:none;cursor:pointer;">
+                                        @(goal.Status == "Paused" ? "▶ Resume" : "⏸ Pause")
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- Delete -->
+                            <form asp-action="Delete" asp-controller="Savings" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@goal.Id" />
+                                <button type="submit"
+                                        onclick="return confirm('Delete this goal?')"
+                                        style="font-size:0.78rem;padding:0.35rem 0.85rem;border-radius:7px;border:1px solid rgba(244,63,94,0.3);color:var(--accent);background:rgba(244,63,94,0.06);cursor:pointer;">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- ── Add Goal Form ── -->
+    <div class="card" style="position:sticky;top:76px;">
+        <h3 style="font-size:0.95rem;margin-bottom:1.25rem;">New Savings Goal</h3>
+
+        <form asp-action="Create" asp-controller="Savings" method="post"
+              style="display:flex;flex-direction:column;gap:1rem;">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 style="color:var(--accent);font-size:0.82rem;padding:0.5rem;background:rgba(244,63,94,0.08);border-radius:8px;">
+            </div>
+
+            <div>
+                <label class="input-label" asp-for="NewGoal.Name">Goal Name</label>
+                <input asp-for="NewGoal.Name" class="input-field" placeholder="e.g. Vacation Fund" />
+                <span asp-validation-for="NewGoal.Name" style="color:var(--accent);font-size:0.78rem;"></span>
+            </div>
+
+            <div>
+                <label class="input-label" asp-for="NewGoal.TargetAmount">Target Amount (₦)</label>
+                <input asp-for="NewGoal.TargetAmount" class="input-field" type="number"
+                       placeholder="0.00" step="0.01" min="1" />
+                <span asp-validation-for="NewGoal.TargetAmount" style="color:var(--accent);font-size:0.78rem;"></span>
+            </div>
+
+            <div>
+                <label class="input-label" asp-for="NewGoal.SavedAmount">Already Saved (₦)</label>
+                <input asp-for="NewGoal.SavedAmount" class="input-field" type="number"
+                       placeholder="0.00" step="0.01" min="0" value="0" />
+            </div>
+
+            <div>
+                <label class="input-label" asp-for="NewGoal.TargetDate">Target Date</label>
+                <input asp-for="NewGoal.TargetDate" class="input-field" type="date"
+                       value="@DateTime.Today.AddMonths(6).ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="NewGoal.TargetDate" style="color:var(--accent);font-size:0.78rem;"></span>
+            </div>
+
+            <!-- Icon Picker -->
+            <div>
+                <label class="input-label">Icon</label>
+                <input asp-for="NewGoal.Icon" type="hidden" id="goalIcon" value="target" />
+                <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:0.4rem;background:var(--bg-card2);border:1px solid var(--border-dark);border-radius:10px;padding:0.6rem;">
+                    @{
+                        var goalIcons = new[]
+                        {
+                                        ("target",      "M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z"),
+                                        ("plane",       "M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"),
+                                        ("home",        "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"),
+                                        ("car",         "M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2m-1 0a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z"),
+                                        ("graduationCap","M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5"),
+                                        ("heart",       "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"),
+                                        ("gift",        "M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"),
+                                        ("briefcase",   "M20 7H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"),
+                                        ("smartphone",  "M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zM12 18h.01"),
+                                        ("coffee",      "M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"),
+                                        ("dollarSign",  "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"),
+                                        ("trendUp",     "M23 6l-9.5 9.5-5-5L1 18"),
+                                        ("piggyBank",   "M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z"),
+                                        ("star",        "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"),
+                                        ("zap",         "M13 2L3 14h9l-1 8 10-12h-9l1-8z"),
+                                        ("sun",         "M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"),
+                                        ("music",       "M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z"),
+                                        ("book",        "M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14z"),
+                                        };
+                    }
+                    @foreach (var (name, path) in goalIcons)
+                    {
+                        <button type="button"
+                                onclick="selectGoalIcon('@name', this)"
+                                title="@name"
+                                data-gicon="@name"
+                                style="width:100%;aspect-ratio:1;border-radius:8px;border:1px solid var(--border-dark);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary-dark);transition:all 0.15s;"
+                                onmouseover="if(!this.classList.contains('gicon-selected')){this.style.borderColor='var(--accent)';this.style.color='var(--accent)'}"
+                                onmouseout="if(!this.classList.contains('gicon-selected')){this.style.borderColor='var(--border-dark)';this.style.color='var(--text-secondary-dark)'}">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="@path" />
+                            </svg>
+                        </button>
+                    }
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-secondary-dark);margin-top:0.35rem;">
+                    Selected: <span id="goalIconLabel" style="color:var(--accent);font-weight:600;">target</span>
+                </div>
+            </div>
+
+            <!-- Color Picker -->
+            <div>
+                <label class="input-label">Color</label>
+                <input asp-for="NewGoal.Color" type="hidden" id="goalColor" value="#22c55e" />
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+                    @{
+                        var colors = new[] { "#22c55e", "#3b82f6", "#f43f5e", "#eab308", "#8b5cf6", "#f97316", "#ec4899", "#14b8a6", "#64748b", "#94a3b8" };
+                    }
+                    @foreach (var color in colors)
+                    {
+                        <button type="button"
+                                onclick="selectGoalColor('@color', this)"
+                                data-gcolor="@color"
+                                style="width:26px;height:26px;border-radius:50%;background:@color;border:2px solid @(color == "#22c55e" ? "white" : "transparent");cursor:pointer;transition:all 0.15s;flex-shrink:0;"
+                                title="@color">
+                        </button>
+                    }
+                    <!-- Custom color picker -->
+                    <input type="color"
+                           id="goalColorCustom"
+                           value="#22c55e"
+                           style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border-dark);cursor:pointer;padding:1px;background:none;flex-shrink:0;"
+                           title="Custom color"
+                           onchange="selectGoalColorCustom(this.value)" />
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-secondary-dark);margin-top:0.35rem;">
+                    Selected: <span id="goalColorLabel" style="font-weight:600;color:#22c55e;">#22c55e</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary"
+                    style="width:100%;justify-content:center;padding:10px;border-radius:10px;">
+                + Create Goal
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<!-- ── Add Funds Modal ── -->
+<div id="addFundsModal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border:1px solid var(--border-dark);border-radius:16px;padding:1.75rem;width:100%;max-width:360px;margin:1rem;">
+        <h3 style="font-size:1rem;margin-bottom:0.25rem;">Add Funds</h3>
+        <p id="modalGoalName" style="font-size:0.82rem;color:var(--text-secondary-dark);margin-bottom:1.25rem;"></p>
+
+        <form asp-action="AddFunds" asp-controller="Savings" method="post"
+              style="display:flex;flex-direction:column;gap:1rem;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="GoalId" id="modalGoalId" />
+
+            <div>
+                <label class="input-label">Amount to Add (₦)</label>
+                <input type="number" name="Amount" class="input-field"
+                       placeholder="0.00" step="0.01" min="0.01" id="modalAmount" />
+            </div>
+
+            <div style="display:flex;gap:0.6rem;">
+                <button type="submit" class="btn-primary"
+                        style="flex:1;justify-content:center;padding:10px;border-radius:10px;">
+                    Add Funds
+                </button>
+                <button type="button" onclick="closeAddFunds()"
+                        style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border-dark);background:none;color:var(--text-secondary-dark);cursor:pointer;font-size:0.875rem;">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Add Funds Modal
+    function openAddFunds(goalId, goalName) {
+        document.getElementById('modalGoalId').value = goalId;
+        document.getElementById('modalGoalName').textContent = 'Adding funds to: ' + goalName;
+        document.getElementById('modalAmount').value = '';
+        const modal = document.getElementById('addFundsModal');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('modalAmount').focus(), 100);
+    }
+
+    function closeAddFunds() {
+        document.getElementById('addFundsModal').style.display = 'none';
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('addFundsModal').addEventListener('click', function (e) {
+        if (e.target === this) closeAddFunds();
+    });
+
+    // Color picker
+    function selectGoalColor(hex, btn) {
+        document.querySelectorAll('[data-gcolor]').forEach(function (b) {
+            b.style.borderColor = 'transparent';
+        });
+        btn.style.borderColor = 'white';
+        document.getElementById('goalColor').value = hex;
+    }
+            // Icon picker
+        function selectGoalIcon(name, btn) {
+            document.querySelectorAll('[data-gicon]').forEach(function (b) {
+                b.classList.remove('gicon-selected');
+                b.style.borderColor = 'var(--border-dark)';
+                b.style.color = 'var(--text-secondary-dark)';
+                b.style.background = 'none';
+            });
+            btn.classList.add('gicon-selected');
+            btn.style.borderColor = 'var(--accent)';
+            btn.style.color = 'var(--accent)';
+            btn.style.background = 'var(--accent-glow)';
+            document.getElementById('goalIcon').value = name;
+            document.getElementById('goalIconLabel').textContent = name;
+        }
+
+        // Color picker
+        function selectGoalColor(hex, btn) {
+            document.querySelectorAll('[data-gcolor]').forEach(function (b) {
+                b.style.borderColor = 'transparent';
+                b.style.transform = 'scale(1)';
+            });
+            btn.style.borderColor = 'white';
+            btn.style.transform = 'scale(1.2)';
+            document.getElementById('goalColor').value = hex;
+            document.getElementById('goalColorCustom').value = hex;
+            document.getElementById('goalColorLabel').textContent = hex;
+            document.getElementById('goalColorLabel').style.color = hex;
+        }
+
+        function selectGoalColorCustom(hex) {
+            document.querySelectorAll('[data-gcolor]').forEach(function (b) {
+                b.style.borderColor = 'transparent';
+                b.style.transform = 'scale(1)';
+            });
+            document.getElementById('goalColor').value = hex;
+            document.getElementById('goalColorLabel').textContent = hex;
+            document.getElementById('goalColorLabel').style.color = hex;
+        }
+
+        // Set defaults on load
+        document.addEventListener('DOMContentLoaded', function () {
+            const defaultIcon = document.querySelector('[data-gicon="target"]');
+            if (defaultIcon) {
+                defaultIcon.classList.add('gicon-selected');
+                defaultIcon.style.borderColor = 'var(--accent)';
+                defaultIcon.style.color = 'var(--accent)';
+                defaultIcon.style.background = 'var(--accent-glow)';
+            }
+            const defaultColor = document.querySelector('[data-gcolor="#22c55e"]');
+            if (defaultColor) {
+                defaultColor.style.borderColor = 'white';
+                defaultColor.style.transform = 'scale(1.2)';
+            }
+        });
+</script>
+}
