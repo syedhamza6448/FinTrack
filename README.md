@@ -313,12 +313,12 @@ Based on the project SRS, FinTrack implements the following:
 ## Roadmap
 
 - [x] Frontend UI template (HTML/CSS/JS — all 16 pages)
-- [ ] ASP.NET Core project setup (Empty template + MVC)
-- [ ] Razor Views migration from static HTML templates
-- [ ] EF Core models and `AppDbContext`
-- [ ] SQL Server database schema and migrations
-- [ ] ASP.NET Core Identity (registration, login, roles)
-- [ ] Controller logic and ViewModel data binding
+- [x] ASP.NET Core project setup (Empty template + MVC)
+- [x] Razor Views migration from static HTML templates
+- [x] EF Core models and `AppDbContext`
+- [x] SQL Server database schema and migrations
+- [x] ASP.NET Core Identity (registration, login, roles)
+- [x] Controller logic and ViewModel data binding
 - [ ] API endpoints for Chart.js dynamic data
 - [ ] Angular frontend — replaces Razor Views (future)
 - [ ] Deployment to IIS or Azure App Service
@@ -351,7 +351,7 @@ This project was created for educational purposes as part of the Aptech eProject
 
 ## Author
 
-**John Doe**
+**Syed Hamza Imran**
 Aptech Computer Education
 eProject Submission — 2025
 
