@@ -35,6 +35,11 @@
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
                     <span class="nav-label">Dashboard</span>
                 </a>
+                <a asp-controller="Categories" asp-action="Index" data-tooltip="Categories"
+                   class="nav-item @(ViewData["Title"]?.ToString() == "Categories" ? "active" : "")">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 3H3V7zM3 10h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9z" /></svg>
+                    <span class="nav-label">Categories</span>
+                </a>
                 <a asp-controller="Transactions" asp-action="Index" data-tooltip="Transactions"
                    class="nav-item @(ViewData["Title"]?.ToString() == "Transactions" ? "active" : "")">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" /></svg>
@@ -136,6 +141,11 @@
            class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Dashboard" ? "active" : "")">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
             Home
+        </a>
+        <a asp-controller="Categories" asp-action="Index"
+           class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Categories" ? "active" : "")">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 3H3V7zM3 10h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2v-9z" /></svg>
+            <span class="nav-label">Categories</span>
         </a>
         <a asp-controller="Transactions" asp-action="Index"
            class="bottom-nav-item @(ViewData["Title"]?.ToString() == "Transactions" ? "active" : "")">
