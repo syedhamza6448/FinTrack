@@ -1,0 +1,251 @@
+﻿@model FinTrack.Models.ViewModels.ReportsViewModel
+@{
+    ViewData["Title"] = "Reports";
+    var months = System.Globalization.CultureInfo.CurrentCulture
+        .DateTimeFormat.MonthNames.Take(12)
+        .Select((m, i) => new { Name = m, Value = i + 1 });
+    var monthName = System.Globalization.CultureInfo.CurrentCulture
+        .DateTimeFormat.GetMonthName(Model.SelectedMonth);
+}
+
+<div class="page-header">
+    <h1>Reports</h1>
+    <p>Financial overview and insights</p>
+</div>
+
+<!-- Month Selector -->
+<form method="get" asp-action="Index"
+      style="display:flex;gap:0.6rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <select name="month" class="input-field" style="width:auto;padding:0.35rem 0.75rem;font-size:0.82rem;">
+        @foreach (var m in months)
+        {
+            <option value="@m.Value" selected="@(Model.SelectedMonth == m.Value)">@m.Name</option>
+        }
+    </select>
+    <select name="year" class="input-field" style="width:auto;padding:0.35rem 0.75rem;font-size:0.82rem;">
+        @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--)
+        {
+            <option value="@y" selected="@(Model.SelectedYear == y)">@y</option>
+        }
+    </select>
+    <button type="submit" class="btn-primary"
+            style="padding:0.35rem 1rem;font-size:0.82rem;border-radius:8px;">
+        View Report
+    </button>
+</form>
+
+<!-- Summary Stats -->
+<div class="grid-4" style="margin-bottom:1.25rem;">
+    <div class="card stat-card">
+        <div class="stat-label">Total Income</div>
+        <div class="stat-value" style="color:#22c55e;">₦@Model.TotalIncome.ToString("N0")</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Total Expenses</div>
+        <div class="stat-value" style="color:var(--accent);">₦@Model.TotalExpenses.ToString("N0")</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Net Savings</div>
+        <div class="stat-value" style="color:@(Model.NetSavings >= 0 ? "#22c55e" : "var(--accent)");">
+            ₦@Model.NetSavings.ToString("N0")
+        </div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Savings Rate</div>
+        <div class="stat-value" style="color:@(Model.SavingsRate >= 20 ? "#22c55e" : Model.SavingsRate >= 10 ? "#eab308" : "var(--accent)");">
+            @Model.SavingsRate%
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+
+    <!-- Monthly Trend Chart -->
+    <div class="card">
+        <h3 style="font-size:0.9rem;margin-bottom:1rem;">6-Month Trend</h3>
+        <canvas id="trendChart" height="200"></canvas>
+    </div>
+
+    <!-- Spending Breakdown Doughnut -->
+    <div class="card">
+        <h3 style="font-size:0.9rem;margin-bottom:1rem;">Spending by Category — @monthName @Model.SelectedYear</h3>
+        @if (!Model.SpendingByCategory.Any())
+        {
+            <div style="text-align:center;padding:3rem 0;color:var(--text-secondary-dark);font-size:0.85rem;">
+                No expense data for this month
+            </div>
+        }
+        else
+        {
+            <div style="display:flex;gap:1rem;align-items:center;">
+                <div style="flex-shrink:0;width:160px;height:160px;">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:0.4rem;">
+                    @foreach (var cat in Model.SpendingByCategory)
+                    {
+                        <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.78rem;">
+                            <div style="display:flex;align-items:center;gap:0.4rem;">
+                                <span style="width:8px;height:8px;border-radius:50%;background:@cat.Color;flex-shrink:0;"></span>
+                                <span>@cat.CategoryName</span>
+                            </div>
+                            <div style="display:flex;gap:0.75rem;">
+                                <span style="color:var(--text-secondary-dark);">@cat.Percentage%</span>
+                                <span style="font-weight:600;">₦@cat.Amount.ToString("N0")</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Bottom Row -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+
+    <!-- Top Expenses -->
+    <div class="card">
+        <h3 style="font-size:0.9rem;margin-bottom:1rem;">Top Expenses — @monthName @Model.SelectedYear</h3>
+        @if (!Model.TopExpenses.Any())
+        {
+            <p style="color:var(--text-secondary-dark);font-size:0.85rem;text-align:center;padding:1.5rem 0;">
+                No expenses recorded this month
+            </p>
+        }
+        else
+        {
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                @foreach (var (tx, index) in Model.TopExpenses.Select((t, i) => (t, i + 1)))
+                {
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <span style="width:22px;height:22px;border-radius:50%;background:var(--bg-card2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--text-secondary-dark);flex-shrink:0;">
+                            @index
+                        </span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                @tx.Description
+                            </div>
+                            <div style="font-size:0.72rem;color:var(--text-secondary-dark);">
+                                @tx.Category?.Name · @tx.Date.ToString("MMM dd")
+                            </div>
+                        </div>
+                        <span style="font-weight:600;font-size:0.85rem;color:var(--accent);flex-shrink:0;">
+                            ₦@tx.Amount.ToString("N0")
+                        </span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Budget Performance -->
+    <div class="card">
+        <h3 style="font-size:0.9rem;margin-bottom:1rem;">Budget Performance — @monthName @Model.SelectedYear</h3>
+        @if (!Model.BudgetPerformances.Any())
+        {
+            <p style="color:var(--text-secondary-dark);font-size:0.85rem;text-align:center;padding:1.5rem 0;">
+                No budgets set for this month
+            </p>
+        }
+        else
+        {
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                @foreach (var bp in Model.BudgetPerformances.OrderByDescending(b => b.PercentUsed))
+                {
+                    var barColor = bp.IsOverBudget ? "#f43f5e" : bp.PercentUsed >= 75 ? "#eab308" : "#22c55e";
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:0.3rem;">
+                            <div style="display:flex;align-items:center;gap:0.4rem;">
+                                <span style="width:7px;height:7px;border-radius:50%;background:@bp.Color;"></span>
+                                <span>@bp.CategoryName</span>
+                            </div>
+                            <div style="display:flex;gap:0.75rem;">
+                                <span style="color:var(--text-secondary-dark);">₦@bp.Spent.ToString("N0") / ₦@bp.Budgeted.ToString("N0")</span>
+                                <span style="font-weight:600;color:@barColor;">@bp.PercentUsed%</span>
+                            </div>
+                        </div>
+                        <div style="height:6px;background:var(--bg-card2);border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:@(bp.PercentUsed)%;background:@barColor;border-radius:99px;"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ── Trend Chart ──────────────────────────────────────
+        const trendLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    Model.MonthlyTrends.Select(t => t.MonthLabel)));
+    const trendIncome = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.MonthlyTrends.Select(t => t.Income)));
+    const trendExpenses = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.MonthlyTrends.Select(t => t.Expenses)));
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: {
+            labels: trendLabels,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: trendIncome,
+                    backgroundColor: 'rgba(34,197,94,0.7)',
+                    borderRadius: 5
+                },
+                {
+                    label: 'Expenses',
+                    data: trendExpenses,
+                    backgroundColor: 'rgba(244,63,94,0.7)',
+                    borderRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+            scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+
+        // ── Doughnut Chart ───────────────────────────────────
+    @if (Model.SpendingByCategory.Any())
+        {
+                <text>
+                const doughnutLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                Model.SpendingByCategory.Select(c => c.CategoryName)));
+        const doughnutData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        Model.SpendingByCategory.Select(c => c.Amount)));
+        const doughnutColors = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        Model.SpendingByCategory.Select(c => c.Color)));
+
+        new Chart(document.getElementById('doughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: doughnutLabels,
+                datasets: [{
+                    data: doughnutData,
+                    backgroundColor: doughnutColors,
+                    borderWidth: 2,
+                    borderColor: 'var(--bg-card)'
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+        </text>
+        }
+    </script>
+}
