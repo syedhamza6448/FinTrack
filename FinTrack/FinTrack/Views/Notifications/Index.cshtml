@@ -1,0 +1,182 @@
+﻿@model FinTrack.Models.ViewModels.NotificationsViewModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+    <div>
+        <h1>Notifications</h1>
+        <p>Alerts and insights based on your financial activity</p>
+    </div>
+    <div style="display:flex;gap:0.6rem;">
+        @if (Model.UnreadCount > 0)
+        {
+            <form asp-action="MarkAllRead" asp-controller="Notifications" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-primary"
+                        style="padding:0.5rem 1rem;font-size:0.82rem;border-radius:8px;">
+                    ✓ Mark All Read
+                </button>
+            </form>
+        }
+        <form asp-action="Refresh" asp-controller="Notifications" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit"
+                    style="padding:0.5rem 1rem;font-size:0.82rem;border-radius:8px;border:1px solid var(--border-dark);background:none;color:var(--text-secondary-dark);cursor:pointer;">
+                ↻ Refresh
+            </button>
+        </form>
+        @if (Model.TotalCount > 0)
+        {
+            <form asp-action="ClearAll" asp-controller="Notifications" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        onclick="return confirm('Clear all notifications?')"
+                        style="padding:0.5rem 1rem;font-size:0.82rem;border-radius:8px;border:1px solid var(--border-dark);background:none;color:var(--text-secondary-dark);cursor:pointer;">
+                    Clear All
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1.25rem;color:#22c55e;font-size:0.875rem;">
+        ✓ @TempData["Success"]
+    </div>
+}
+
+<!-- Stats -->
+<div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+    <div class="card stat-card" style="flex:1;min-width:140px;">
+        <div class="stat-label">Unread</div>
+        <div class="stat-value" style="color:@(Model.UnreadCount > 0 ? "var(--accent)" : "#22c55e");">
+            @Model.UnreadCount
+        </div>
+    </div>
+    <div class="card stat-card" style="flex:1;min-width:140px;">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">@Model.TotalCount</div>
+    </div>
+</div>
+
+@if (!Model.Notifications.Any())
+{
+    <div class="card" style="text-align:center;padding:3rem 1rem;color:var(--text-secondary-dark);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"
+             style="margin:0 auto 1rem;display:block;opacity:0.4;">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
+        </svg>
+        <p style="font-size:0.9rem;margin-bottom:0.25rem;">No notifications yet</p>
+        <p style="font-size:0.8rem;">Notifications are generated automatically based on your financial activity</p>
+    </div>
+}
+else
+{
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        @foreach (var n in Model.Notifications)
+        {
+            var severityColor = n.Severity == "danger" ? "#f43f5e"
+            : n.Severity == "warning" ? "#eab308"
+            : n.Severity == "success" ? "#22c55e"
+            : "#3b82f6";
+
+            var severityBg = n.Severity == "danger" ? "rgba(244,63,94,0.06)"
+            : n.Severity == "warning" ? "rgba(234,179,8,0.06)"
+            : n.Severity == "success" ? "rgba(34,197,94,0.06)"
+            : "rgba(59,130,246,0.06)";
+
+            var icon = n.Severity == "danger" || n.Severity == "warning"
+            ? "M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            : n.Severity == "success"
+            ? "M22 11.08V12a10 10 0 11-5.93-9.14M22 4L12 14.01l-3-3"
+            : "M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0";
+
+            <div style="background:@(n.IsRead ? "var(--bg-card)" : severityBg);border:1px solid @(n.IsRead ? "var(--border-dark)" : severityColor + "44");border-radius:12px;padding:1rem;display:flex;align-items:flex-start;gap:0.75rem;transition:all 0.2s;">
+
+                <!-- Icon -->
+                <div style="width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:@(severityColor)18;color:@severityColor;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="@icon" />
+                    </svg>
+                </div>
+
+                <!-- Content -->
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;flex-wrap:wrap;">
+
+                        <!-- Title with custom tooltip -->
+                        <span class="has-tooltip"
+                              style="font-weight:600;font-size:0.875rem;cursor:default;position:relative;">
+                            @n.Title
+                            <span class="tooltip-box"
+                                  style="display:none;position:absolute;bottom:calc(100% + 6px);left:0;background:var(--bg-card);border:1px solid var(--border-dark);border-radius:8px;padding:0.4rem 0.65rem;font-size:0.75rem;font-weight:400;color:var(--text-secondary-dark);white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:50;pointer-events:none;">
+                                @n.Title
+                            </span>
+                        </span>
+
+                        @if (!n.IsRead)
+                        {
+                            <span style="width:7px;height:7px;border-radius:50%;background:@severityColor;flex-shrink:0;"></span>
+                        }
+
+                        <span style="font-size:0.7rem;padding:0.1rem 0.45rem;border-radius:99px;background:@(severityColor)18;color:@severityColor;font-weight:600;text-transform:uppercase;">
+                            @n.Type
+                        </span>
+                    </div>
+
+                    <p style="font-size:0.82rem;color:var(--text-secondary-dark);margin-bottom:0.35rem;">
+                        @n.Message
+                    </p>
+
+                    <span style="font-size:0.72rem;color:var(--text-secondary-dark);">
+                        @n.CreatedAt.ToString("MMM dd, yyyy · hh:mm tt")
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex;gap:0.4rem;flex-shrink:0;">
+                    @if (!n.IsRead)
+                    {
+                        <form asp-action="MarkRead" asp-controller="Notifications" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@n.Id" />
+                            <button type="submit" title="Mark as read"
+                                    style="background:none;border:1px solid var(--border-dark);border-radius:7px;padding:0.3rem 0.5rem;cursor:pointer;color:var(--text-secondary-dark);font-size:0.75rem;"
+                                    onmouseover="this.style.borderColor='#22c55e';this.style.color='#22c55e'"
+                                    onmouseout="this.style.borderColor='var(--border-dark)';this.style.color='var(--text-secondary-dark)'">
+                                ✓
+                            </button>
+                        </form>
+                    }
+                    <form asp-action="Delete" asp-controller="Notifications" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@n.Id" />
+                        <button type="submit" title="Delete"
+                                style="background:none;border:1px solid var(--border-dark);border-radius:7px;padding:0.3rem 0.5rem;cursor:pointer;color:var(--text-secondary-dark);font-size:0.75rem;"
+                                onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+                                onmouseout="this.style.borderColor='var(--border-dark)';this.style.color='var(--text-secondary-dark)'">
+                            ✕
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.has-tooltip').forEach(function (el) {
+            el.addEventListener('mouseenter', function () {
+                this.querySelector('.tooltip-box').style.display = 'block';
+            });
+            el.addEventListener('mouseleave', function () {
+                this.querySelector('.tooltip-box').style.display = 'none';
+            });
+        });
+    </script>
+}

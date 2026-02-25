@@ -3,6 +3,54 @@
     ViewData["Title"] = "Dashboard";
 }
 
+<style>
+    .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .grid-4 {
+            grid-template-columns: 1fr;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
 <div class="page-header">
     <h1>Dashboard</h1>
     <p>Welcome back, @Model.UserFirstName — here's your financial overview</p>
@@ -13,37 +61,41 @@
     <div class="card stat-card">
         <div class="stat-label">Total Balance</div>
         <div class="stat-value">₦@Model.TotalBalance.ToString("N0")</div>
-        <div class="stat-change up">▲ 12.4% this month</div>
+        <div class="stat-change" style="color:@(Model.TotalBalance >= 0 ? "#22c55e" : "var(--accent)");">
+            @(Model.TotalBalance >= 0 ? "▲ Positive balance" : "▼ Negative balance")
+        </div>
     </div>
     <div class="card stat-card">
         <div class="stat-label">Monthly Spent</div>
         <div class="stat-value">₦@Model.MonthlySpending.ToString("N0")</div>
-        <div class="stat-change down">▼ 3.1% vs last month</div>
+        <div class="stat-change" style="color:var(--text-secondary-dark);">This month</div>
     </div>
     <div class="card stat-card">
         <div class="stat-label">Total Savings</div>
         <div class="stat-value">₦@Model.TotalSavings.ToString("N0")</div>
-        <div class="stat-change up">▲ 8.7% this month</div>
+        <div class="stat-change" style="color:#22c55e;">Across all goals</div>
     </div>
     <div class="card stat-card">
         <div class="stat-label">Monthly Budget</div>
         <div class="stat-value">₦@Model.TotalBudget.ToString("N0")</div>
-        <div class="stat-change" style="color:#fbbf24;">43% remaining</div>
+        @{
+            var budgetUsedPct = Model.TotalBudget > 0
+            ? (int)Math.Min((Model.MonthlySpending / Model.TotalBudget) * 100, 100)
+            : 0;
+        }
+        <div class="stat-change" style="color:@(budgetUsedPct >= 100 ? "var(--accent)" : budgetUsedPct >= 75 ? "#eab308" : "#22c55e");">
+            @(100 - budgetUsedPct)% remaining
+        </div>
     </div>
 </div>
 
 <!-- Row 2 -->
-<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+<div class="grid-2" style="margin-bottom:1.25rem;">
 
     <!-- Spending Chart -->
     <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-            <h3 style="font-size:0.95rem;">Spending Overview</h3>
-            <select class="input-field" style="width:auto;padding:0.3rem 0.6rem;font-size:0.78rem;">
-                <option>Last 6 months</option>
-                <option>Last 3 months</option>
-                <option>This year</option>
-            </select>
+            <h3 style="font-size:0.95rem;">Spending Overview — Last 6 Months</h3>
         </div>
         <canvas id="spendingChart" height="160"></canvas>
     </div>
@@ -52,7 +104,8 @@
     <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
             <h3 style="font-size:0.95rem;">Recent Transactions</h3>
-            <a asp-controller="Transactions" asp-action="Index" style="font-size:0.78rem;color:var(--accent);">View all</a>
+            <a asp-controller="Transactions" asp-action="Index"
+               style="font-size:0.78rem;color:var(--accent);">View all</a>
         </div>
 
         @if (!Model.RecentTransactions.Any())
@@ -72,11 +125,18 @@
                                             color:@(tx.Type == "Income" ? "#22c55e" : "var(--accent)");">
                             @if (tx.Type == "Income")
                             {
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="1" x2="12" y2="23" />
+                                    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                                </svg>
                             }
                             else
                             {
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.57l1.65-8.42H6" /></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="9" cy="21" r="1" />
+                                    <circle cx="20" cy="21" r="1" />
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.57l1.65-8.42H6" />
+                                </svg>
                             }
                         </div>
                         <div>
@@ -96,13 +156,14 @@
 </div>
 
 <!-- Row 3 -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;">
+<div class="grid-3">
 
     <!-- Budget Status -->
     <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
             <h3 style="font-size:0.95rem;">Budget Status</h3>
-            <a asp-controller="Budget" asp-action="Index" style="font-size:0.78rem;color:var(--accent);">Details</a>
+            <a asp-controller="Budget" asp-action="Index"
+               style="font-size:0.78rem;color:var(--accent);">Details</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.875rem;">
             @if (!Model.Budgets.Any())
@@ -118,16 +179,21 @@
                     var spent = Model.RecentTransactions
                     .Where(t => t.CategoryId == budget.CategoryId && t.Type == "Expense")
                     .Sum(t => t.Amount);
-                    var pct = budget.Amount > 0 ? (int)Math.Min((spent / budget.Amount) * 100, 100) : 0;
-                    var barColor = pct >= 100 ? "var(--accent)" : pct >= 75 ? "#eab308" : "#22c55e";
+                    var pct = budget.Amount > 0
+                    ? (int)Math.Min((spent / budget.Amount) * 100, 100) : 0;
+                    var barColor = pct >= 100 ? "var(--accent)"
+                    : pct >= 75 ? "#eab308" : "#22c55e";
 
                     <div>
                         <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.35rem;">
                             <span>@budget.Category?.Name</span>
-                            <span style="color:var(--text-secondary-dark);">₦@spent.ToString("N0") / ₦@budget.Amount.ToString("N0")</span>
+                            <span style="color:var(--text-secondary-dark);">
+                                ₦@spent.ToString("N0") / ₦@budget.Amount.ToString("N0")
+                            </span>
                         </div>
                         <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:@(pct)%;background:@barColor;"></div>
+                            <div class="progress-bar-fill"
+                                 style="width:@(pct)%;background:@barColor;"></div>
                         </div>
                     </div>
                 }
@@ -139,7 +205,8 @@
     <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
             <h3 style="font-size:0.95rem;">Savings Goals</h3>
-            <a asp-controller="Savings" asp-action="Index" style="font-size:0.78rem;color:var(--accent);">All goals</a>
+            <a asp-controller="Savings" asp-action="Index"
+               style="font-size:0.78rem;color:var(--accent);">All goals</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.875rem;">
             @if (!Model.SavingsGoals.Any())
@@ -153,9 +220,9 @@
                 @foreach (var goal in Model.SavingsGoals)
                 {
                     var pct = goal.TargetAmount > 0
-                    ? (int)Math.Min((goal.SavedAmount / goal.TargetAmount) * 100, 100)
-                    : 0;
-                    var color = pct >= 75 ? "#22c55e" : pct >= 40 ? "#3b82f6" : "var(--accent)";
+                    ? (int)Math.Min((goal.SavedAmount / goal.TargetAmount) * 100, 100) : 0;
+                    var color = pct >= 75 ? "#22c55e"
+                    : pct >= 40 ? "#3b82f6" : "var(--accent)";
 
                     <div>
                         <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.35rem;">
@@ -163,7 +230,11 @@
                             <span style="color:@color;">@pct%</span>
                         </div>
                         <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:@(pct)%;background:@color;"></div>
+                            <div class="progress-bar-fill"
+                                 style="width:@(pct)%;background:@color;"></div>
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-secondary-dark);margin-top:0.2rem;">
+                            ₦@goal.SavedAmount.ToString("N0") of ₦@goal.TargetAmount.ToString("N0")
                         </div>
                     </div>
                 }
@@ -175,9 +246,19 @@
     <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
             <h3 style="font-size:0.95rem;">Expense Breakdown</h3>
-            <a asp-controller="Expenses" asp-action="Index" style="font-size:0.78rem;color:var(--accent);">Details</a>
+            <a asp-controller="Transactions" asp-action="Index"
+               style="font-size:0.78rem;color:var(--accent);">Details</a>
         </div>
-        <canvas id="expenseChart" height="130"></canvas>
+        @if (!Model.RecentTransactions.Any(t => t.Type == "Expense"))
+        {
+            <p style="color:var(--text-secondary-dark);font-size:0.82rem;text-align:center;padding:2rem 0;">
+                No expenses yet.
+            </p>
+        }
+        else
+        {
+            <canvas id="expenseChart" height="130"></canvas>
+        }
     </div>
 </div>
 
@@ -188,56 +269,115 @@
         const gridColor = () => isDark() ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
         const textColor = () => isDark() ? '#7c7c8a' : '#6b6b7b';
 
-        // Spending Chart
-        new Chart(document.getElementById('spendingChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Aug','Sep','Oct','Nov','Dec','Jan'],
-                datasets: [{
-                    label: 'Income',
-                    data: [180000,195000,172000,210000,188000,180000],
-                    backgroundColor: 'rgba(34,197,94,0.7)',
-                    borderRadius: 5, borderSkipped: false
-                },{
-                    label: 'Expenses',
-                    data: [48000,62000,55000,71000,58000,52000],
-                    backgroundColor: 'rgba(244,63,94,0.7)',
-                    borderRadius: 5, borderSkipped: false
-                }]
+        // ── Spending Chart (real data from model) ────────────
+        const spendingLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    Model.MonthlyTrends.Select(t => t.MonthLabel)));
+    const spendingIncome = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.MonthlyTrends.Select(t => t.Income)));
+    const spendingExpenses = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.MonthlyTrends.Select(t => t.Expenses)));
+
+    new Chart(document.getElementById('spendingChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: spendingLabels,
+            datasets: [{
+                label: 'Income',
+                data: spendingIncome,
+                backgroundColor: 'rgba(34,197,94,0.7)',
+                borderRadius: 5,
+                borderSkipped: false
+            }, {
+                label: 'Expenses',
+                data: spendingExpenses,
+                backgroundColor: 'rgba(244,63,94,0.7)',
+                borderRadius: 5,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor(),
+                        font: { family: 'Outfit', size: 11 },
+                        boxWidth: 10
+                    }
+                }
             },
-            options: {
-                responsive: true, maintainAspectRatio: true,
-                plugins: {
-                    legend: { labels: { color: textColor(), font: { family: 'Outfit', size: 11 }, boxWidth: 10 } }
+            scales: {
+                x: {
+                    grid: { color: gridColor() },
+                    ticks: { color: textColor(), font: { family: 'Outfit', size: 11 } }
                 },
-                scales: {
-                    x: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { family: 'Outfit', size: 11 } } },
-                    y: { grid: { color: gridColor() }, ticks: { color: textColor(), font: { family: 'Outfit', size: 11 }, callback: v => '₦' + (v/1000) + 'K' } }
+                y: {
+                    grid: { color: gridColor() },
+                    ticks: {
+                        color: textColor(),
+                        font: { family: 'Outfit', size: 11 },
+                        callback: v => '₦' + (v / 1000).toFixed(0) + 'K'
+                    }
                 }
             }
-        });
+        }
+    });
 
-        // Expense Doughnut
+        // ── Expense Doughnut (real data from recent transactions) ──
+    @{
+                var expenseGroups = Model.RecentTransactions
+                        .Where(t => t.Type == "Expense" && t.Category != null)
+                        .GroupBy(t => new { t.Category!.Name, t.Category.Color })
+                        .Select(g => new
+                        {
+                                Name = g.Key.Name,
+                                Color = g.Key.Color,
+                                Total = g.Sum(t => t.Amount)
+                        })
+                        .OrderByDescending(g => g.Total)
+                        .ToList();
+        }
+
+        @if (expenseGroups.Any())
+        {
+                <text>
+                const expenseLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                expenseGroups.Select(g => g.Name)));
+        const expenseData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        expenseGroups.Select(g => g.Total)));
+        const expenseColors = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        expenseGroups.Select(g => g.Color)));
+
         new Chart(document.getElementById('expenseChart').getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: ['Food','Transport','Entertainment','Utilities','Other'],
+                labels: expenseLabels,
                 datasets: [{
-                    data: [22000, 8500, 12000, 6000, 3800],
-                    backgroundColor: ['#f43f5e','#3b82f6','#eab308','#22c55e','#8b5cf6'],
-                    borderWidth: 0, hoverOffset: 4
+                    data: expenseData,
+                    backgroundColor: expenseColors,
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
-                cutout: '68%', responsive: true,
+                cutout: '68%',
+                responsive: true,
                 animation: { animateRotate: true, animateScale: true, duration: 1000 },
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { color: textColor(), font: { family: 'Outfit', size: 10 }, boxWidth: 8, padding: 8 }
+                        labels: {
+                            color: textColor(),
+                            font: { family: 'Outfit', size: 10 },
+                            boxWidth: 8,
+                            padding: 8
+                        }
                     }
                 }
             }
         });
+        </text>
+        }
     </script>
 }

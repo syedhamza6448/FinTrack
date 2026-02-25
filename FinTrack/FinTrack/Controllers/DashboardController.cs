@@ -60,6 +60,24 @@ namespace FinTrack.Controllers
                 .Include(b => b.Category)
                 .ToListAsync();
 
+            var trends = new List<MonthlyTrend>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var trendDate = new DateTime(now.Year, now.Month, 1).AddMonths(-i);
+                var trendTx = await _context.Transactions
+                    .Where(t => t.UserId == userId &&
+                                t.Date.Month == trendDate.Month &&
+                                t.Date.Year == trendDate.Year)
+                    .ToListAsync();
+
+                trends.Add(new MonthlyTrend
+                {
+                    MonthLabel = trendDate.ToString("MMM yy"),
+                    Income = trendTx.Where(t => t.Type == "Income").Sum(t => t.Amount),
+                    Expenses = trendTx.Where(t => t.Type == "Expense").Sum(t => t.Amount)
+                });
+            }
+
             var viewModel = new DashboardViewModel
             {
                 TotalBalance = totalIncome - totalExpenses,
@@ -69,6 +87,7 @@ namespace FinTrack.Controllers
                 RecentTransactions = recenetTransactions,
                 SavingsGoals = savingsGoals,
                 Budgets = budgets,
+                MonthlyTrends = trends,
                 UserFirstName = User.Identity?.Name?.Split('@')[0] ?? "User"
             };
 

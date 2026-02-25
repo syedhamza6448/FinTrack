@@ -13,5 +13,7 @@ namespace FinTrack.Models.ViewModels
         public List<Transaction> RecentTransactions { get; set; } = new();
         public List<SavingsGoal> SavingsGoals { get; set; } = new();
         public List<Budget> Budgets { get; set; } = new();
+
+        public List<MonthlyTrend> MonthlyTrends { get; set; } = new();
     }
 }
