@@ -3,6 +3,74 @@
     ViewData["Title"] = "Debt";
 }
 
+<style>
+    .debt-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .debt-form-sticky {
+        position: sticky;
+        top: 76px;
+    }
+
+    .debt-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .debt-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .debt-details-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .debt-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .debt-form-sticky {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .debt-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .debt-card-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .debt-remaining {
+            text-align: left !important;
+        }
+
+        .debt-details-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .debt-badges {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
 <div class="page-header">
     <h1>Debt Management</h1>
     <p>Track and pay off your debts strategically</p>
@@ -22,7 +90,7 @@
 }
 
 <!-- Summary Stats -->
-<div class="grid-4" style="margin-bottom:1.25rem;">
+<div class="debt-stats">
     <div class="card stat-card">
         <div class="stat-label">Total Debt</div>
         <div class="stat-value" style="color:var(--accent);">₦@Model.TotalDebt.ToString("N0")</div>
@@ -43,14 +111,18 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start;">
+<div class="debt-grid">
 
     <!-- ── Debt List ── -->
     <div>
         @if (!Model.Debts.Any())
         {
             <div class="card" style="text-align:center;padding:3rem 1rem;color:var(--text-secondary-dark);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" style="margin:0 auto 1rem;display:block;opacity:0.4;"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"
+                     style="margin:0 auto 1rem;display:block;opacity:0.4;">
+                    <rect x="1" y="4" width="22" height="16" rx="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
                 <p style="font-size:0.9rem;margin-bottom:0.25rem;">No debts tracked</p>
                 <p style="font-size:0.8rem;">Add a debt using the form to start tracking</p>
             </div>
@@ -61,16 +133,17 @@
                 @foreach (var item in Model.Debts)
                 {
                     var priorityColor = item.Debt.Priority == "High" ? "#f43f5e"
-                        : item.Debt.Priority == "Medium" ? "#eab308" : "#22c55e";
+                    : item.Debt.Priority == "Medium" ? "#eab308" : "#22c55e";
 
                     <div class="card" style="border-left:3px solid @priorityColor;">
+
                         <!-- Header -->
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+                        <div class="debt-card-header">
                             <div>
-                                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.25rem;">
+                                <div class="debt-badges" style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.25rem;">
                                     <span style="font-weight:600;font-size:0.95rem;">@item.Debt.Name</span>
                                     <span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;font-weight:600;
-                                        background:@(priorityColor)18;color:@priorityColor;">
+                                                background:@(priorityColor)18;color:@priorityColor;">
                                         @item.Debt.Priority
                                     </span>
                                     <span style="font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:99px;background:var(--bg-card2);border:1px solid var(--border-dark);color:var(--text-secondary-dark);">
@@ -89,7 +162,7 @@
                                     }
                                 </div>
                             </div>
-                            <div style="text-align:right;">
+                            <div class="debt-remaining" style="text-align:right;">
                                 <div style="font-size:0.75rem;color:var(--text-secondary-dark);">Remaining</div>
                                 <div style="font-weight:700;font-size:1rem;color:var(--accent);">
                                     ₦@item.Debt.RemainingBalance.ToString("N0")
@@ -115,7 +188,7 @@
                         </div>
 
                         <!-- Details row -->
-                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:0.75rem;">
+                        <div class="debt-details-grid">
                             <div style="background:var(--bg-card2);border-radius:8px;padding:0.5rem 0.75rem;">
                                 <div style="font-size:0.68rem;color:var(--text-secondary-dark);text-transform:uppercase;letter-spacing:0.05em;">Original</div>
                                 <div style="font-size:0.85rem;font-weight:600;">₦@item.Debt.OriginalAmount.ToString("N0")</div>
@@ -165,7 +238,7 @@
     </div>
 
     <!-- ── Add Debt Form ── -->
-    <div class="card" style="position:sticky;top:76px;">
+    <div class="card debt-form-sticky">
         <h3 style="font-size:0.95rem;margin-bottom:1.25rem;">Add Debt</h3>
 
         <form asp-action="Create" asp-controller="Debt" method="post"
@@ -202,10 +275,10 @@
                     @{
                         var priorities = new[]
                         {
-                            ("High", "#f43f5e"),
-                            ("Medium", "#eab308"),
-                            ("Low", "#22c55e")
-                        };
+                                        ("High", "#f43f5e"),
+                                        ("Medium", "#eab308"),
+                                        ("Low", "#22c55e")
+                                        };
                     }
                     @foreach (var (priority, pcolor) in priorities)
                     {
@@ -216,9 +289,9 @@
                             <div onclick="selectPriority('@priority')"
                                  id="pbtn_@priority"
                                  style="text-align:center;padding:0.4rem;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.15s;
-                                 border:1px solid @(priority == "Medium" ? pcolor : "var(--border-dark)");
-                                 background:@(priority == "Medium" ? pcolor + "18" : "none");
-                                 color:@(priority == "Medium" ? pcolor : "var(--text-secondary-dark)");">
+                                     border:1px solid @(priority == "Medium" ? pcolor : "var(--border-dark)");
+                                     background:@(priority == "Medium" ? pcolor + "18" : "none");
+                                     color:@(priority == "Medium" ? pcolor : "var(--text-secondary-dark)");">
                                 @priority
                             </div>
                         </label>
@@ -313,45 +386,43 @@
 </div>
 
 @section Scripts {
-<script>
-    // Priority toggle
-    const priorityColors = { 'High': '#f43f5e', 'Medium': '#eab308', 'Low': '#22c55e' };
+    <script>
+        const priorityColors = { 'High': '#f43f5e', 'Medium': '#eab308', 'Low': '#22c55e' };
 
-    function selectPriority(priority) {
-        ['High', 'Medium', 'Low'].forEach(function (p) {
-            const btn = document.getElementById('pbtn_' + p);
-            const radio = document.getElementById('priority_' + p);
-            const color = priorityColors[p];
-            if (p === priority) {
-                btn.style.border = '1px solid ' + color;
-                btn.style.background = color + '18';
-                btn.style.color = color;
-                radio.checked = true;
-            } else {
-                btn.style.border = '1px solid var(--border-dark)';
-                btn.style.background = 'none';
-                btn.style.color = 'var(--text-secondary-dark)';
-            }
+        function selectPriority(priority) {
+            ['High', 'Medium', 'Low'].forEach(function (p) {
+                const btn = document.getElementById('pbtn_' + p);
+                const radio = document.getElementById('priority_' + p);
+                const color = priorityColors[p];
+                if (p === priority) {
+                    btn.style.border = '1px solid ' + color;
+                    btn.style.background = color + '18';
+                    btn.style.color = color;
+                    radio.checked = true;
+                } else {
+                    btn.style.border = '1px solid var(--border-dark)';
+                    btn.style.background = 'none';
+                    btn.style.color = 'var(--text-secondary-dark)';
+                }
+            });
+        }
+
+        function openPayment(debtId, debtName, monthlyPayment) {
+            document.getElementById('paymentDebtId').value = debtId;
+            document.getElementById('paymentDebtName').textContent = 'Payment for: ' + debtName;
+            document.getElementById('paymentAmount').value = monthlyPayment;
+            document.getElementById('suggestedPayment').textContent = '₦' + Number(monthlyPayment).toLocaleString();
+            const modal = document.getElementById('paymentModal');
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('paymentAmount').focus(), 100);
+        }
+
+        function closePayment() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        document.getElementById('paymentModal').addEventListener('click', function (e) {
+            if (e.target === this) closePayment();
         });
-    }
-
-    // Payment modal
-    function openPayment(debtId, debtName, monthlyPayment) {
-        document.getElementById('paymentDebtId').value = debtId;
-        document.getElementById('paymentDebtName').textContent = 'Payment for: ' + debtName;
-        document.getElementById('paymentAmount').value = monthlyPayment;
-        document.getElementById('suggestedPayment').textContent = '₦' + Number(monthlyPayment).toLocaleString();
-        const modal = document.getElementById('paymentModal');
-        modal.style.display = 'flex';
-        setTimeout(() => document.getElementById('paymentAmount').focus(), 100);
-    }
-
-    function closePayment() {
-        document.getElementById('paymentModal').style.display = 'none';
-    }
-
-    document.getElementById('paymentModal').addEventListener('click', function (e) {
-        if (e.target === this) closePayment();
-    });
-</script>
+    </script>
 }

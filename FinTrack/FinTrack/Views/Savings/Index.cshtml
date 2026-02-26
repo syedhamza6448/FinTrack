@@ -3,6 +3,59 @@
     ViewData["Title"] = "Savings";
 }
 
+<style>
+    .savings-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .savings-form-sticky {
+        position: sticky;
+        top: 76px;
+    }
+
+    .savings-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .savings-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .savings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .savings-form-sticky {
+            position: static;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .savings-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .savings-card-header {
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .savings-status-badge {
+            align-self: flex-start;
+        }
+    }
+</style>
+
 <div class="page-header">
     <h1>Savings Goals</h1>
     <p>Set targets and track your progress</p>
@@ -22,7 +75,7 @@
 }
 
 <!-- Summary Stats -->
-<div class="grid-4" style="margin-bottom:1.25rem;">
+<div class="savings-stats">
     <div class="card stat-card">
         <div class="stat-label">Total Saved</div>
         <div class="stat-value" style="color:#22c55e;">₦@Model.TotalSaved.ToString("N0")</div>
@@ -41,14 +94,18 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start;">
+<div class="savings-grid">
 
     <!-- ── Goals List ── -->
     <div>
         @if (!Model.Goals.Any())
         {
             <div class="card" style="text-align:center;padding:3rem 1rem;color:var(--text-secondary-dark);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" style="margin:0 auto 1rem;display:block;opacity:0.4;"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3"/><path d="M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z"/></svg>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"
+                     style="margin:0 auto 1rem;display:block;opacity:0.4;">
+                    <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3" />
+                    <path d="M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z" />
+                </svg>
                 <p style="font-size:0.9rem;margin-bottom:0.25rem;">No savings goals yet</p>
                 <p style="font-size:0.8rem;">Create your first goal using the form</p>
             </div>
@@ -59,18 +116,45 @@
                 @foreach (var goal in Model.Goals)
                 {
                     var pct = goal.TargetAmount > 0
-                        ? (int)Math.Min((goal.SavedAmount / goal.TargetAmount) * 100, 100)
-                        : 0;
+                    ? (int)Math.Min((goal.SavedAmount / goal.TargetAmount) * 100, 100)
+                    : 0;
                     var daysLeft = goal.TargetDate.HasValue
                     ? (int)(goal.TargetDate.Value - DateTime.Today).TotalDays
                     : 0;
 
                     <div class="card" style="border-left:3px solid @goal.Color;">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+
+                        <div class="savings-card-header">
                             <div style="display:flex;align-items:center;gap:0.75rem;">
+                                @{
+                                    var iconPaths = new Dictionary<string, string>
+                                    {
+                                        ["target"] = "M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z",
+                                        ["plane"] = "M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z",
+                                        ["home"] = "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z",
+                                        ["car"] = "M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2m-1 0a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z",
+                                        ["graduationCap"] = "M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5",
+                                        ["heart"] = "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z",
+                                        ["gift"] = "M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z",
+                                        ["briefcase"] = "M20 7H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2",
+                                        ["smartphone"] = "M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zM12 18h.01",
+                                        ["coffee"] = "M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3",
+                                        ["dollarSign"] = "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6",
+                                        ["trendUp"] = "M23 6l-9.5 9.5-5-5L1 18",
+                                        ["piggyBank"] = "M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z",
+                                        ["star"] = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z",
+                                        ["zap"] = "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+                                        ["sun"] = "M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42",
+                                        ["music"] = "M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z",
+                                        ["book"] = "M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14z",
+                                    };
+                                    var iconPath = iconPaths.ContainsKey(goal.Icon ?? "target")
+                                    ? iconPaths[goal.Icon!]
+                                    : iconPaths["target"];
+                                }
                                 <div style="width:40px;height:40px;border-radius:10px;background:@(goal.Color)22;display:flex;align-items:center;justify-content:center;color:@goal.Color;flex-shrink:0;">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z" />
+                                        <path d="@iconPath" />
                                     </svg>
                                 </div>
                                 <div>
@@ -93,10 +177,10 @@
                             </div>
 
                             <!-- Status Badge -->
-                            <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <div class="savings-status-badge">
                                 <span style="font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:99px;font-weight:600;
-                                    background:@(goal.Status == "Completed" ? "rgba(34,197,94,0.1)" : goal.Status == "Paused" ? "rgba(234,179,8,0.1)" : "rgba(59,130,246,0.1)");
-                                    color:@(goal.Status == "Completed" ? "#22c55e" : goal.Status == "Paused" ? "#eab308" : "#60a5fa");">
+                                            background:@(goal.Status == "Completed" ? "rgba(34,197,94,0.1)" : goal.Status == "Paused" ? "rgba(234,179,8,0.1)" : "rgba(59,130,246,0.1)");
+                                            color:@(goal.Status == "Completed" ? "#22c55e" : goal.Status == "Paused" ? "#eab308" : "#60a5fa");">
                                     @goal.Status
                                 </span>
                             </div>
@@ -123,14 +207,12 @@
                         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                             @if (goal.Status != "Completed")
                             {
-                                <!-- Add Funds -->
                                 <button type="button"
                                         onclick="openAddFunds(@goal.Id, '@goal.Name')"
                                         style="font-size:0.78rem;padding:0.35rem 0.85rem;border-radius:7px;border:1px solid @goal.Color;color:@goal.Color;background:@(goal.Color)11;cursor:pointer;font-weight:600;">
                                     + Add Funds
                                 </button>
 
-                                <!-- Pause / Resume -->
                                 <form asp-action="TogglePause" asp-controller="Savings" method="post" style="display:inline;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@goal.Id" />
@@ -141,7 +223,6 @@
                                 </form>
                             }
 
-                            <!-- Delete -->
                             <form asp-action="Delete" asp-controller="Savings" method="post" style="display:inline;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@goal.Id" />
@@ -159,7 +240,7 @@
     </div>
 
     <!-- ── Add Goal Form ── -->
-    <div class="card" style="position:sticky;top:76px;">
+    <div class="card savings-form-sticky">
         <h3 style="font-size:0.95rem;margin-bottom:1.25rem;">New Savings Goal</h3>
 
         <form asp-action="Create" asp-controller="Savings" method="post"
@@ -204,24 +285,24 @@
                     @{
                         var goalIcons = new[]
                         {
-                                        ("target",      "M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z"),
-                                        ("plane",       "M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"),
-                                        ("home",        "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"),
-                                        ("car",         "M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2m-1 0a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z"),
+                                        ("target",       "M12 22a10 10 0 100-20 10 10 0 000 20zM12 18a6 6 0 100-12 6 6 0 000 12zM12 14a2 2 0 100-4 2 2 0 000 4z"),
+                                        ("plane",        "M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"),
+                                        ("home",         "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"),
+                                        ("car",          "M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2h-2m-1 0a2 2 0 11-4 0 2 2 0 014 0zM7 17a2 2 0 11-4 0 2 2 0 014 0z"),
                                         ("graduationCap","M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5"),
-                                        ("heart",       "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"),
-                                        ("gift",        "M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"),
-                                        ("briefcase",   "M20 7H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"),
-                                        ("smartphone",  "M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zM12 18h.01"),
-                                        ("coffee",      "M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"),
-                                        ("dollarSign",  "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"),
-                                        ("trendUp",     "M23 6l-9.5 9.5-5-5L1 18"),
-                                        ("piggyBank",   "M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z"),
-                                        ("star",        "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"),
-                                        ("zap",         "M13 2L3 14h9l-1 8 10-12h-9l1-8z"),
-                                        ("sun",         "M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"),
-                                        ("music",       "M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z"),
-                                        ("book",        "M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14z"),
+                                        ("heart",        "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"),
+                                        ("gift",         "M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"),
+                                        ("briefcase",    "M20 7H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"),
+                                        ("smartphone",   "M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2zM12 18h.01"),
+                                        ("coffee",       "M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"),
+                                        ("dollarSign",   "M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"),
+                                        ("trendUp",      "M23 6l-9.5 9.5-5-5L1 18"),
+                                        ("piggyBank",    "M19 5c-1.5 0-2.8 1.4-3 2-3.5 1.5-11 2.2-11 10 0 3.9 3.1 7 7 7h3M21 12c0 1-.5 2-2 2s-2-1-2-2 .5-2 2-2 2 1 2 2z"),
+                                        ("star",         "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"),
+                                        ("zap",          "M13 2L3 14h9l-1 8 10-12h-9l1-8z"),
+                                        ("sun",          "M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"),
+                                        ("music",        "M9 18V5l12-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zM21 16a3 3 0 11-6 0 3 3 0 016 0z"),
+                                        ("book",         "M4 19.5A2.5 2.5 0 016.5 17H20V3H6.5A2.5 2.5 0 004 5.5v14z"),
                                         };
                     }
                     @foreach (var (name, path) in goalIcons)
@@ -261,7 +342,6 @@
                                 title="@color">
                         </button>
                     }
-                    <!-- Custom color picker -->
                     <input type="color"
                            id="goalColorCustom"
                            value="#22c55e"
@@ -316,35 +396,24 @@
 </div>
 
 @section Scripts {
-<script>
-    // Add Funds Modal
-    function openAddFunds(goalId, goalName) {
-        document.getElementById('modalGoalId').value = goalId;
-        document.getElementById('modalGoalName').textContent = 'Adding funds to: ' + goalName;
-        document.getElementById('modalAmount').value = '';
-        const modal = document.getElementById('addFundsModal');
-        modal.style.display = 'flex';
-        setTimeout(() => document.getElementById('modalAmount').focus(), 100);
-    }
+    <script>
+        function openAddFunds(goalId, goalName) {
+            document.getElementById('modalGoalId').value = goalId;
+            document.getElementById('modalGoalName').textContent = 'Adding funds to: ' + goalName;
+            document.getElementById('modalAmount').value = '';
+            const modal = document.getElementById('addFundsModal');
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('modalAmount').focus(), 100);
+        }
 
-    function closeAddFunds() {
-        document.getElementById('addFundsModal').style.display = 'none';
-    }
+        function closeAddFunds() {
+            document.getElementById('addFundsModal').style.display = 'none';
+        }
 
-    // Close modal on backdrop click
-    document.getElementById('addFundsModal').addEventListener('click', function (e) {
-        if (e.target === this) closeAddFunds();
-    });
-
-    // Color picker
-    function selectGoalColor(hex, btn) {
-        document.querySelectorAll('[data-gcolor]').forEach(function (b) {
-            b.style.borderColor = 'transparent';
+        document.getElementById('addFundsModal').addEventListener('click', function (e) {
+            if (e.target === this) closeAddFunds();
         });
-        btn.style.borderColor = 'white';
-        document.getElementById('goalColor').value = hex;
-    }
-            // Icon picker
+
         function selectGoalIcon(name, btn) {
             document.querySelectorAll('[data-gicon]').forEach(function (b) {
                 b.classList.remove('gicon-selected');
@@ -360,7 +429,6 @@
             document.getElementById('goalIconLabel').textContent = name;
         }
 
-        // Color picker
         function selectGoalColor(hex, btn) {
             document.querySelectorAll('[data-gcolor]').forEach(function (b) {
                 b.style.borderColor = 'transparent';
@@ -384,7 +452,6 @@
             document.getElementById('goalColorLabel').style.color = hex;
         }
 
-        // Set defaults on load
         document.addEventListener('DOMContentLoaded', function () {
             const defaultIcon = document.querySelector('[data-gicon="target"]');
             if (defaultIcon) {
@@ -399,5 +466,5 @@
                 defaultColor.style.transform = 'scale(1.2)';
             }
         });
-</script>
+    </script>
 }
