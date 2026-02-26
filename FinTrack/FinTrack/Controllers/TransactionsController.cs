@@ -34,6 +34,9 @@ namespace FinTrack.Controllers
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(type))
+                query = query.Where(t => t.Type == type);
+
+            if (categoryId.HasValue && categoryId > 0)
                 query = query.Where(t => t.CategoryId == categoryId);
 
             query = query.Where(t => t.Date.Month == selectedMonth && t.Date.Year == selectedYear);

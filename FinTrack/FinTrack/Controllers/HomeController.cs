@@ -8,5 +8,10 @@ namespace FinTrack.Controllers
         {
             return View();
         }
+
+        public IActionResult Sitemap()
+        {
+            return View();
+        }
     }
 }
