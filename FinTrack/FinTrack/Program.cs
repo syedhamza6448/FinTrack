@@ -1,4 +1,4 @@
-using FinTrack.Data;
+﻿using FinTrack.Data;
 using FinTrack.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,11 +9,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//DB
+// ─── Database ────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Identity
+// ─── Identity ────────────────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -23,10 +23,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequiredLength = 6;
     options.User.RequireUniqueEmail = true;
 })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
 
-//JWT Authentication
+// ─── JWT Authentication ──────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT Key not configured.");
 
@@ -35,37 +35,51 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew = TimeSpan.Zero
-        };
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// ─── Authorization ───────────────────────────────────────────
+builder.Services.AddAuthorization();
+
+// ─── Controllers ─────────────────────────────────────────────
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-// CORS
+// ─── CORS ────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularClient", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:4200",
-            "https://localhost:4200",
-            "http://localhost:7000"
-            )
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:7000"
+              )
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
+// ─── Swagger ─────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -83,8 +97,9 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter: Bearer {XlA54OvTuDCOPgAoRz85FxBk2z7r/e2blwdG99BxWU4=}"
+        Description = "Enter: Bearer {your JWT token here}"
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -93,7 +108,7 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id   = "Bearer"
                 }
             },
             Array.Empty<string>()
@@ -103,7 +118,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-//Middleware Pipeline
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -115,7 +130,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AngularClient");
+app.UseCors("AngularClient");       // Must be BEFORE UseAuthentication
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
