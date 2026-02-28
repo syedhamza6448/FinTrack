@@ -153,29 +153,24 @@ export interface SavingsGoalRequest {
 export interface Investment {
   id: number;
   name: string;
-  ticker: string;
-  assetType: string;
-  quantity: number;
-  buyPrice: number;
-  currentPrice: number;
-  purchaseDate: string;
-  dividendEarned?: number;
-  updatedAt: string;
-  totalValue: number;
-  totalCost: number;
+  type: string;
+  amountInvested: number;
+  currentValue: number;
   gainLoss: number;
-  gainLossPct: number;
+  returnPercent: number;
+  units?: number;
+  purchasePrice?: number;
+  currentPrice?: number;
+  purchaseDate?: string;
+  notes?: string;
 }
 
+
 export interface InvestmentPortfolio {
-  items: Investment[];
-  summary: {
-    totalValue: number;
-    totalCost: number;
-    totalGainLoss: number;
-    totalGainLossPct: number;
-    totalDividends: number;
-  };
+  investments: Investment[];
+  totalInvested: number;
+  totalValue: number;
+  totalGain: number;
 }
 
 export interface InvestmentRequest {
@@ -193,17 +188,20 @@ export interface InvestmentRequest {
 export interface Debt {
   id: number;
   name: string;
-  debtType: string;
+  type: string;
   originalAmount: number;
-  remainingBalance: number;
-  monthlyPayment: number;
+  balance: number;
   interestRate: number;
-  startDate: string;
-  expectedPayoffDate?: string;
-  priority: 'High' | 'Medium' | 'Low';
-  updatedAt: string;
-  paidOff: number;
-  paidOffPct: number;
+  minimumPayment?: number;
+  dueDate?: number;
+  lender?: string;
+  status: string;
+  notes?: string;
+}
+
+export interface DebtListResponse {
+  debts: Debt[];
+  totalDebt: number;
 }
 
 export interface DebtListResponse {

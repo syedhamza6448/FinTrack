@@ -53,6 +53,20 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // Getter used by settings component
+  get currentUser(): AuthResponse | null {
+    return this.currentUserSubject.value;
+  }
+
+  // Used by settings to persist profile updates locally
+  updateCurrentUser(updates: Partial<AuthResponse>): void {
+    const current = this.currentUserSubject.value;
+    if (!current) return;
+    const updated = { ...current, ...updates };
+    localStorage.setItem(this.USER_KEY, JSON.stringify(updated));
+    this.currentUserSubject.next(updated);
+  }
+
   get userCurrency(): string { return this.getCurrentUser()?.currency ?? 'NGN'; }
   get userTheme(): string    { return this.getCurrentUser()?.theme    ?? 'dark'; }
 

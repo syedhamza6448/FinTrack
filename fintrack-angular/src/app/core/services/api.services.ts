@@ -16,7 +16,7 @@ const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
   get(): Observable<DashboardData> {
     return this.http.get<DashboardData>(`${API}/dashboard`);
   }
@@ -25,16 +25,16 @@ export class DashboardService {
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
   private url = `${API}/transactions`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(params?: PaginationParams): Observable<TransactionListResponse> {
     let p = new HttpParams();
-    if (params?.page)       p = p.set('page',       params.page);
-    if (params?.pageSize)   p = p.set('pageSize',   params.pageSize);
-    if (params?.type)       p = p.set('type',       params.type);
+    if (params?.page) p = p.set('page', params.page);
+    if (params?.pageSize) p = p.set('pageSize', params.pageSize);
+    if (params?.type) p = p.set('type', params.type);
     if (params?.categoryId) p = p.set('categoryId', params.categoryId);
-    if (params?.search)     p = p.set('search',     params.search);
-    if (params?.month)      p = p.set('month',      params.month);
+    if (params?.search) p = p.set('search', params.search);
+    if (params?.month) p = p.set('month', params.month);
     return this.http.get<TransactionListResponse>(this.url, { params: p });
   }
 
@@ -64,7 +64,7 @@ export class TransactionService {
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private url = `${API}/categories`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(type?: string): Observable<Category[]> {
     let p = new HttpParams();
@@ -88,7 +88,7 @@ export class CategoryService {
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
   private url = `${API}/budget`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(month?: string): Observable<Budget[]> {
     let p = new HttpParams();
@@ -116,7 +116,7 @@ export class BudgetService {
 @Injectable({ providedIn: 'root' })
 export class SavingsService {
   private url = `${API}/savings`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(status?: string): Observable<SavingsGoal[]> {
     let p = new HttpParams();
@@ -144,7 +144,7 @@ export class SavingsService {
 @Injectable({ providedIn: 'root' })
 export class InvestmentService {
   private url = `${API}/investments`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(assetType?: string): Observable<InvestmentPortfolio> {
     let p = new HttpParams();
@@ -172,7 +172,7 @@ export class InvestmentService {
 @Injectable({ providedIn: 'root' })
 export class DebtService {
   private url = `${API}/debt`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(priority?: string): Observable<DebtListResponse> {
     let p = new HttpParams();
@@ -204,7 +204,7 @@ export class DebtService {
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private url = `${API}/notifications`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(unreadOnly = false): Observable<NotificationListResponse> {
     let p = new HttpParams();
@@ -232,7 +232,7 @@ export class NotificationService {
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
   private url = `${API}/reports`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getMonthly(year?: number): Observable<MonthlyReport[]> {
     let p = new HttpParams();
@@ -260,11 +260,11 @@ export class ReportsService {
 @Injectable({ providedIn: 'root' })
 export class ExpenseService {
   private url = `${API}/expenses`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAll(month?: string, categoryId?: number): Observable<any> {
     let p = new HttpParams();
-    if (month)      p = p.set('month',      month);
+    if (month) p = p.set('month', month);
     if (categoryId) p = p.set('categoryId', categoryId);
     return this.http.get<any>(this.url, { params: p });
   }
@@ -279,7 +279,7 @@ export class ExpenseService {
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
   private url = `${API}/settings`;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   get(): Observable<UserSettings> {
     return this.http.get<UserSettings>(this.url);

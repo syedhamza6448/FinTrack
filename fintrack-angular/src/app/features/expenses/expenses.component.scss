@@ -8,8 +8,17 @@
   justify-content: space-between;
   margin-bottom: 24px;
 
-  h1 { font-family: var(--font-display); font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-  p  { font-size: 13px; color: var(--text-secondary); }
+  h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
 }
 
 .btn-ghost {
@@ -23,7 +32,11 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--t-fast);
-  &:hover { background: var(--glass-02); color: var(--text-primary); }
+
+  &:hover {
+    background: var(--glass-02);
+    color: var(--text-primary);
+  }
 }
 
 // ── Filters ─────────────────────────────────
@@ -53,7 +66,10 @@
   cursor: pointer;
   transition: border-color var(--t-fast);
   appearance: none;
-  &:focus { border-color: var(--accent); }
+
+  &:focus {
+    border-color: var(--accent);
+  }
 }
 
 // ── Summary Grid ────────────────────────────
@@ -63,7 +79,9 @@
   gap: 20px;
   margin-bottom: 20px;
 
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .summary-card {
@@ -76,17 +94,20 @@
   gap: 6px;
 
   &.accent {
-    border-color: rgba(242,92,110,0.25);
-    background: linear-gradient(135deg, rgba(242,92,110,0.07) 0%, var(--bg-raised) 70%);
+    border-color: rgba(242, 92, 110, 0.25);
+    background: linear-gradient(135deg, rgba(242, 92, 110, 0.07) 0%, var(--bg-raised) 70%);
   }
 }
 
 .summary-icon {
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--r-md);
   background: var(--negative-dim);
   color: var(--negative);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8px;
 }
 
@@ -144,8 +165,13 @@
 }
 
 @keyframes shimmer {
-  from { background-position: 200% 0; }
-  to   { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .empty-cats {
@@ -161,7 +187,11 @@
   gap: 14px;
 }
 
-.cat-bar-item { display: flex; flex-direction: column; gap: 6px; }
+.cat-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
 .cat-bar-top {
   display: flex;
@@ -229,7 +259,10 @@
   border-bottom: 1px solid var(--glass-border);
 }
 
-.table-loading { padding: 8px 0; }
+.table-loading {
+  padding: 8px 0;
+}
+
 .skeleton-row {
   height: 50px;
   margin: 2px 16px;
@@ -242,9 +275,23 @@
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.5; }
-  h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  p  { font-size: 13px; color: var(--text-secondary); }
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
 }
 
 .txn-table {
@@ -269,8 +316,13 @@
     vertical-align: middle;
   }
 
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--glass-01); }
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: var(--glass-01);
+  }
 
   tfoot td {
     border-top: 1px solid var(--glass-border);
@@ -279,8 +331,13 @@
     font-weight: 600;
   }
 
-  .text-right { text-align: right; }
-  .text-secondary { color: var(--text-secondary); }
+  .text-right {
+    text-align: right;
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
 }
 
 .total-label {
@@ -289,8 +346,15 @@
   color: var(--text-secondary);
 }
 
-.txn-desc { font-weight: 500; margin-bottom: 2px; }
-.txn-notes { font-size: 11px; color: var(--text-tertiary); }
+.txn-desc {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.txn-notes {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
 
 .category-chip {
   display: inline-flex;
@@ -308,12 +372,22 @@
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
-  &.expense { color: var(--negative); }
-  &.total-amount { font-size: 15px; }
+
+  &.expense {
+    color: var(--negative);
+  }
+
+  &.total-amount {
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 640px) {
   .txn-table {
-    th:nth-child(2), td:nth-child(2) { display: none; }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      display: none;
+    }
   }
 }

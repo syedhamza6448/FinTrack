@@ -1,0 +1,59 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>Notifications</h1>
+    <p *ngIf="unreadCount > 0">{{ unreadCount }} unread</p>
+    <p *ngIf="unreadCount === 0">All caught up!</p>
+  </div>
+  <div class="header-right" *ngIf="unreadCount > 0">
+    <button class="btn-ghost" (click)="markAllRead()">Mark all read</button>
+  </div>
+</div>
+
+<!-- Filter -->
+<div class="filter-row">
+  <button class="filter-chip" [class.active]="filterType === ''" (click)="filterType = ''">All</button>
+  <button class="filter-chip" [class.active]="filterType === 'budget'"      (click)="filterType = 'budget'">Budget</button>
+  <button class="filter-chip" [class.active]="filterType === 'savings'"     (click)="filterType = 'savings'">Savings</button>
+  <button class="filter-chip" [class.active]="filterType === 'transaction'" (click)="filterType = 'transaction'">Transactions</button>
+  <button class="filter-chip" [class.active]="filterType === 'alert'"       (click)="filterType = 'alert'">Alerts</button>
+</div>
+
+<!-- Loading -->
+<div class="loading-list" *ngIf="loading">
+  <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+</div>
+
+<!-- Empty -->
+<div class="empty-state" *ngIf="!loading && filtered.length === 0">
+  <div class="empty-icon">🔔</div>
+  <h3>No notifications</h3>
+  <p>You're all caught up!</p>
+</div>
+
+<!-- Notification List -->
+<div class="notif-list" *ngIf="!loading && filtered.length > 0">
+  <div class="notif-item"
+       *ngFor="let n of filtered; trackBy: trackById"
+       [class.unread]="!n.isRead"
+       (click)="markRead(n)">
+
+    <div class="notif-icon" [class]="'notif-icon-' + getTypeClass(n.type)">
+      {{ getIcon(n.type) }}
+    </div>
+
+    <div class="notif-body">
+      <div class="notif-title">{{ n.title }}</div>
+      <div class="notif-message">{{ n.message }}</div>
+      <div class="notif-time">{{ formatDate(n.createdAt) }}</div>
+    </div>
+
+    <div class="notif-right">
+      <div class="unread-dot" *ngIf="!n.isRead"></div>
+      <button class="btn-icon-sm delete" (click)="deleteNotif(n.id); $event.stopPropagation()" title="Delete">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>

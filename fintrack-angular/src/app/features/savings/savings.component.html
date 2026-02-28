@@ -1,0 +1,211 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>Savings Goals</h1>
+    <p>{{ activeGoals }} active · {{ completedGoals }} completed</p>
+  </div>
+  <div class="header-right">
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+      <option value="">All Goals</option>
+      <option value="Active">Active</option>
+      <option value="Completed">Completed</option>
+      <option value="Paused">Paused</option>
+    </select>
+    <button class="btn-primary" (click)="openAdd()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Goal
+    </button>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="summary-row" *ngIf="!loading && goals.length > 0">
+  <div class="summary-card">
+    <span class="s-label">Total Saved</span>
+    <span class="s-value positive">{{ formatCurrency(totalSaved) }}</span>
+  </div>
+  <div class="summary-card">
+    <span class="s-label">Total Target</span>
+    <span class="s-value">{{ formatCurrency(totalTarget) }}</span>
+  </div>
+  <div class="summary-card">
+    <span class="s-label">Remaining</span>
+    <span class="s-value accent">{{ formatCurrency(totalTarget - totalSaved) }}</span>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-grid" *ngIf="loading">
+  <div class="skeleton card" *ngFor="let i of [1,2,3,4]"></div>
+</div>
+
+<!-- Empty -->
+<div class="empty-state" *ngIf="!loading && goals.length === 0">
+  <div class="empty-icon">🐷</div>
+  <h3>No savings goals yet</h3>
+  <p>Create a goal to start tracking your savings progress</p>
+  <button class="btn-primary" (click)="openAdd()">Create First Goal</button>
+</div>
+
+<!-- Goals Grid -->
+<div class="goals-grid" *ngIf="!loading && goals.length > 0">
+  <div class="goal-card" *ngFor="let g of goals; trackBy: trackById">
+
+    <div class="gc-header">
+      <div class="gc-icon-wrap">
+        <span class="gc-icon">{{ g.icon || '🎯' }}</span>
+      </div>
+      <div class="gc-title-wrap">
+        <span class="gc-name">{{ g.name }}</span>
+        <span class="gc-status" [class]="getStatusClass(g.status)">{{ g.status }}</span>
+      </div>
+      <div class="gc-actions">
+        <button class="btn-icon deposit" (click)="openDeposit(g.id)" title="Add funds" *ngIf="g.status === 'Active'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="btn-icon edit"    (click)="openEdit(g)"    title="Edit">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-icon delete"  (click)="confirmDelete(g.id)" title="Delete">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Ring + Amounts -->
+    <div class="gc-progress-section">
+      <div class="gc-ring-wrap">
+        <svg class="gc-ring" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--glass-02)" stroke-width="7"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="7"
+                  stroke-linecap="round"
+                  [style.stroke-dasharray]="213.6"
+                  [style.stroke-dashoffset]="213.6 - (213.6 * g.progressPercent / 100)"
+                  transform="rotate(-90 40 40)"/>
+        </svg>
+        <span class="gc-ring-pct">{{ g.progressPercent | number:'1.0-0' }}%</span>
+      </div>
+      <div class="gc-amounts">
+        <div class="gc-saved">
+          <span class="gc-saved-label">Saved</span>
+          <span class="gc-saved-val">{{ formatCurrency(g.savedAmount) }}</span>
+        </div>
+        <div class="gc-target">
+          <span class="gc-target-label">Target</span>
+          <span class="gc-target-val">{{ formatCurrency(g.targetAmount) }}</span>
+        </div>
+        <div class="gc-remaining">
+          <span class="gc-remaining-label">Remaining</span>
+          <span class="gc-remaining-val">{{ formatCurrency(g.remaining) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="gc-bar-track">
+      <div class="gc-bar-fill" [style.width]="getBarWidth(g.progressPercent)"
+           [class.completed]="g.status === 'Completed'"></div>
+    </div>
+
+    <div class="gc-footer" *ngIf="g.targetDate">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Target: {{ formatDate(g.targetDate) }}
+    </div>
+
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ modalTitle }}</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-error" *ngIf="modalError">{{ modalError }}</div>
+    <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-row">
+        <div class="form-field" style="flex: 1">
+          <label class="form-label">Goal Name *</label>
+          <input class="input" type="text" formControlName="name" placeholder="e.g. Emergency Fund">
+          <span class="form-error" *ngIf="goalForm.get('name')?.touched && goalForm.get('name')?.errors?.['required']">Required</span>
+        </div>
+        <div class="form-field" style="width: 80px">
+          <label class="form-label">Icon</label>
+          <input class="input" type="text" formControlName="icon" placeholder="🎯" maxlength="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Target Amount *</label>
+          <input class="input" type="number" formControlName="targetAmount" placeholder="0.00" min="1">
+          <span class="form-error" *ngIf="goalForm.get('targetAmount')?.touched && goalForm.get('targetAmount')?.errors?.['required']">Required</span>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Already Saved</label>
+          <input class="input" type="number" formControlName="savedAmount" placeholder="0.00" min="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Target Date</label>
+          <input class="input" type="date" formControlName="targetDate">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Status</label>
+          <select class="input" formControlName="status">
+            <option value="Active">Active</option>
+            <option value="Paused">Paused</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          <span *ngIf="!submitting">{{ editingId ? 'Save Changes' : 'Create Goal' }}</span>
+          <span *ngIf="submitting" class="spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Deposit Modal -->
+<div class="modal-backdrop" *ngIf="showDepositModal" (click)="closeDeposit()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Add Funds</h2>
+      <button class="modal-close" (click)="closeDeposit()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form [formGroup]="depositForm" (ngSubmit)="onDeposit()" novalidate style="padding: 0 24px">
+      <div class="form-field">
+        <label class="form-label">Amount to Deposit *</label>
+        <input class="input" type="number" formControlName="amount" placeholder="0.00" min="0.01" step="0.01" autofocus>
+        <span class="form-error" *ngIf="depositForm.get('amount')?.touched && depositForm.get('amount')?.errors?.['required']">Required</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="closeDeposit()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          <span *ngIf="!submitting">Deposit</span>
+          <span *ngIf="submitting" class="spinner"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h2 class="modal-title">Delete Goal</h2></div>
+    <p class="delete-msg">Are you sure? All saved progress will be lost.</p>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-danger" (click)="doDelete()">Delete</button>
+    </div>
+  </div>
+</div>

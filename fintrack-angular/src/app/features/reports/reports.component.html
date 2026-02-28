@@ -1,0 +1,145 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>Reports</h1>
+    <p>Financial insights and trends</p>
+  </div>
+  <div class="header-filters">
+    <input class="filter-select" type="month" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
+    <select class="filter-select" [(ngModel)]="selectedYear" (change)="onFilterChange()">
+      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+    </select>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-grid" *ngIf="loading">
+  <div class="skeleton card" *ngFor="let i of [1,2,3,4]"></div>
+</div>
+
+<ng-container *ngIf="!loading">
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="sc income">
+      <div class="sc-icon">↑</div>
+      <div class="sc-body">
+        <span class="sc-label">Income</span>
+        <span class="sc-value positive">{{ formatCurrency(monthlyIncome) }}</span>
+      </div>
+    </div>
+    <div class="sc expense">
+      <div class="sc-icon">↓</div>
+      <div class="sc-body">
+        <span class="sc-label">Expenses</span>
+        <span class="sc-value negative">{{ formatCurrency(monthlyExpense) }}</span>
+      </div>
+    </div>
+    <div class="sc net" [class.surplus]="monthlyNet >= 0" [class.deficit]="monthlyNet < 0">
+      <div class="sc-icon">≡</div>
+      <div class="sc-body">
+        <span class="sc-label">Net</span>
+        <span class="sc-value" [class]="monthlyNet >= 0 ? 'positive' : 'negative'">{{ formatCurrency(monthlyNet) }}</span>
+      </div>
+    </div>
+    <div class="sc savings-rate">
+      <div class="sc-icon">%</div>
+      <div class="sc-body">
+        <span class="sc-label">Savings Rate</span>
+        <span class="sc-value accent">{{ savingsRate | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'monthly'"  (click)="setTab('monthly')">Monthly Trend</button>
+    <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense Breakdown</button>
+    <button class="tab-btn" [class.active]="activeTab === 'income'"   (click)="setTab('income')">Income Sources</button>
+  </div>
+
+  <!-- Monthly Trend Chart -->
+  <div class="card chart-card" *ngIf="activeTab === 'monthly'">
+    <div class="card-header">
+      <h2 class="card-title">Income vs Expenses — {{ selectedYear }}</h2>
+    </div>
+    <div class="empty-state" *ngIf="monthlyTrend.length === 0">
+      <div class="empty-icon">📊</div>
+      <p>No trend data available</p>
+    </div>
+    <div class="bar-chart" *ngIf="monthlyTrend.length > 0">
+      <div class="bar-chart-inner">
+        <div class="bar-group" *ngFor="let m of monthlyTrend; trackBy: trackByIndex">
+          <div class="bar-pair">
+            <div class="bar income-bar"  [style.height]="getBarHeight(m.income  ?? 0)" [title]="'Income: '  + formatCurrency(m.income)"></div>
+            <div class="bar expense-bar" [style.height]="getBarHeight(m.expense ?? 0)" [title]="'Expense: ' + formatCurrency(m.expense)"></div>
+          </div>
+          <span class="bar-label">{{ getMonthLabel(m) }}</span>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <span class="legend-dot income"></span> Income
+        <span class="legend-dot expense"></span> Expenses
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Breakdown -->
+  <div class="card" *ngIf="activeTab === 'expenses'">
+    <div class="card-header">
+      <h2 class="card-title">Expenses by Category</h2>
+      <span class="card-total">{{ formatCurrency(monthlyExpense) }} total</span>
+    </div>
+    <div class="empty-state" *ngIf="topExpenseCategories.length === 0">
+      <div class="empty-icon">🛍️</div>
+      <p>No expense data for this period</p>
+    </div>
+    <div class="category-list" *ngIf="topExpenseCategories.length > 0">
+      <div class="cat-row" *ngFor="let cat of topExpenseCategories; let i = index; trackBy: trackByIndex">
+        <div class="cat-rank">{{ i + 1 }}</div>
+        <div class="cat-info">
+          <div class="cat-top">
+            <span class="cat-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+            <div class="cat-right">
+              <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
+              <span class="cat-amount">{{ formatCurrency(cat.total) }}</span>
+            </div>
+          </div>
+          <div class="cat-track">
+            <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)" [style.background]="getCategoryColor(i)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income Sources -->
+  <div class="card" *ngIf="activeTab === 'income'">
+    <div class="card-header">
+      <h2 class="card-title">Income by Source</h2>
+      <span class="card-total positive">{{ formatCurrency(monthlyIncome) }} total</span>
+    </div>
+    <div class="empty-state" *ngIf="topIncomeCategories.length === 0">
+      <div class="empty-icon">💰</div>
+      <p>No income data for this period</p>
+    </div>
+    <div class="category-list" *ngIf="topIncomeCategories.length > 0">
+      <div class="cat-row" *ngFor="let cat of topIncomeCategories; let i = index; trackBy: trackByIndex">
+        <div class="cat-rank">{{ i + 1 }}</div>
+        <div class="cat-info">
+          <div class="cat-top">
+            <span class="cat-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+            <div class="cat-right">
+              <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
+              <span class="cat-amount positive">{{ formatCurrency(cat.total) }}</span>
+            </div>
+          </div>
+          <div class="cat-track">
+            <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)" style="background: var(--positive)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ng-container>
