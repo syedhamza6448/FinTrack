@@ -1,0 +1,220 @@
+<!-- ══ LOADING ══ -->
+<div class="dash-loading" *ngIf="loading">
+  <div class="skeleton-header"></div>
+  <div class="skeleton-stats">
+    <div class="skeleton card" *ngFor="let i of [1,2,3,4]"></div>
+  </div>
+  <div class="skeleton-grid">
+    <div class="skeleton card tall"></div>
+    <div class="skeleton card tall"></div>
+  </div>
+</div>
+
+<!-- ══ ERROR ══ -->
+<div class="dash-error" *ngIf="!loading && error">
+  <div class="error-icon">⚠</div>
+  <p>{{ error }}</p>
+  <button class="btn-retry" (click)="loadDashboard()">Try Again</button>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="dashboard" *ngIf="!loading && !error && data">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-greeting">{{ greeting }}, {{ getFirstName() }} 👋</h1>
+      <p class="dash-sub">Here's your financial overview for {{ currentMonth }}</p>
+    </div>
+    <button class="btn-refresh" (click)="loadDashboard()" title="Refresh">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ── STAT CARDS ── -->
+  <div class="stat-cards">
+
+    <!-- Income -->
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon income-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </div>
+        <span class="stat-delta" [class]="getDeltaClass(data.stats.incomeDelta)">
+          {{ getDeltaIcon(data.stats.incomeDelta) }} {{ formatPercent(absValue(data.stats.incomeDelta)) }}
+        </span>
+      </div>
+      <div class="stat-value">{{ formatCurrency(data.stats.income) }}</div>
+      <div class="stat-label">Total Income</div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon expense-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+          </svg>
+        </div>
+        <span class="stat-delta" [class]="getDeltaClass(-data.stats.expenseDelta)">
+          {{ getDeltaIcon(-data.stats.expenseDelta) }} {{ formatPercent(absValue(data.stats.expenseDelta)) }}
+        </span>
+      </div>
+      <div class="stat-value">{{ formatCurrency(data.stats.expense) }}</div>
+      <div class="stat-label">Total Expenses</div>
+    </div>
+
+    <!-- Net Balance -->
+    <div class="stat-card" [class.accent-card]="data.stats.netBalance >= 0">
+      <div class="stat-top">
+        <div class="stat-icon balance-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <span class="stat-badge" [class]="data.stats.netBalance >= 0 ? 'badge positive' : 'badge negative'">
+          {{ data.stats.netBalance >= 0 ? 'Surplus' : 'Deficit' }}
+        </span>
+      </div>
+      <div class="stat-value">{{ formatCurrency(data.stats.netBalance) }}</div>
+      <div class="stat-label">Net Balance</div>
+    </div>
+
+    <!-- Net Worth -->
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon worth-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span class="stat-badge badge accent">Net Worth</span>
+      </div>
+      <div class="stat-value">{{ formatCurrency(data.stats.netWorth) }}</div>
+      <div class="stat-label">Total Net Worth</div>
+    </div>
+
+  </div>
+
+  <!-- Savings Rate Bar -->
+  <div class="savings-rate-bar" *ngIf="data.stats.savingsRate > 0">
+    <div class="srb-left">
+      <span class="srb-label">Savings Rate</span>
+      <span class="srb-value">{{ formatPercent(data.stats.savingsRate) }}</span>
+    </div>
+    <div class="srb-track">
+      <div class="srb-fill" [style.width]="getGoalBarWidth(data.stats.savingsRate)"></div>
+    </div>
+  </div>
+
+  <!-- ── MAIN GRID ── -->
+  <div class="dash-grid">
+
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Recent Transactions</h2>
+        <a class="card-link" routerLink="/transactions">View all</a>
+      </div>
+
+      <div class="empty-state" *ngIf="data.recentTransactions.length === 0">
+        <div class="empty-icon">💸</div>
+        <p>No transactions yet</p>
+      </div>
+
+      <div class="txn-list" *ngIf="data.recentTransactions.length > 0">
+        <div class="txn-item"
+             *ngFor="let txn of data.recentTransactions; trackBy: trackById">
+          <div class="txn-icon" [class]="getTransactionClass(txn.type)">
+            <span>{{ txn.category?.icon || (txn.type === 'Income' ? '↑' : '↓') }}</span>
+          </div>
+          <div class="txn-info">
+            <div class="txn-desc">{{ txn.description }}</div>
+            <div class="txn-meta">{{ txn.category?.name }} · {{ formatDate(txn.date) }}</div>
+          </div>
+          <div class="txn-amount" [class]="getTransactionClass(txn.type)">
+            {{ txn.type === 'Income' ? '+' : '-' }}{{ formatCurrency(txn.amount) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="dash-right">
+
+      <!-- Budget Alerts -->
+      <div class="card" *ngIf="data.budgetAlerts.length > 0">
+        <div class="card-header">
+          <h2 class="card-title">Budget Alerts</h2>
+          <a class="card-link" routerLink="/budget">Manage</a>
+        </div>
+
+        <div class="budget-list">
+          <div class="budget-item"
+               *ngFor="let alert of data.budgetAlerts; trackBy: trackByIndex">
+            <div class="budget-item-top">
+              <span class="budget-name">{{ alert.categoryName }}</span>
+              <span class="budget-pct" [class]="getBudgetClass(alert.status)">
+                {{ formatPercent(alert.percentUsed) }}
+              </span>
+            </div>
+            <div class="budget-track">
+              <div class="budget-fill"
+                   [class]="getBudgetClass(alert.status)"
+                   [style.width]="getGoalBarWidth(alert.percentUsed)">
+              </div>
+            </div>
+            <div class="budget-amounts">
+              <span>{{ formatCurrency(alert.spent) }} spent</span>
+              <span>of {{ formatCurrency(alert.budgeted) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Savings Goals -->
+      <div class="card" *ngIf="data.savingsGoals.length > 0">
+        <div class="card-header">
+          <h2 class="card-title">Savings Goals</h2>
+          <a class="card-link" routerLink="/savings">View all</a>
+        </div>
+
+        <div class="goals-list">
+          <div class="goal-item"
+               *ngFor="let goal of data.savingsGoals; trackBy: trackById">
+            <div class="goal-top">
+              <div class="goal-name-wrap">
+                <span class="goal-icon">{{ goal.icon || '🎯' }}</span>
+                <span class="goal-name">{{ goal.name }}</span>
+              </div>
+              <span class="goal-pct">{{ formatPercent(goal.progressPercent) }}</span>
+            </div>
+            <div class="goal-track">
+              <div class="goal-fill" [style.width]="getGoalBarWidth(goal.progressPercent)"></div>
+            </div>
+            <div class="goal-amounts">
+              <span>{{ formatCurrency(goal.savedAmount) }}</span>
+              <span class="goal-target">of {{ formatCurrency(goal.targetAmount) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All clear if no alerts or goals -->
+      <div class="card all-clear"
+           *ngIf="data.budgetAlerts.length === 0 && data.savingsGoals.length === 0">
+        <div class="all-clear-icon">✅</div>
+        <p>No budget alerts</p>
+        <span>You're on track this month!</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

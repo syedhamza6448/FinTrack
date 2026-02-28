@@ -1,12 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AbsPipe } from './pipes/abs.pipe';
 
 @NgModule({
+  declarations: [AbsPipe],
   imports: [CommonModule, RouterModule],
   exports: [
-    CommonModule,   // Re-exported: gives *ngIf, *ngFor, [ngClass] to any module that imports SharedModule
-    RouterModule    // Re-exported: gives routerLink, routerLinkActive to any module that imports SharedModule
+    CommonModule,   // *ngIf, *ngFor, [ngClass], async pipe
+    RouterModule,   // routerLink, routerLinkActive
+    AbsPipe         // | abs
   ]
 })
 export class SharedModule {}
