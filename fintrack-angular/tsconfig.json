@@ -16,6 +16,11 @@
     "module": "preserve"
   },
   "angularCompilerOptions": {
+    "extendedDiagnostics": {
+    "checks": {
+      "optionalChainNotNullable": "suppress"
+    }
+  },
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,

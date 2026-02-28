@@ -1,0 +1,125 @@
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+  <div>
+    <h1>Expenses</h1>
+    <p>{{ currentMonthLabel }}</p>
+  </div>
+</div>
+
+<!-- ══ FILTERS ══ -->
+<div class="filters-card" [formGroup]="filterForm">
+  <div class="filter-row">
+    <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
+    <select class="filter-select" formControlName="categoryId" (change)="applyFilters()">
+      <option value="">All Categories</option>
+      <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+    </select>
+    <button class="btn-ghost" (click)="clearFilters()">Clear</button>
+  </div>
+</div>
+
+<!-- ══ SUMMARY + TOP CATEGORIES ══ -->
+<div class="summary-grid">
+
+  <!-- Total spend card -->
+  <div class="summary-card accent">
+    <div class="summary-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <div class="summary-value">{{ formatCurrency(totalAmount) }}</div>
+    <div class="summary-label">Total Spent</div>
+    <div class="summary-sub">{{ count }} transactions</div>
+  </div>
+
+  <!-- Top Categories -->
+  <div class="card top-cats-card">
+    <div class="card-header">
+      <h2 class="card-title">Top Categories</h2>
+    </div>
+
+    <div class="loading-cats" *ngIf="loadingCats">
+      <div class="skeleton-bar" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+
+    <div class="empty-cats" *ngIf="!loadingCats && topCategories.length === 0">
+      <p>No expenses this month</p>
+    </div>
+
+    <div class="cat-bars" *ngIf="!loadingCats && topCategories.length > 0">
+      <div class="cat-bar-item" *ngFor="let cat of topCategories; let i = index; trackBy: trackByIndex">
+        <div class="cat-bar-top">
+          <span class="cat-bar-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+          <div class="cat-bar-right">
+            <span class="cat-bar-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
+            <span class="cat-bar-amount">{{ formatCurrency(cat.total) }}</span>
+          </div>
+        </div>
+        <div class="cat-bar-track">
+          <div class="cat-bar-fill"
+               [style.width]="getBarWidth(cat.percentage)"
+               [style.background]="getCategoryColor(i)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ EXPENSES LIST ══ -->
+<div class="table-card">
+
+  <div class="table-header">
+    <h2 class="card-title">All Expenses</h2>
+  </div>
+
+  <!-- Loading -->
+  <div class="table-loading" *ngIf="loading">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && expenses.length === 0">
+    <div class="empty-icon">🛍️</div>
+    <h3>No expenses found</h3>
+    <p>Add expenses from the Transactions page</p>
+  </div>
+
+  <!-- Table -->
+  <table class="txn-table" *ngIf="!loading && expenses.length > 0">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th class="text-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let exp of expenses; trackBy: trackById">
+        <td>
+          <div class="txn-desc">{{ exp.description }}</div>
+          <div class="txn-notes" *ngIf="exp.notes">{{ exp.notes }}</div>
+        </td>
+        <td>
+          <span class="category-chip">{{ exp.category?.icon }} {{ exp.category?.name }}</span>
+        </td>
+        <td class="text-secondary">{{ formatDate(exp.date) }}</td>
+        <td class="text-right">
+          <span class="amount expense">-{{ formatCurrency(exp.amount) }}</span>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" class="total-label">Total</td>
+        <td class="text-right">
+          <span class="amount expense total-amount">-{{ formatCurrency(totalAmount) }}</span>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+
+</div>

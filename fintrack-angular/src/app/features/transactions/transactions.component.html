@@ -1,0 +1,217 @@
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+  <div>
+    <h1>Transactions</h1>
+    <p>{{ total }} transaction{{ total !== 1 ? 's' : '' }} found</p>
+  </div>
+  <button class="btn-primary" (click)="openAdd()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Transaction
+  </button>
+</div>
+
+<!-- ══ FILTERS ══ -->
+<div class="filters-card" [formGroup]="filterForm">
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input class="search-input" type="text" formControlName="search" placeholder="Search transactions...">
+  </div>
+
+  <div class="filter-row">
+    <select class="filter-select" formControlName="type" (change)="applyFilters()">
+      <option value="">All Types</option>
+      <option value="Income">Income</option>
+      <option value="Expense">Expense</option>
+    </select>
+
+    <select class="filter-select" formControlName="categoryId" (change)="applyFilters()">
+      <option value="">All Categories</option>
+      <optgroup label="Income">
+        <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.name }}</option>
+      </optgroup>
+      <optgroup label="Expense">
+        <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
+      </optgroup>
+    </select>
+
+    <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
+
+    <button class="btn-ghost" (click)="clearFilters()">Clear</button>
+  </div>
+
+</div>
+
+<!-- ══ TABLE ══ -->
+<div class="table-card">
+
+  <!-- Loading -->
+  <div class="table-loading" *ngIf="loading">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7,8]"></div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && transactions.length === 0">
+    <div class="empty-icon">💸</div>
+    <h3>No transactions found</h3>
+    <p>Try adjusting your filters or add a new transaction</p>
+    <button class="btn-primary" (click)="openAdd()">Add Transaction</button>
+  </div>
+
+  <!-- Table -->
+  <table class="txn-table" *ngIf="!loading && transactions.length > 0">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th class="text-right">Amount</th>
+        <th class="text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let txn of transactions; trackBy: trackById">
+        <td>
+          <div class="txn-desc">{{ txn.description }}</div>
+          <div class="txn-notes" *ngIf="txn.notes">{{ txn.notes }}</div>
+        </td>
+        <td>
+          <span class="category-chip">
+            {{ txn.category?.icon }} {{ txn.category?.name }}
+          </span>
+        </td>
+        <td class="text-secondary">{{ formatDate(txn.date) }}</td>
+        <td>
+          <span class="type-badge" [class]="getTypeClass(txn.type)">{{ txn.type }}</span>
+        </td>
+        <td class="text-right">
+          <span class="amount" [class]="getTypeClass(txn.type)">
+            {{ txn.type === 'Income' ? '+' : '-' }}{{ formatCurrency(txn.amount) }}
+          </span>
+        </td>
+        <td class="text-right">
+          <div class="action-btns">
+            <button class="btn-icon edit" (click)="openEdit(txn)" title="Edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="btn-icon delete" (click)="confirmDelete(txn.id)" title="Delete">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="page-btn"
+            *ngFor="let p of pages"
+            [class.active]="p === page"
+            (click)="goToPage(p)">{{ p }}</button>
+    <button class="page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- ══ ADD/EDIT MODAL ══ -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2 class="modal-title">{{ modalTitle }}</h2>
+      <button class="modal-close" (click)="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-error" *ngIf="modalError">{{ modalError }}</div>
+
+    <form [formGroup]="txnForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Type toggle -->
+      <div class="type-toggle">
+        <button type="button"
+                class="type-btn"
+                [class.active-expense]="txnForm.get('type')?.value === 'Expense'"
+                (click)="txnForm.get('type')?.setValue('Expense')">
+          Expense
+        </button>
+        <button type="button"
+                class="type-btn"
+                [class.active-income]="txnForm.get('type')?.value === 'Income'"
+                (click)="txnForm.get('type')?.setValue('Income')">
+          Income
+        </button>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Description *</label>
+        <input class="input" type="text" formControlName="description" placeholder="e.g. Grocery shopping">
+        <span class="form-error" *ngIf="txnForm.get('description')?.touched && txnForm.get('description')?.errors?.['required']">Required</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Amount *</label>
+          <input class="input" type="number" formControlName="amount" placeholder="0.00" min="0.01" step="0.01">
+          <span class="form-error" *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['required']">Required</span>
+          <span class="form-error" *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['min']">Must be greater than 0</span>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Date *</label>
+          <input class="input" type="date" formControlName="date">
+          <span class="form-error" *ngIf="txnForm.get('date')?.touched && txnForm.get('date')?.errors?.['required']">Required</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Category *</label>
+        <select class="input select" formControlName="categoryId">
+          <option [value]="null" disabled>Select a category</option>
+          <optgroup *ngIf="txnForm.get('type')?.value === 'Income'" label="Income Categories">
+            <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+          </optgroup>
+          <optgroup *ngIf="txnForm.get('type')?.value === 'Expense'" label="Expense Categories">
+            <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+          </optgroup>
+        </select>
+        <span class="form-error" *ngIf="txnForm.get('categoryId')?.touched && txnForm.get('categoryId')?.errors?.['required']">Required</span>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Notes (optional)</label>
+        <textarea class="input textarea" formControlName="notes" placeholder="Any additional details..." rows="2"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          <span *ngIf="!submitting">{{ editingId ? 'Save Changes' : 'Add Transaction' }}</span>
+          <span *ngIf="submitting" class="spinner"></span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ══ DELETE CONFIRM ══ -->
+<div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Transaction</h2>
+    </div>
+    <p class="delete-msg">Are you sure you want to delete this transaction? This cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-danger" (click)="doDelete()">Delete</button>
+    </div>
+  </div>
+</div>
