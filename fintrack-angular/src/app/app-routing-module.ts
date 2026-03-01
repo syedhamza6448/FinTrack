@@ -1,20 +1,28 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard, GuestGuard } from './core/guards/auth.guard';
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  // ── Landing page (public) ──────────────────────────────────
+  {
+    path: '',
+    loadChildren: () => import('./features/landing/landing.module').then(m => m.LandingModule)
+  },
+
+  // ── Auth pages (public) ────────────────────────────────────
   {
     path: 'auth',
-    canActivate: [GuestGuard],
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
+
+  // ── App shell (protected) ──────────────────────────────────
   {
     path: '',
     canActivate: [AuthGuard],
     loadChildren: () => import('./features/shell/shell.module').then(m => m.ShellModule)
   },
-  { path: '**', redirectTo: 'dashboard' }
+
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

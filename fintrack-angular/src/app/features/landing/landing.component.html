@@ -1,0 +1,275 @@
+<!-- ══════════════════════════════════════════
+     FINTRACK — LANDING PAGE
+     Navbar: guest → login/signup | auth → dashboard/notifs/profile
+     ══════════════════════════════════════════ -->
+
+<!-- ─── NAVBAR ─── -->
+<header class="navbar" [class.scrolled]="scrolled">
+    <div class="nav-inner">
+  
+      <!-- Logo -->
+      <a class="nav-logo" routerLink="/">
+        <span class="logo-mark">F</span>
+        <span class="logo-text">Fin<em>Track</em></span>
+      </a>
+  
+      <!-- Desktop Nav Links (center) -->
+      <nav class="nav-links" [class.open]="menuOpen">
+        <a class="nav-link" (click)="scrollToFeatures(); menuOpen=false">Features</a>
+        <a class="nav-link" routerLink="/education" (click)="menuOpen=false">Learn</a>
+        <a class="nav-link" routerLink="/reports" (click)="menuOpen=false">Reports</a>
+      </nav>
+  
+      <!-- ── GUEST NAV ── -->
+      <div class="nav-actions" *ngIf="!isLoggedIn">
+        <button class="btn-ghost-nav" (click)="goToLogin()">Log in</button>
+        <button class="btn-primary-nav" (click)="goToSignup()">Get started free</button>
+      </div>
+  
+      <!-- ── AUTH NAV ── -->
+      <div class="nav-actions auth-actions" *ngIf="isLoggedIn">
+  
+        <!-- Dashboard shortcut -->
+        <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" title="Dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span class="btn-label">Dashboard</span>
+        </button>
+  
+        <!-- Notifications -->
+        <button class="btn-ghost-nav icon-btn notif-btn" (click)="goToNotifications()" title="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+  
+        <!-- Profile menu -->
+        <div class="profile-menu-wrap">
+          <button class="profile-trigger" (click)="toggleProfile()" [class.active]="profileOpen">
+            <span class="avatar">{{ userInitials }}</span>
+            <span class="profile-name">{{ currentUser?.name?.split(' ')[0] || 'Account' }}</span>
+            <svg class="chevron" [class.flipped]="profileOpen" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+  
+          <div class="profile-dropdown" [class.open]="profileOpen">
+            <div class="dropdown-header">
+              <span class="avatar avatar-lg">{{ userInitials }}</span>
+              <div>
+                <div class="dh-name">{{ currentUser?.name || 'User' }}</div>
+                <div class="dh-email">{{ currentUser?.email || '' }}</div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" (click)="goToDashboard(); profileOpen=false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Dashboard
+            </button>
+            <button class="dropdown-item" (click)="goToNotifications(); profileOpen=false">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Notifications
+              <span class="item-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            </button>
+            <button class="dropdown-item" (click)="goToProfile()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile & Settings
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" (click)="logout()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Mobile hamburger -->
+      <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+  
+    </div>
+  
+    <!-- Mobile menu drawer -->
+    <div class="mobile-menu-wrap" [class.open]="menuOpen">
+      <nav class="mobile-nav">
+        <a class="mobile-nav-link" (click)="scrollToFeatures(); menuOpen=false">Features</a>
+        <a class="mobile-nav-link" routerLink="/education" (click)="menuOpen=false">Learn</a>
+        <a class="mobile-nav-link" routerLink="/reports" (click)="menuOpen=false">Reports</a>
+      </nav>
+      <div class="mobile-nav-footer" *ngIf="!isLoggedIn">
+        <button class="btn-ghost-nav full" (click)="goToLogin(); menuOpen=false">Log in</button>
+        <button class="btn-primary-nav full" (click)="goToSignup(); menuOpen=false">Get started free</button>
+      </div>
+      <div class="mobile-nav-footer" *ngIf="isLoggedIn">
+        <button class="btn-primary-nav full" (click)="goToDashboard(); menuOpen=false">Go to Dashboard</button>
+        <button class="btn-ghost-nav full danger" (click)="logout()">Sign out</button>
+      </div>
+    </div>
+  </header>
+  
+  <!-- ─── HERO ─── -->
+  <main class="landing-main">
+    <section class="hero">
+      <div class="hero-bg">
+        <div class="hero-orb orb-1"></div>
+        <div class="hero-orb orb-2"></div>
+        <div class="hero-grid"></div>
+      </div>
+  
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Personal Finance · Reimagined
+        </div>
+  
+        <h1 class="hero-title">
+          Your money,<br>
+          <em>finally</em> under<br>
+          control.
+        </h1>
+  
+        <p class="hero-sub">
+          FinTrack gives you a complete 360° view of your finances — budgets,
+          savings goals, investments, debt, and more. All in one beautifully
+          designed dashboard.
+        </p>
+  
+        <div class="hero-cta" *ngIf="!isLoggedIn">
+          <button class="cta-primary" (click)="goToSignup()">
+            Start for free
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="cta-secondary" (click)="goToLogin()">Log in to your account</button>
+        </div>
+  
+        <div class="hero-cta" *ngIf="isLoggedIn">
+          <button class="cta-primary" (click)="goToDashboard()">
+            Go to Dashboard
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="cta-secondary" (click)="scrollToFeatures()">Explore features</button>
+        </div>
+  
+        <div class="hero-scroll-hint" (click)="scrollToFeatures()">
+          <div class="scroll-wheel"></div>
+          <span>Scroll to explore</span>
+        </div>
+      </div>
+  
+      <!-- Floating dashboard preview card -->
+      <div class="hero-preview">
+        <div class="preview-card">
+          <div class="pc-header">
+            <span class="pc-title">Total Balance</span>
+            <span class="pc-badge">● Live</span>
+          </div>
+          <div class="pc-amount">₦24,500,000</div>
+          <div class="pc-delta">↑ 8.2% vs last month</div>
+          <div class="pc-bars">
+            <div class="pc-bar-row">
+              <span>Savings</span>
+              <div class="pc-track"><div class="pc-fill fill-accent" style="width:72%"></div></div>
+              <span class="pc-pct">72%</span>
+            </div>
+            <div class="pc-bar-row">
+              <span>Budget</span>
+              <div class="pc-track"><div class="pc-fill fill-info" style="width:54%"></div></div>
+              <span class="pc-pct">54%</span>
+            </div>
+            <div class="pc-bar-row">
+              <span>Debt</span>
+              <div class="pc-track"><div class="pc-fill fill-negative" style="width:38%"></div></div>
+              <span class="pc-pct">38%</span>
+            </div>
+          </div>
+        </div>
+  
+        <div class="preview-card mini" style="top: 260px; right: -32px;">
+          <div class="mc-icon" style="background:var(--positive-dim);color:var(--positive)">₦</div>
+          <div>
+            <div class="mc-label">Income this month</div>
+            <div class="mc-val">₦1,840,000</div>
+          </div>
+        </div>
+  
+        <div class="preview-card mini" style="top: 340px; left: -32px;">
+          <div class="mc-icon" style="background:var(--accent-dim);color:var(--accent)">🎯</div>
+          <div>
+            <div class="mc-label">Goal reached</div>
+            <div class="mc-val">Emergency Fund</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- ─── STATS STRIP ─── -->
+    <section class="stats-strip">
+      <div class="stats-inner">
+        <div class="stat-item" *ngFor="let s of stats">
+          <div class="stat-value">{{ s.value }}<span class="stat-suffix">{{ s.suffix }}</span></div>
+          <div class="stat-label">{{ s.label }}</div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- ─── FEATURES ─── -->
+    <section class="features" id="features">
+      <div class="section-wrap">
+        <div class="section-eyebrow">Everything you need</div>
+        <h2 class="section-title">Built for serious financial clarity</h2>
+        <p class="section-sub">14 pages of purpose-built tools. No bloat, no noise — just the financial control you've been missing.</p>
+  
+        <div class="features-grid">
+          <div class="feature-card" *ngFor="let f of features; let i = index" [style.--delay]="i * 80 + 'ms'">
+            <div class="feature-icon" [class]="'icon-' + f.color">{{ f.icon }}</div>
+            <h3 class="feature-title">{{ f.title }}</h3>
+            <p class="feature-desc">{{ f.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- ─── CTA BOTTOM ─── -->
+    <section class="cta-section">
+      <div class="cta-glow"></div>
+      <div class="cta-inner">
+        <h2 class="cta-title" *ngIf="!isLoggedIn">Ready to take control?</h2>
+        <h2 class="cta-title" *ngIf="isLoggedIn">Welcome back, {{ currentUser?.name?.split(' ')[0] }}</h2>
+        <p class="cta-sub" *ngIf="!isLoggedIn">Join thousands of people who finally understand where their money goes.</p>
+        <p class="cta-sub" *ngIf="isLoggedIn">Your dashboard is ready and waiting for you.</p>
+        <div class="cta-buttons">
+          <button class="cta-primary" *ngIf="!isLoggedIn" (click)="goToSignup()">
+            Create free account
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="cta-primary" *ngIf="isLoggedIn" (click)="goToDashboard()">
+            Go to Dashboard
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="cta-secondary" *ngIf="!isLoggedIn" (click)="goToLogin()">Already have an account</button>
+        </div>
+      </div>
+    </section>
+  
+    <!-- ─── FOOTER ─── -->
+    <footer class="landing-footer">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <span class="logo-mark sm">F</span>
+          <span class="logo-text">Fin<em>Track</em></span>
+        </div>
+        <p class="footer-copy">© 2026 FinTrack. Your finances, your future.</p>
+        <div class="footer-links">
+          <a routerLink="/education">Learn</a>
+          <a routerLink="/auth/login">Login</a>
+          <a routerLink="/auth/register">Register</a>
+        </div>
+      </div>
+    </footer>
+  </main>
