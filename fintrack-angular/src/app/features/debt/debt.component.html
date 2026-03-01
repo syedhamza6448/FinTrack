@@ -37,7 +37,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && debts.length === 0">
-  <div class="empty-icon">💳</div>
+  <div class="empty-icon"><app-icon name="credit-card" [size]="48"></app-icon></div>
   <h3>No debts tracked</h3>
   <p>Add your debts to track balances and payments</p>
   <button class="btn-primary" (click)="openAdd()">Add First Debt</button>
@@ -49,7 +49,7 @@
        [class.paid-off]="d.status === 'PaidOff'">
 
     <div class="dc-left">
-      <div class="dc-icon">{{ getTypeIcon(d.type) }}</div>
+      <div class="dc-icon"><app-icon [name]="getTypeIcon(d.type)" [size]="24"></app-icon></div>
     </div>
 
     <div class="dc-body">
@@ -111,9 +111,11 @@
         </div>
         <div class="form-field" style="width:160px">
           <label class="form-label">Type *</label>
-          <select class="input" formControlName="type">
-            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
-          </select>
+          <app-dropdown
+            formControlName="type"
+            [options]="debtTypeOptions"
+            placeholder="Type">
+          </app-dropdown>
         </div>
       </div>
       <div class="form-row">
@@ -145,11 +147,11 @@
         </div>
         <div class="form-field">
           <label class="form-label">Status</label>
-          <select class="input" formControlName="status">
-            <option value="Active">Active</option>
-            <option value="Overdue">Overdue</option>
-            <option value="PaidOff">Paid Off</option>
-          </select>
+          <app-dropdown
+            formControlName="status"
+            [options]="debtStatusOptions"
+            placeholder="Status">
+          </app-dropdown>
         </div>
       </div>
       <div class="modal-footer">

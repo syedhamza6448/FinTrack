@@ -11,6 +11,7 @@ import {
   Settings,
   LayoutGrid,
   ChartBar,
+  BarChart2,
   TrendingUp,
   CreditCard,
   PiggyBank,
@@ -35,13 +36,30 @@ import {
   Sprout,
   Package,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  RefreshCw,
+  MoreHorizontal,
+  PieChart,
+  FolderOpen,
+  CheckCircle,
+  AlertTriangle,
+  Banknote,
+  Eye,
+  EyeOff,
+  Map,
+  Newspaper,
+  Rocket,
+  Building2,
+  Landmark,
+  FileText,
+  Calculator
 } from 'lucide-angular';
 import { AbsPipe } from './pipes/abs.pipe';
 import { AppIconComponent } from './components/app-icon/app-icon.component';
+import { AppDropdownComponent } from './components/app-dropdown/app-dropdown.component';
 
 @NgModule({
-  declarations: [AbsPipe, AppIconComponent],
+  declarations: [AbsPipe, AppIconComponent, AppDropdownComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -54,6 +72,7 @@ import { AppIconComponent } from './components/app-icon/app-icon.component';
       Settings,
       LayoutGrid,
       ChartBar,
+      BarChart2,
       TrendingUp,
       CreditCard,
       PiggyBank,
@@ -78,7 +97,23 @@ import { AppIconComponent } from './components/app-icon/app-icon.component';
       Sprout,
       Package,
       ArrowUp,
-      ArrowDown
+      ArrowDown,
+      RefreshCw,
+      MoreHorizontal,
+      PieChart,
+      FolderOpen,
+      CheckCircle,
+      AlertTriangle,
+      Banknote,
+      Eye,
+      EyeOff,
+      Map,
+      Newspaper,
+      Rocket,
+      Building2,
+      Landmark,
+      FileText,
+      Calculator
     })
   ],
   exports: [
@@ -86,6 +121,7 @@ import { AppIconComponent } from './components/app-icon/app-icon.component';
     RouterModule,
     AbsPipe,
     AppIconComponent,
+    AppDropdownComponent,
     LucideAngularModule
   ]
 })

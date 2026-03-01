@@ -31,6 +31,17 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   get currency()   { return this.authService.userCurrency; }
   get modalTitle() { return this.editingId ? 'Edit Goal' : 'New Savings Goal'; }
+  filterStatusOptions = [
+    { value: '', label: 'All Goals' },
+    { value: 'Active', label: 'Active' },
+    { value: 'Completed', label: 'Completed' },
+    { value: 'Paused', label: 'Paused' }
+  ];
+  goalStatusOptions = [
+    { value: 'Active', label: 'Active' },
+    { value: 'Paused', label: 'Paused' },
+    { value: 'Completed', label: 'Completed' }
+  ];
 
   get totalSaved()  { return this.goals.reduce((s, g) => s + g.savedAmount, 0); }
   get totalTarget() { return this.goals.reduce((s, g) => s + g.targetAmount, 0); }
@@ -51,7 +62,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
       savedAmount:  [0],
       targetDate:   [''],
       status:       ['Active'],
-      icon:         ['🎯'],
+      icon:         ['target'],
       color:        ['#f5a623']
     });
     this.depositForm = this.fb.group({
@@ -76,7 +87,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   openAdd(): void {
     this.editingId = null; this.modalError = '';
-    this.goalForm.reset({ name: '', targetAmount: null, savedAmount: 0, targetDate: '', status: 'Active', icon: '🎯', color: '#f5a623' });
+    this.goalForm.reset({ name: '', targetAmount: null, savedAmount: 0, targetDate: '', status: 'Active', icon: 'target', color: '#f5a623' });
     this.showModal = true;
   }
 
@@ -84,7 +95,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
     this.editingId = g.id; this.modalError = '';
     this.goalForm.patchValue({
       name: g.name, targetAmount: g.targetAmount, savedAmount: g.savedAmount,
-      targetDate: g.targetDate?.substring(0, 10) ?? '', status: g.status, icon: g.icon ?? '🎯', color: g.color ?? '#f5a623'
+      targetDate: g.targetDate?.substring(0, 10) ?? '', status: g.status, icon: g.icon ?? 'target', color: g.color ?? '#f5a623'
     });
     this.showModal = true;
   }

@@ -29,6 +29,12 @@ export class DebtComponent implements OnInit, OnDestroy {
     paymentForm!: FormGroup;
 
     readonly types = ['Credit Card', 'Personal Loan', 'Mortgage', 'Car Loan', 'Student Loan', 'Medical', 'Other'];
+    get debtTypeOptions() { return this.types.map(t => ({ value: t, label: t })); }
+    debtStatusOptions = [
+        { value: 'Active', label: 'Active' },
+        { value: 'Overdue', label: 'Overdue' },
+        { value: 'PaidOff', label: 'Paid Off' }
+    ];
 
     get currency() { return this.authService.userCurrency; }
     get modalTitle() { return this.editingId ? 'Edit Debt' : 'Add Debt'; }
@@ -177,10 +183,10 @@ export class DebtComponent implements OnInit, OnDestroy {
 
     getTypeIcon(type: string): string {
         const icons: Record<string, string> = {
-            'Credit Card': '💳', 'Personal Loan': '🏦', Mortgage: '🏠',
-            'Car Loan': '🚗', 'Student Loan': '🎓', Medical: '🏥', Other: '📄'
+            'Credit Card': 'credit-card', 'Personal Loan': 'wallet', Mortgage: 'home',
+            'Car Loan': 'car', 'Student Loan': 'graduation-cap', Medical: 'building2', Other: 'file-text'
         };
-        return icons[type] ?? '📄';
+        return icons[type] ?? 'file-text';
     }
 
     formatCurrency(n: number): string {

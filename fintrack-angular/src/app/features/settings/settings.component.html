@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="alert success" *ngIf="profileSuccess">✓ {{ profileSuccess }}</div>
+            <div class="alert success" *ngIf="profileSuccess"><app-icon name="check-circle" [size]="18"></app-icon> {{ profileSuccess }}</div>
             <div class="alert error" *ngIf="profileError">{{ profileError }}</div>
 
             <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" novalidate>
@@ -77,9 +77,11 @@
                     </div>
                     <div class="form-field">
                         <label class="form-label">Currency</label>
-                        <select class="input" formControlName="currency">
-                            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }}</option>
-                        </select>
+                        <app-dropdown
+                            formControlName="currency"
+                            [options]="currencyOptions"
+                            placeholder="Currency">
+                        </app-dropdown>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -98,7 +100,7 @@
                 <p class="sc-subtitle">Use a strong password with at least 8 characters</p>
             </div>
 
-            <div class="alert success" *ngIf="passwordSuccess">✓ {{ passwordSuccess }}</div>
+            <div class="alert success" *ngIf="passwordSuccess"><app-icon name="check-circle" [size]="18"></app-icon> {{ passwordSuccess }}</div>
             <div class="alert error" *ngIf="passwordError">{{ passwordError }}</div>
 
             <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" novalidate>
@@ -108,7 +110,7 @@
                         <input class="input" [type]="showCurrentPw ? 'text' : 'password'"
                             formControlName="currentPassword" placeholder="Enter current password">
                         <button type="button" class="pw-toggle" (click)="showCurrentPw = !showCurrentPw">
-                            {{ showCurrentPw ? '🙈' : '👁️' }}
+                            <app-icon [name]="showCurrentPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
                         </button>
                     </div>
                     <span class="form-error"
@@ -121,7 +123,7 @@
                             <input class="input" [type]="showNewPw ? 'text' : 'password'" formControlName="newPassword"
                                 placeholder="Min 8 characters">
                             <button type="button" class="pw-toggle" (click)="showNewPw = !showNewPw">
-                                {{ showNewPw ? '🙈' : '👁️' }}
+                                <app-icon [name]="showNewPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
                             </button>
                         </div>
                         <span class="form-error"
@@ -134,7 +136,7 @@
                             <input class="input" [type]="showConfirmPw ? 'text' : 'password'"
                                 formControlName="confirmPassword" placeholder="Repeat new password">
                             <button type="button" class="pw-toggle" (click)="showConfirmPw = !showConfirmPw">
-                                {{ showConfirmPw ? '🙈' : '👁️' }}
+                                <app-icon [name]="showConfirmPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
                             </button>
                         </div>
                         <span class="form-error"
@@ -165,24 +167,24 @@
                             <span class="pref-label">Currency</span>
                             <span class="pref-desc">Default currency for all amounts</span>
                         </div>
-                        <select class="input pref-select" formControlName="currency">
-                            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }}</option>
-                        </select>
+                        <app-dropdown
+                            class="input pref-select"
+                            formControlName="currency"
+                            [options]="currencyOptions"
+                            placeholder="Currency">
+                        </app-dropdown>
                     </div>
                     <div class="pref-item">
                         <div class="pref-info">
                             <span class="pref-label">Timezone</span>
                             <span class="pref-desc">Used for date calculations</span>
                         </div>
-                        <select class="input pref-select" formControlName="timezone">
-                            <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
-                            <option value="Africa/Nairobi">Africa/Nairobi (EAT)</option>
-                            <option value="Africa/Accra">Africa/Accra (GMT)</option>
-                            <option value="Africa/Johannesburg">Africa/Johannesburg (SAST)</option>
-                            <option value="Europe/London">Europe/London (GMT/BST)</option>
-                            <option value="America/New_York">America/New_York (EST)</option>
-                            <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
-                        </select>
+                        <app-dropdown
+                            class="input pref-select"
+                            formControlName="timezone"
+                            [options]="timezoneOptions"
+                            placeholder="Timezone">
+                        </app-dropdown>
                     </div>
                 </div>
             </form>

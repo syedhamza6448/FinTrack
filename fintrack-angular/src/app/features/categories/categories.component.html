@@ -24,7 +24,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && filteredCategories.length === 0">
-  <div class="empty-icon">🗂️</div>
+  <div class="empty-icon"><app-icon name="folder-open" [size]="48"></app-icon></div>
   <h3>No categories yet</h3>
   <p>Create categories to organize your transactions</p>
   <button class="btn-primary" (click)="openAdd()">Create First Category</button>
@@ -75,22 +75,24 @@
         </div>
         <div class="form-field" style="width: 130px">
           <label class="form-label">Type *</label>
-          <select class="input" formControlName="type">
-            <option value="Expense">Expense</option>
-            <option value="Income">Income</option>
-          </select>
+          <app-dropdown
+            formControlName="type"
+            [options]="categoryTypeOptions"
+            placeholder="Type">
+          </app-dropdown>
         </div>
       </div>
 
       <!-- Icon picker -->
       <div class="form-field">
         <label class="form-label">Icon</label>
-        <div class="icon-picker">
+        <div class="icon-picker icon-picker-grid">
           <button type="button" class="icon-btn"
                   *ngFor="let icon of icons; trackBy: trackByIndex"
                   [class.selected]="catForm.get('icon')?.value === icon"
-                  (click)="selectIcon(icon)">
-            {{ icon }}
+                  (click)="selectIcon(icon)"
+                  [title]="icon">
+            <app-icon [name]="icon" [size]="24"></app-icon>
           </button>
         </div>
         <div class="icon-preview" *ngIf="catForm.get('icon')?.value">

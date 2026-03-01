@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { BaseChartDirective } from 'ng2-charts';
 import { SharedModule } from '../../shared/shared.module';
 import { DashboardComponent } from './dashboard.component';
 
@@ -11,7 +12,8 @@ const routes: Routes = [
   declarations: [DashboardComponent],
   imports: [
     SharedModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    BaseChartDirective
   ]
 })
 export class DashboardModule {}

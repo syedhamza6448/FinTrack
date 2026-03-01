@@ -10,10 +10,13 @@
 <div class="filters-card" [formGroup]="filterForm">
   <div class="filter-row">
     <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
-    <select class="filter-select" formControlName="categoryId" (change)="applyFilters()">
-      <option value="">All Categories</option>
-      <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
-    </select>
+    <app-dropdown
+      class="filter-select"
+      formControlName="categoryId"
+      [options]="expenseCategoryOptions"
+      placeholder="All Categories"
+      (valueChange)="applyFilters()">
+    </app-dropdown>
     <button class="btn-ghost" (click)="clearFilters()">Clear</button>
   </div>
 </div>
@@ -82,7 +85,7 @@
 
   <!-- Empty -->
   <div class="empty-state" *ngIf="!loading && expenses.length === 0">
-    <div class="empty-icon">🛍️</div>
+    <div class="empty-icon"><app-icon name="shopping-cart" [size]="48"></app-icon></div>
     <h3>No expenses found</h3>
     <p>Add expenses from the Transactions page</p>
   </div>

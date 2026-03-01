@@ -46,6 +46,13 @@ export class EducationComponent implements OnInit, OnDestroy {
   savingsResult:  any = null;
   debtResult:     any = null;
 
+  frequencyOptions = [
+    { value: 1, label: 'Annually' },
+    { value: 4, label: 'Quarterly' },
+    { value: 12, label: 'Monthly' },
+    { value: 365, label: 'Daily' }
+  ];
+
   // ── Filtered articles ──────────────────────────────────────
   get filteredArticles(): EducationArticle[] {
     if (!this.filterCategory || this.filterCategory === 'All') return this.articles;

@@ -26,6 +26,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     investForm!: FormGroup;
 
     readonly types = ['Stocks', 'Crypto', 'Bonds', 'Real Estate', 'Mutual Funds', 'ETF', 'Other'];
+    get investmentTypeOptions() { return this.types.map(t => ({ value: t, label: t })); }
 
     get currency() { return this.authService.userCurrency; }
     get modalTitle() { return this.editingId ? 'Edit Investment' : 'Add Investment'; }
@@ -124,10 +125,10 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     getGainClass(gain: number): string { return gain >= 0 ? 'positive' : 'negative'; }
     getTypeIcon(type: string): string {
         const icons: Record<string, string> = {
-            Stocks: '📈', Crypto: '₿', Bonds: '📄', 'Real Estate': '🏠',
-            'Mutual Funds': '💼', ETF: '📊', Other: '💰'
+            Stocks: 'trending-up', Crypto: 'dollar-sign', Bonds: 'file-text', 'Real Estate': 'home',
+            'Mutual Funds': 'briefcase', ETF: 'bar-chart-2', Other: 'wallet'
         };
-        return icons[type] ?? '💰';
+        return icons[type] ?? 'wallet';
     }
 
     formatCurrency(n: number): string {

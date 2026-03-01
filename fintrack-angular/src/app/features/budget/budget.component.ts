@@ -30,6 +30,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
 
   get currency()           { return this.authService.userCurrency; }
   get expenseCategories()  { return this.categories.filter(c => c.type === 'Expense'); }
+  get budgetCategoryOptions() { return this.expenseCategories.map(c => ({ value: c.id, label: c.name })); }
   get modalTitle()         { return this.editingId ? 'Edit Budget' : 'Set Budget'; }
 
   get totalBudgeted() { return this.budgets.reduce((s, b) => s + b.amount, 0); }

@@ -22,6 +22,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   topIncomeCategories:   any[] = [];
 
   years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  get yearOptions() { return this.years.map(y => ({ value: y, label: String(y) })); }
 
   // Chart.js: monthly bar chart
   barChartData: { labels: string[]; datasets: { label: string; data: number[]; backgroundColor: string; borderColor?: string }[] } = {

@@ -288,6 +288,11 @@
   &:hover { text-decoration: underline; }
 }
 
+.pie-chart-wrap {
+  height: 220px;
+  position: relative;
+}
+
 // ── Transactions List ────────────────────────
 .txn-list {
   display: flex;

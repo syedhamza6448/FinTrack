@@ -22,20 +22,7 @@
          (mouseenter)="showTooltip(item.label, $event)"
          (mouseleave)="hideTooltip()">
         <span class="nav-icon">
-          <ng-container [ngSwitch]="item.icon">
-            <svg *ngSwitchCase="'grid'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            <svg *ngSwitchCase="'swap'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-            <svg *ngSwitchCase="'bar-chart'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            <svg *ngSwitchCase="'wallet'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><circle cx="18" cy="12" r="2"/></svg>
-            <svg *ngSwitchCase="'target'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            <svg *ngSwitchCase="'piggy'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2z"/><path d="M2 9v1c0 1.1.4 2 1 2"/><path d="M16 11h0"/></svg>
-            <svg *ngSwitchCase="'trending-up'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            <svg *ngSwitchCase="'credit-card'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-            <svg *ngSwitchCase="'tag'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-            <svg *ngSwitchCase="'bell'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <svg *ngSwitchCase="'book'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            <svg *ngSwitchCase="'settings'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          </ng-container>
+          <app-icon [name]="getLucideName(item.icon)" [size]="16"></app-icon>
         </span>
         <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
         <span *ngIf="!sidebarCollapsed && item.path === '/notifications' && unreadCount > 0" class="nav-badge">{{ unreadCount }}</span>
@@ -50,13 +37,7 @@
          (mouseenter)="showTooltip(item.label, $event)"
          (mouseleave)="hideTooltip()">
         <span class="nav-icon">
-          <ng-container [ngSwitch]="item.icon">
-            <svg *ngSwitchCase="'wallet'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><circle cx="18" cy="12" r="2"/></svg>
-            <svg *ngSwitchCase="'target'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            <svg *ngSwitchCase="'piggy'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2z"/></svg>
-            <svg *ngSwitchCase="'trending-up'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            <svg *ngSwitchCase="'credit-card'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          </ng-container>
+          <app-icon [name]="getLucideName(item.icon)" [size]="16"></app-icon>
         </span>
         <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
       </a>
@@ -69,12 +50,7 @@
          (mouseenter)="showTooltip(item.label, $event)"
          (mouseleave)="hideTooltip()">
         <span class="nav-icon">
-          <ng-container [ngSwitch]="item.icon">
-            <svg *ngSwitchCase="'tag'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-            <svg *ngSwitchCase="'bell'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <svg *ngSwitchCase="'book'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            <svg *ngSwitchCase="'settings'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          </ng-container>
+          <app-icon [name]="getLucideName(item.icon)" [size]="16"></app-icon>
         </span>
         <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
         <span *ngIf="!sidebarCollapsed && item.path === '/notifications' && unreadCount > 0" class="nav-badge">{{ unreadCount }}</span>
@@ -143,20 +119,56 @@
 
     <!-- Bottom nav (mobile) -->
     <nav class="bottom-nav">
-      <a *ngFor="let item of bottomNavItems; trackBy: trackByPath"
-         class="bottom-nav-item"
-         [class.active]="isActive(item.path)"
-         [routerLink]="item.path">
-        <ng-container [ngSwitch]="item.icon">
-          <svg *ngSwitchCase="'grid'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          <svg *ngSwitchCase="'swap'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
-          <svg *ngSwitchCase="'target'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-          <svg *ngSwitchCase="'piggy'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2z"/></svg>
-          <svg *ngSwitchCase="'more'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-        </ng-container>
-        <span class="bottom-label">{{ item.label }}</span>
-      </a>
+      <ng-container *ngFor="let item of bottomNavItems; trackBy: trackByPath">
+        <a *ngIf="item.icon !== 'more'"
+           class="bottom-nav-item"
+           [class.active]="isActive(item.path)"
+           [routerLink]="item.path">
+          <app-icon [name]="getLucideName(item.icon)" [size]="20"></app-icon>
+          <span class="bottom-label">{{ item.label }}</span>
+        </a>
+        <button *ngIf="item.icon === 'more'"
+                type="button"
+                class="bottom-nav-item"
+                [class.active]="moreMenuOpen"
+                (click)="moreMenuOpen = !moreMenuOpen">
+          <app-icon name="more-horizontal" [size]="20"></app-icon>
+          <span class="bottom-label">{{ item.label }}</span>
+        </button>
+      </ng-container>
     </nav>
+
+    <!-- More menu overlay (mobile): all nav links -->
+    <div class="more-menu-backdrop" *ngIf="moreMenuOpen" (click)="moreMenuOpen = false"></div>
+    <div class="more-menu-panel" *ngIf="moreMenuOpen">
+      <div class="more-menu-header">
+        <h2 class="more-menu-title">Menu</h2>
+        <button type="button" class="more-menu-close" (click)="moreMenuOpen = false" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <nav class="more-menu-nav">
+        <p class="more-menu-group">Overview</p>
+        <a *ngFor="let item of overviewItems; trackBy: trackByPath"
+           class="more-menu-item" [routerLink]="item.path" (click)="moreMenuOpen = false">
+          <app-icon [name]="getLucideName(item.icon)" [size]="20"></app-icon>
+          <span>{{ item.label }}</span>
+        </a>
+        <p class="more-menu-group">Manage</p>
+        <a *ngFor="let item of manageItems; trackBy: trackByPath"
+           class="more-menu-item" [routerLink]="item.path" (click)="moreMenuOpen = false">
+          <app-icon [name]="getLucideName(item.icon)" [size]="20"></app-icon>
+          <span>{{ item.label }}</span>
+        </a>
+        <p class="more-menu-group">System</p>
+        <a *ngFor="let item of systemItems; trackBy: trackByPath"
+           class="more-menu-item" [routerLink]="item.path" (click)="moreMenuOpen = false">
+          <app-icon [name]="getLucideName(item.icon)" [size]="20"></app-icon>
+          <span>{{ item.label }}</span>
+          <span *ngIf="item.path === '/notifications' && unreadCount > 0" class="more-menu-badge">{{ unreadCount }}</span>
+        </a>
+      </nav>
+    </div>
 
   </div>
 </div>

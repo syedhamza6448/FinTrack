@@ -28,6 +28,9 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   get currency() { return this.authService.userCurrency; }
 
   get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
+  get expenseCategoryOptions() {
+    return [{ value: '', label: 'All Categories' }, ...this.expenseCategories.map(c => ({ value: c.id, label: c.name }))];
+  }
 
   get currentMonthLabel(): string {
     const month = this.filterForm?.get('month')?.value;

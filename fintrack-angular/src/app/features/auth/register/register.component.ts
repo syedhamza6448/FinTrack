@@ -16,6 +16,7 @@ export class RegisterComponent {
   showPw  = false;
 
   currencies = ['NGN', 'USD', 'EUR', 'GBP', 'GHS', 'KES', 'ZAR'];
+  get registerCurrencyOptions() { return this.currencies.map(c => ({ value: c, label: c })); }
 
   constructor(
     private fb: FormBuilder,

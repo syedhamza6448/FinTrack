@@ -48,7 +48,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && budgets.length === 0">
-  <div class="empty-icon">🎯</div>
+  <div class="empty-icon"><app-icon name="target" [size]="48"></app-icon></div>
   <h3>No budgets set</h3>
   <p>Set a budget for each spending category to track your limits</p>
   <button class="btn-primary" (click)="openAdd()">Set First Budget</button>
@@ -93,7 +93,7 @@
     </div>
 
     <div class="bc-status-bar" [class]="b.status">
-      {{ b.status === 'exceeded' ? '⚠ Over budget' : b.status === 'warning' ? '⚡ Near limit' : '✓ On track' }}
+      {{ b.status === 'exceeded' ? 'Over budget' : b.status === 'warning' ? 'Near limit' : 'On track' }}
     </div>
 
   </div>
@@ -112,10 +112,11 @@
     <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="form-field">
         <label class="form-label">Category *</label>
-        <select class="input" formControlName="categoryId">
-          <option [value]="null" disabled>Select category</option>
-          <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
-        </select>
+        <app-dropdown
+          formControlName="categoryId"
+          [options]="budgetCategoryOptions"
+          placeholder="Select category">
+        </app-dropdown>
         <span class="form-error" *ngIf="budgetForm.get('categoryId')?.touched && budgetForm.get('categoryId')?.errors?.['required']">Required</span>
       </div>
       <div class="form-field">

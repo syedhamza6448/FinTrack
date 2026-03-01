@@ -16,6 +16,7 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   sidebarOpen     = false;
   sidebarCollapsed = false;
+  moreMenuOpen    = false;
   currentRoute    = '';
   unreadCount     = 0;
   isDark          = true;
@@ -70,6 +71,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     ).subscribe((e: any) => {
       this.currentRoute = e.urlAfterRedirects;
       this.sidebarOpen  = false;
+      this.moreMenuOpen = false;
     });
 
     this.currentRoute = this.router.url;
@@ -124,6 +126,18 @@ export class ShellComponent implements OnInit, OnDestroy {
   }
 
   trackByPath(_: number, item: { path: string }): string { return item.path; }
+
+  /** Map shell icon key to Lucide kebab-case name for app-icon. */
+  getLucideName(icon: string): string {
+    const map: Record<string, string> = {
+      'grid': 'layout-grid', 'swap': 'refresh-cw', 'bar-chart': 'bar-chart-2',
+      'wallet': 'wallet', 'target': 'target', 'piggy': 'piggy-bank',
+      'trending-up': 'trending-up', 'credit-card': 'credit-card',
+      'tag': 'tag', 'bell': 'bell', 'book': 'book', 'settings': 'settings',
+      'more': 'more-horizontal'
+    };
+    return map[icon] ?? 'circle';
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {

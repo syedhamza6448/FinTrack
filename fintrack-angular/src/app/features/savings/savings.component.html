@@ -5,12 +5,13 @@
     <p>{{ activeGoals }} active · {{ completedGoals }} completed</p>
   </div>
   <div class="header-right">
-    <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
-      <option value="">All Goals</option>
-      <option value="Active">Active</option>
-      <option value="Completed">Completed</option>
-      <option value="Paused">Paused</option>
-    </select>
+    <app-dropdown
+      class="filter-select"
+      [value]="filterStatus"
+      [options]="filterStatusOptions"
+      placeholder="All Goals"
+      (valueChange)="filterStatus = $event; onFilterChange()">
+    </app-dropdown>
     <button class="btn-primary" (click)="openAdd()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       New Goal
@@ -41,7 +42,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && goals.length === 0">
-  <div class="empty-icon">🐷</div>
+  <div class="empty-icon"><app-icon name="piggy-bank" [size]="48"></app-icon></div>
   <h3>No savings goals yet</h3>
   <p>Create a goal to start tracking your savings progress</p>
   <button class="btn-primary" (click)="openAdd()">Create First Goal</button>
@@ -133,7 +134,7 @@
         </div>
         <div class="form-field" style="width: 80px">
           <label class="form-label">Icon</label>
-          <input class="input" type="text" formControlName="icon" placeholder="🎯" maxlength="2">
+          <input class="input" type="text" formControlName="icon" placeholder="target" maxlength="2">
         </div>
       </div>
       <div class="form-row">
@@ -154,11 +155,11 @@
         </div>
         <div class="form-field">
           <label class="form-label">Status</label>
-          <select class="input" formControlName="status">
-            <option value="Active">Active</option>
-            <option value="Paused">Paused</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <app-dropdown
+            formControlName="status"
+            [options]="goalStatusOptions"
+            placeholder="Status">
+          </app-dropdown>
         </div>
       </div>
       <div class="modal-footer">

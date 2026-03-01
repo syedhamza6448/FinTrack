@@ -430,16 +430,22 @@ form {
     background: var(--bg-base);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-md);
+
+    &.icon-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+    }
 }
 
 .icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--r-sm);
     border: 1px solid transparent;
     background: transparent;
-    font-size: 18px;
     cursor: pointer;
+    color: var(--text-secondary);
     transition: all var(--t-fast);
     display: flex;
     align-items: center;
@@ -452,6 +458,7 @@ form {
     &.selected {
         background: var(--accent-dim);
         border-color: rgba(245, 166, 35, 0.4);
+        color: var(--accent);
     }
 }
 

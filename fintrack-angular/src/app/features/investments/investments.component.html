@@ -38,7 +38,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && investments.length === 0">
-  <div class="empty-icon">📈</div>
+  <div class="empty-icon"><app-icon name="trending-up" [size]="48"></app-icon></div>
   <h3>No investments yet</h3>
   <p>Start tracking your portfolio by adding your first investment</p>
   <button class="btn-primary" (click)="openAdd()">Add Investment</button>
@@ -62,7 +62,7 @@
       <tr *ngFor="let inv of investments; trackBy: trackById">
         <td>
           <div class="inv-name">
-            <span class="inv-type-icon">{{ getTypeIcon(inv.type) }}</span>
+            <span class="inv-type-icon"><app-icon [name]="getTypeIcon(inv.type)" [size]="18"></app-icon></span>
             <div>
               <div class="inv-title">{{ inv.name }}</div>
               <div class="inv-meta" *ngIf="inv.units">{{ inv.units }} units</div>
@@ -116,9 +116,11 @@
         </div>
         <div class="form-field" style="width:140px">
           <label class="form-label">Type *</label>
-          <select class="input" formControlName="type">
-            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
-          </select>
+          <app-dropdown
+            formControlName="type"
+            [options]="investmentTypeOptions"
+            placeholder="Type">
+          </app-dropdown>
         </div>
       </div>
       <div class="form-row">

@@ -12,7 +12,7 @@
 
 <!-- ══ ERROR ══ -->
 <div class="dash-error" *ngIf="!loading && error">
-  <div class="error-icon">⚠</div>
+  <div class="error-icon"><app-icon name="alert-triangle" [size]="40"></app-icon></div>
   <p>{{ error }}</p>
   <button class="btn-retry" (click)="loadDashboard()">Try Again</button>
 </div>
@@ -23,7 +23,7 @@
   <!-- Header -->
   <div class="dash-header">
     <div>
-      <h1 class="dash-greeting">{{ greeting }}, {{ getFirstName() }} 👋</h1>
+      <h1 class="dash-greeting">{{ greeting }}, {{ getFirstName() }}</h1>
       <p class="dash-sub">Here's your financial overview for {{ currentMonth }}</p>
     </div>
     <button class="btn-refresh" (click)="loadDashboard()" title="Refresh">
@@ -123,7 +123,7 @@
       </div>
 
       <div class="empty-state" *ngIf="data.recentTransactions.length === 0">
-        <div class="empty-icon">💸</div>
+        <div class="empty-icon"><app-icon name="banknote" [size]="40"></app-icon></div>
         <p>No transactions yet</p>
       </div>
 
@@ -146,6 +146,24 @@
 
     <!-- Right Column -->
     <div class="dash-right">
+
+      <!-- Expenses by category (pie) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Expenses by category</h2>
+          <a class="card-link" routerLink="/reports">Reports</a>
+        </div>
+        <div class="pie-chart-wrap" *ngIf="topCategories.length > 0">
+          <canvas baseChart
+                  type="pie"
+                  [data]="pieChartData"
+                  [options]="pieChartOptions">
+          </canvas>
+        </div>
+        <div class="empty-state" *ngIf="topCategories.length === 0">
+          <p>No expense data this month</p>
+        </div>
+      </div>
 
       <!-- Budget Alerts -->
       <div class="card" *ngIf="data.budgetAlerts.length > 0">
@@ -208,7 +226,7 @@
       <!-- All clear if no alerts or goals -->
       <div class="card all-clear"
            *ngIf="data.budgetAlerts.length === 0 && data.savingsGoals.length === 0">
-        <div class="all-clear-icon">✅</div>
+        <div class="all-clear-icon"><app-icon name="check-circle" [size]="40"></app-icon></div>
         <p>No budget alerts</p>
         <span>You're on track this month!</span>
       </div>

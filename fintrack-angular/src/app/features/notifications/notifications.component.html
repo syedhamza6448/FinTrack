@@ -26,7 +26,7 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && filtered.length === 0">
-  <div class="empty-icon">🔔</div>
+  <div class="empty-icon"><app-icon name="bell" [size]="48"></app-icon></div>
   <h3>No notifications</h3>
   <p>You're all caught up!</p>
 </div>
@@ -39,7 +39,7 @@
        (click)="markRead(n)">
 
     <div class="notif-icon" [class]="'notif-icon-' + getTypeClass(n.type)">
-      {{ getIcon(n.type) }}
+      <app-icon [name]="getIcon(n.type)" [size]="20"></app-icon>
     </div>
 
     <div class="notif-body">

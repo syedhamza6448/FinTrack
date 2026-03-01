@@ -42,6 +42,23 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     get incomeCategories() { return this.categories.filter(c => c.type === 'Income'); }
     get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
     get modalTitle(): string { return this.editingId ? 'Edit Transaction' : 'Add Transaction'; }
+    filterTypeOptions = [
+        { value: '', label: 'All Types' },
+        { value: 'Income', label: 'Income' },
+        { value: 'Expense', label: 'Expense' }
+    ];
+    get filterCategoryOptions() {
+        return [
+            { value: '', label: 'All Categories' },
+            ...this.incomeCategories.map(c => ({ value: c.id, label: c.name + ' (Income)' })),
+            ...this.expenseCategories.map(c => ({ value: c.id, label: c.name + ' (Expense)' }))
+        ];
+    }
+    get modalCategoryOptions() {
+        const type = this.txnForm?.get('type')?.value;
+        const cats = type === 'Income' ? this.incomeCategories : this.expenseCategories;
+        return cats.map(c => ({ value: c.id, label: c.name }));
+    }
 
     constructor(
         private fb: FormBuilder,
@@ -58,6 +75,9 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         this.filterForm.get('search')!.valueChanges.pipe(
             debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
         ).subscribe(() => { this.page = 1; this.loadTransactions(); });
+        this.txnForm.get('type')!.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            this.txnForm.patchValue({ categoryId: null });
+        });
     }
 
     ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }

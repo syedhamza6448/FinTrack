@@ -19,21 +19,21 @@
   </div>
 
   <div class="filter-row">
-    <select class="filter-select" formControlName="type" (change)="applyFilters()">
-      <option value="">All Types</option>
-      <option value="Income">Income</option>
-      <option value="Expense">Expense</option>
-    </select>
+    <app-dropdown
+      class="filter-select"
+      formControlName="type"
+      [options]="filterTypeOptions"
+      placeholder="All Types"
+      (valueChange)="applyFilters()">
+    </app-dropdown>
 
-    <select class="filter-select" formControlName="categoryId" (change)="applyFilters()">
-      <option value="">All Categories</option>
-      <optgroup label="Income">
-        <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.name }}</option>
-      </optgroup>
-      <optgroup label="Expense">
-        <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
-      </optgroup>
-    </select>
+    <app-dropdown
+      class="filter-select"
+      formControlName="categoryId"
+      [options]="filterCategoryOptions"
+      placeholder="All Categories"
+      (valueChange)="applyFilters()">
+    </app-dropdown>
 
     <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
 
@@ -52,7 +52,7 @@
 
   <!-- Empty -->
   <div class="empty-state" *ngIf="!loading && transactions.length === 0">
-    <div class="empty-icon">💸</div>
+    <div class="empty-icon"><app-icon name="banknote" [size]="48"></app-icon></div>
     <h3>No transactions found</h3>
     <p>Try adjusting your filters or add a new transaction</p>
     <button class="btn-primary" (click)="openAdd()">Add Transaction</button>
@@ -174,15 +174,11 @@
 
       <div class="form-field">
         <label class="form-label">Category *</label>
-        <select class="input select" formControlName="categoryId">
-          <option [value]="null" disabled>Select a category</option>
-          <optgroup *ngIf="txnForm.get('type')?.value === 'Income'" label="Income Categories">
-            <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.name }}</option>
-          </optgroup>
-          <optgroup *ngIf="txnForm.get('type')?.value === 'Expense'" label="Expense Categories">
-            <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
-          </optgroup>
-        </select>
+        <app-dropdown
+          formControlName="categoryId"
+          [options]="modalCategoryOptions"
+          placeholder="Select a category">
+        </app-dropdown>
         <span class="form-error" *ngIf="txnForm.get('categoryId')?.touched && txnForm.get('categoryId')?.errors?.['required']">Required</span>
       </div>
 

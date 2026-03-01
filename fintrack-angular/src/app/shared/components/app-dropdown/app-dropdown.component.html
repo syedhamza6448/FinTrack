@@ -1,0 +1,26 @@
+<div class="app-dropdown" [class.open]="open" [class.disabled]="disabled">
+  <button type="button"
+          class="dropdown-trigger"
+          [disabled]="disabled"
+          (click)="toggle()">
+    <span class="trigger-label">{{ displayLabel }}</span>
+    <span class="trigger-chevron">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </span>
+  </button>
+  <div #panel class="dropdown-panel" *ngIf="open">
+    <button type="button"
+            class="dropdown-option"
+            *ngFor="let opt of options; trackBy: trackByValue"
+            [class.selected]="value === opt.value"
+            (click)="select(opt)">
+      <app-icon *ngIf="opt.icon" [name]="opt.icon" [size]="16"></app-icon>
+      <span>{{ opt.label }}</span>
+    </button>
+    <div class="dropdown-empty" *ngIf="options.length === 0">
+      <span>No options</span>
+    </div>
+  </div>
+</div>

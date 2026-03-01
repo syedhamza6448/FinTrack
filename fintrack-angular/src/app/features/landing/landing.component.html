@@ -199,7 +199,7 @@
         </div>
   
         <div class="preview-card mini" style="top: 340px; left: -32px;">
-          <div class="mc-icon" style="background:var(--accent-dim);color:var(--accent)">🎯</div>
+          <div class="mc-icon" style="background:var(--accent-dim);color:var(--accent)"><app-icon name="target" [size]="20"></app-icon></div>
           <div>
             <div class="mc-label">Goal reached</div>
             <div class="mc-val">Emergency Fund</div>
@@ -227,7 +227,7 @@
   
         <div class="features-grid">
           <div class="feature-card" *ngFor="let f of features; let i = index" [style.--delay]="i * 80 + 'ms'">
-            <div class="feature-icon" [class]="'icon-' + f.color">{{ f.icon }}</div>
+            <div class="feature-icon" [class]="'icon-' + f.color"><app-icon [name]="f.icon" [size]="28"></app-icon></div>
             <h3 class="feature-title">{{ f.title }}</h3>
             <p class="feature-desc">{{ f.desc }}</p>
           </div>

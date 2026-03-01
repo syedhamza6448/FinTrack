@@ -55,9 +55,11 @@
 
       <div class="form-field">
         <label class="form-label">Currency</label>
-        <select class="input select" formControlName="currency">
-          <option *ngFor="let c of currencies" [value]="c">{{ c }}</option>
-        </select>
+        <app-dropdown
+          formControlName="currency"
+          [options]="registerCurrencyOptions"
+          placeholder="Currency">
+        </app-dropdown>
       </div>
 
       <button class="btn-submit" type="submit" [disabled]="loading">

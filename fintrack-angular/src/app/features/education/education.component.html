@@ -9,16 +9,20 @@
 <!-- Main Tabs -->
 <div class="tabs">
   <button class="tab-btn" [class.active]="activeTab === 'tips'"        (click)="setTab('tips')">
-    <span>💡</span> Tips & Articles
+    <app-icon name="lightbulb" [size]="18"></app-icon>
+    <span>Tips & Articles</span>
   </button>
   <button class="tab-btn" [class.active]="activeTab === 'modules'"     (click)="setTab('modules')">
-    <span>📚</span> Learning Modules
+    <app-icon name="book" [size]="18"></app-icon>
+    <span>Learning Modules</span>
   </button>
   <button class="tab-btn" [class.active]="activeTab === 'guides'"      (click)="setTab('guides')">
-    <span>🗺️</span> Goal Guides
+    <app-icon name="map" [size]="18"></app-icon>
+    <span>Goal Guides</span>
   </button>
   <button class="tab-btn" [class.active]="activeTab === 'calculators'" (click)="setTab('calculators')">
-    <span>🧮</span> Calculators
+    <app-icon name="calculator" [size]="18"></app-icon>
+    <span>Calculators</span>
   </button>
 </div>
 
@@ -79,7 +83,7 @@
 
       <!-- Empty -->
       <div class="empty-state" *ngIf="filteredArticles.length === 0">
-        <div class="empty-icon">📰</div>
+        <div class="empty-icon"><app-icon name="newspaper" [size]="48"></app-icon></div>
         <h3>No articles found</h3>
         <p>Try a different category filter</p>
       </div>
@@ -134,11 +138,11 @@
       <div class="lesson-item" *ngFor="let topic of activeModule.topics; let i = index; trackBy: trackByIndex">
         <div class="lesson-num">{{ i + 1 }}</div>
         <span class="lesson-text">{{ topic }}</span>
-        <div class="lesson-icon">📖</div>
+        <div class="lesson-icon"><app-icon name="book" [size]="18"></app-icon></div>
       </div>
     </div>
     <div class="module-cta">
-      <span>🚀</span>
+      <app-icon name="rocket" [size]="20"></app-icon>
       <span>Apply what you learn directly in FinTrack — track your progress as you build better financial habits.</span>
     </div>
   </div>
@@ -152,7 +156,7 @@
 
     <!-- Empty -->
     <div class="empty-state" *ngIf="!loadingModules && modules.length === 0">
-      <div class="empty-icon">📚</div>
+      <div class="empty-icon"><app-icon name="book" [size]="48"></app-icon></div>
       <h3>No modules available</h3>
       <p>Learning modules will appear here once added</p>
     </div>
@@ -187,7 +191,7 @@
 
   <!-- Empty -->
   <div class="empty-state" *ngIf="!loadingGuides && guides.length === 0">
-    <div class="empty-icon">🗺️</div>
+    <div class="empty-icon"><app-icon name="map" [size]="48"></app-icon></div>
     <h3>No guides available</h3>
     <p>Goal guides will appear here once added</p>
   </div>
@@ -199,7 +203,7 @@
         <span class="gc-icon">{{ g.icon }}</span>
         <h3 class="gc-title">{{ g.title }}</h3>
       </div>
-      <p class="gc-goal">🎯 {{ g.goal }}</p>
+      <p class="gc-goal"><app-icon name="target" [size]="16"></app-icon> {{ g.goal }}</p>
       <div class="steps-list">
         <div class="step-item" *ngFor="let step of g.steps; let i = index; trackBy: trackByIndex">
           <div class="step-num">{{ i + 1 }}</div>
@@ -207,7 +211,7 @@
         </div>
       </div>
       <div class="guide-tip">
-        <span class="tip-icon">💡</span>
+        <span class="tip-icon"><app-icon name="lightbulb" [size]="16"></app-icon></span>
         <span class="tip-text">{{ g.tip }}</span>
       </div>
     </div>
@@ -221,10 +225,10 @@
 
   <!-- Calc Sub-tabs -->
   <div class="calc-tabs">
-    <button class="calc-tab" [class.active]="activeCalc === 'loan'"     (click)="setCalc('loan')">🏦 Loan / EMI</button>
-    <button class="calc-tab" [class.active]="activeCalc === 'compound'" (click)="setCalc('compound')">📈 Compound Interest</button>
-    <button class="calc-tab" [class.active]="activeCalc === 'savings'"  (click)="setCalc('savings')">🐷 Savings Goal</button>
-    <button class="calc-tab" [class.active]="activeCalc === 'debt'"     (click)="setCalc('debt')">💳 Debt Payoff</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'loan'"     (click)="setCalc('loan')"><app-icon name="landmark" [size]="16"></app-icon> Loan / EMI</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'compound'" (click)="setCalc('compound')"><app-icon name="trending-up" [size]="16"></app-icon> Compound Interest</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'savings'"  (click)="setCalc('savings')"><app-icon name="piggy-bank" [size]="16"></app-icon> Savings Goal</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'debt'"     (click)="setCalc('debt')"><app-icon name="credit-card" [size]="16"></app-icon> Debt Payoff</button>
   </div>
 
   <!-- LOAN CALCULATOR -->
@@ -265,7 +269,7 @@
             <div class="sb-interest"  [style.width]="(100 - loanResult.principalPct) + '%'"></div>
           </div>
         </div>
-        <div class="result-tip">💡 A shorter tenure increases your monthly payment but saves significantly on interest.</div>
+        <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> A shorter tenure increases your monthly payment but saves significantly on interest.</div>
       </div>
     </div>
   </div>
@@ -291,12 +295,12 @@
           </div>
           <div class="form-field">
             <label class="form-label">Compounding Frequency</label>
-            <select class="input" formControlName="frequency" (change)="calcCompound()">
-              <option [value]="1">Annually</option>
-              <option [value]="4">Quarterly</option>
-              <option [value]="12">Monthly</option>
-              <option [value]="365">Daily</option>
-            </select>
+            <app-dropdown
+              formControlName="frequency"
+              [options]="frequencyOptions"
+              placeholder="Frequency"
+              (valueChange)="calcCompound()">
+            </app-dropdown>
           </div>
         </form>
       </div>
@@ -321,7 +325,7 @@
             <span class="growth-label" *ngIf="y.year !== 1 && y.year % 5 !== 0"></span>
           </div>
         </div>
-        <div class="result-tip">💡 The longer you stay invested, the more dramatic the compounding effect becomes.</div>
+        <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> The longer you stay invested, the more dramatic the compounding effect becomes.</div>
       </div>
     </div>
   </div>
@@ -362,14 +366,14 @@
             <div class="rb-row"><span>Interest Earned</span>   <span class="rb-val positive">{{ formatCurrency(savingsResult.totalInterest) }}</span></div>
             <div class="rb-row"><span>Final Balance</span>     <span class="rb-val positive">{{ formatCurrency(savingsResult.finalBalance) }}</span></div>
           </div>
-          <div class="result-tip">💡 Increasing your monthly savings by just 10% can shave months off your goal date.</div>
+          <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> Increasing your monthly savings by just 10% can shave months off your goal date.</div>
         </ng-container>
         <ng-container *ngIf="!savingsResult.achieved">
           <div class="result-hero">
             <span class="result-label">Goal Unreachable</span>
             <span class="result-value negative">50+ years</span>
           </div>
-          <div class="result-tip negative-tip">⚠️ Your monthly savings is too low relative to your target. Increase your contribution or reduce your target.</div>
+          <div class="result-tip negative-tip"><app-icon name="alert-triangle" [size]="16"></app-icon> Your monthly savings is too low relative to your target. Increase your contribution or reduce your target.</div>
         </ng-container>
       </div>
     </div>
@@ -410,14 +414,14 @@
             <div class="rb-row"><span>Total Interest Paid</span><span class="rb-val negative">{{ formatCurrency(debtResult.totalInterest) }}</span></div>
             <div class="rb-row"><span>Total Paid</span>         <span class="rb-val">{{ formatCurrency(debtResult.totalPaid) }}</span></div>
           </div>
-          <div class="result-tip">💡 Paying just a little extra each month can cut months off your payoff timeline.</div>
+          <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> Paying just a little extra each month can cut months off your payoff timeline.</div>
         </ng-container>
         <ng-container *ngIf="debtResult.impossible">
           <div class="result-hero">
             <span class="result-label">Payment Too Low</span>
             <span class="result-value negative">Never</span>
           </div>
-          <div class="result-tip negative-tip">⚠️ Your payment doesn't cover the interest. Increase your monthly payment to start reducing the balance.</div>
+          <div class="result-tip negative-tip"><app-icon name="alert-triangle" [size]="16"></app-icon> Your payment doesn't cover the interest. Increase your monthly payment to start reducing the balance.</div>
         </ng-container>
       </div>
     </div>

@@ -37,6 +37,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { code: 'ZAR', label: 'South African Rand (R)' },
     { code: 'CAD', label: 'Canadian Dollar (CA$)' },
   ];
+  get currencyOptions() { return this.currencies.map(c => ({ value: c.code, label: c.label })); }
+  timezoneOptions = [
+    { value: 'Africa/Lagos', label: 'Africa/Lagos (WAT)' },
+    { value: 'Africa/Nairobi', label: 'Africa/Nairobi (EAT)' },
+    { value: 'Africa/Accra', label: 'Africa/Accra (GMT)' },
+    { value: 'Africa/Johannesburg', label: 'Africa/Johannesburg (SAST)' },
+    { value: 'Europe/London', label: 'Europe/London (GMT/BST)' },
+    { value: 'America/New_York', label: 'America/New_York (EST)' },
+    { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST)' }
+  ];
 
   constructor(
     private fb: FormBuilder,

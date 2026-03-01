@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DashboardService } from '../../core/services/api.services';
+import { DashboardService, ExpenseService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
-import { DashboardData } from '../../core/models/models';
+import { DashboardData, CategoryReport } from '../../core/models/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,8 +17,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   data: DashboardData | null = null;
   loading = true;
   error   = '';
+  topCategories: CategoryReport[] = [];
+
+  pieChartData: { labels: string[]; datasets: { data: number[]; backgroundColor: string[] }[] } = {
+    labels: [],
+    datasets: [{ data: [], backgroundColor: [] }]
+  };
+  pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'right' as const } }
+  };
 
   get currentUser() { return this.authService.getCurrentUser(); }
+  get currentMonthValue(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
   get currency()    { return this.authService.userCurrency; }
 
   get greeting(): string {
@@ -34,6 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
+    private expenseService: ExpenseService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -48,12 +64,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadDashboard(): void {
     this.loading = true;
     this.error   = '';
-    this.dashboardService.get()
+    const month = this.currentMonthValue;
+    forkJoin({
+      dashboard: this.dashboardService.get(),
+      topCategories: this.expenseService.getTopCategories(month)
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: data => { this.data = data; this.loading = false; this.cdr.markForCheck(); },
-        error: err  => { this.error = 'Failed to load dashboard data.'; this.loading = false; console.error(err); this.cdr.markForCheck(); }
+        next: res => {
+          this.data = res.dashboard;
+          this.topCategories = res.topCategories ?? [];
+          this.updatePieChart();
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          this.error = 'Failed to load dashboard data.';
+          this.loading = false;
+          console.error(err);
+          this.cdr.markForCheck();
+        }
       });
+  }
+
+  private updatePieChart(): void {
+    const colors = ['#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0', '#00bcd4', '#795548'];
+    this.pieChartData = {
+      labels: this.topCategories.map(c => c.categoryName ?? ''),
+      datasets: [{
+        data: this.topCategories.map(c => c.total ?? 0),
+        backgroundColor: this.topCategories.map((_, i) => colors[i % colors.length])
+      }]
+    };
   }
 
   formatCurrency(amount: number): string {

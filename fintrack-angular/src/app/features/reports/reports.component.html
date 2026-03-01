@@ -6,9 +6,13 @@
   </div>
   <div class="header-filters">
     <input class="filter-select" type="month" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
-    <select class="filter-select" [(ngModel)]="selectedYear" (change)="onFilterChange()">
-      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-    </select>
+    <app-dropdown
+      class="filter-select"
+      [value]="selectedYear"
+      [options]="yearOptions"
+      placeholder="Year"
+      (valueChange)="selectedYear = $event; onFilterChange()">
+    </app-dropdown>
   </div>
 </div>
 
@@ -64,7 +68,7 @@
       <h2 class="card-title">Income vs Expenses — {{ selectedYear }}</h2>
     </div>
     <div class="empty-state" *ngIf="monthlyTrend.length === 0">
-      <div class="empty-icon">📊</div>
+      <div class="empty-icon"><app-icon name="bar-chart-2" [size]="48"></app-icon></div>
       <p>No trend data available</p>
     </div>
     <div class="chart-container bar-chart-container" *ngIf="monthlyTrend.length > 0">
@@ -83,7 +87,7 @@
       <span class="card-total">{{ formatCurrency(monthlyExpense) }} total</span>
     </div>
     <div class="empty-state" *ngIf="topExpenseCategories.length === 0">
-      <div class="empty-icon">🛍️</div>
+      <div class="empty-icon"><app-icon name="shopping-cart" [size]="48"></app-icon></div>
       <p>No expense data for this period</p>
     </div>
     <div class="expense-breakdown-content" *ngIf="topExpenseCategories.length > 0">
@@ -121,7 +125,7 @@
       <span class="card-total positive">{{ formatCurrency(monthlyIncome) }} total</span>
     </div>
     <div class="empty-state" *ngIf="topIncomeCategories.length === 0">
-      <div class="empty-icon">💰</div>
+      <div class="empty-icon"><app-icon name="wallet" [size]="48"></app-icon></div>
       <p>No income data for this period</p>
     </div>
     <div class="category-list" *ngIf="topIncomeCategories.length > 0">

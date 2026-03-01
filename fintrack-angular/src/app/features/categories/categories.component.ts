@@ -25,7 +25,12 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   catForm!: FormGroup;
 
-  readonly icons = ['🏠','🚗','🍔','🛍️','💊','🎓','✈️','🎬','💡','📱','💰','💼','🎁','🏋️','🐾','🔧','📚','🎮','☕','🌱'];
+  readonly icons = ['home', 'car', 'utensils', 'shopping-cart', 'heart', 'graduation-cap', 'plane', 'film', 'lightbulb', 'smartphone', 'dollar-sign', 'briefcase', 'gift', 'dumbbell', 'wrench', 'gamepad-2', 'coffee', 'sprout', 'package', 'wallet', 'tag', 'book'];
+
+  categoryTypeOptions = [
+    { value: 'Expense', label: 'Expense' },
+    { value: 'Income', label: 'Income' }
+  ];
 
   get modalTitle() { return this.editingId ? 'Edit Category' : 'New Category'; }
   get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
@@ -41,7 +46,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     this.catForm = this.fb.group({
       name:  ['', Validators.required],
       type:  ['Expense', Validators.required],
-      icon:  ['📦'],
+      icon:  ['package'],
       color: ['#f5a623']
     });
     this.loadCategories();
@@ -65,13 +70,13 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   openAdd(): void {
     this.editingId = null; this.modalError = '';
-    this.catForm.reset({ name: '', type: 'Expense', icon: '📦', color: '#f5a623' });
+    this.catForm.reset({ name: '', type: 'Expense', icon: 'package', color: '#f5a623' });
     this.showModal = true;
   }
 
   openEdit(c: Category): void {
     this.editingId = c.id; this.modalError = '';
-    this.catForm.patchValue({ name: c.name, type: c.type, icon: c.icon ?? '📦', color: c.color ?? '#f5a623' });
+    this.catForm.patchValue({ name: c.name, type: c.type, icon: c.icon ?? 'package', color: c.color ?? '#f5a623' });
     this.showModal = true;
   }
 

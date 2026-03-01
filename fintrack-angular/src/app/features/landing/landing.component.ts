@@ -34,12 +34,12 @@ export class LandingComponent implements OnInit, OnDestroy {
   unreadCount  = 3; // Mocked — wire to NotificationService if needed
 
   features: Feature[] = [
-    { icon: '◈', title: 'Smart Budgeting',      desc: 'Set monthly budgets per category and get real-time alerts before you overspend.',          color: 'accent'  },
-    { icon: '◎', title: 'Transaction Tracking',  desc: 'Every naira accounted for. Filter, search, and categorise transactions effortlessly.',      color: 'positive'},
-    { icon: '⬡', title: 'Savings Goals',         desc: 'Define targets, track milestones, and watch your progress bars inch toward freedom.',        color: 'info'    },
-    { icon: '◇', title: 'Investment Insights',   desc: 'Portfolio breakdown, asset allocation, and returns — all in one clean dashboard.',           color: 'purple'  },
-    { icon: '◉', title: 'Debt Management',       desc: 'Know exactly what you owe, to whom, and how to eliminate it fastest.',                       color: 'warning' },
-    { icon: '▣', title: 'Reports & Analytics',   desc: 'Beautiful charts and trend analysis so you always know where you stand financially.',        color: 'negative'},
+    { icon: 'target', title: 'Smart Budgeting',      desc: 'Set monthly budgets per category and get real-time alerts before you overspend.',          color: 'accent'  },
+    { icon: 'wallet', title: 'Transaction Tracking',  desc: 'Every naira accounted for. Filter, search, and categorise transactions effortlessly.',      color: 'positive'},
+    { icon: 'piggy-bank', title: 'Savings Goals',         desc: 'Define targets, track milestones, and watch your progress bars inch toward freedom.',        color: 'info'    },
+    { icon: 'trending-up', title: 'Investment Insights',   desc: 'Portfolio breakdown, asset allocation, and returns — all in one clean dashboard.',           color: 'purple'  },
+    { icon: 'credit-card', title: 'Debt Management',       desc: 'Know exactly what you owe, to whom, and how to eliminate it fastest.',                       color: 'warning' },
+    { icon: 'pie-chart', title: 'Reports & Analytics',   desc: 'Beautiful charts and trend analysis so you always know where you stand financially.',        color: 'negative'},
   ];
 
   stats: Stat[] = [

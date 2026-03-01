@@ -68,10 +68,10 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   getIcon(type: string): string {
     const icons: Record<string, string> = {
-      budget: '🎯', savings: '🐷', transaction: '💸',
-      investment: '📈', debt: '💳', system: '⚙️', alert: '⚠️'
+      budget: 'target', savings: 'piggy-bank', transaction: 'banknote',
+      investment: 'trending-up', debt: 'credit-card', system: 'settings', alert: 'alert-triangle'
     };
-    return icons[type?.toLowerCase()] ?? '🔔';
+    return icons[type?.toLowerCase()] ?? 'bell';
   }
 
   getTypeClass(type: string): string {
