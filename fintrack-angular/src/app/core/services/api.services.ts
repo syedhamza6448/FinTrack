@@ -9,7 +9,7 @@ import {
   InvestmentPortfolio, Investment, InvestmentRequest, DebtListResponse,
   Debt, DebtRequest, NotificationListResponse, MonthlyReport, CategoryReport,
   NetWorthReport, UserSettings, ProfileUpdateRequest, PreferencesUpdateRequest,
-  ChangePasswordRequest
+  ChangePasswordRequest, EducationModule, EducationArticle, EducationGuide
 } from '../models/models';
 
 const API = environment.apiUrl;
@@ -295,5 +295,44 @@ export class SettingsService {
 
   changePassword(data: ChangePasswordRequest): Observable<void> {
     return this.http.put<void>(`${this.url}/password`, data);
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class EducationService {
+  private url = `${API}/education`;
+  constructor(private http: HttpClient) {}
+
+  // Articles / Tips
+  getArticles(category?: string): Observable<EducationArticle[]> {
+    let p = new HttpParams();
+    if (category) p = p.set('category', category);
+    return this.http.get<EducationArticle[]>(`${this.url}/articles`, { params: p });
+  }
+
+  getArticleById(id: number): Observable<EducationArticle> {
+    return this.http.get<EducationArticle>(`${this.url}/articles/${id}`);
+  }
+
+  getArticleCategories(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/articles/categories`);
+  }
+
+  // Learning Modules
+  getModules(): Observable<EducationModule[]> {
+    return this.http.get<EducationModule[]>(`${this.url}/modules`);
+  }
+
+  getModuleById(id: number): Observable<EducationModule> {
+    return this.http.get<EducationModule>(`${this.url}/modules/${id}`);
+  }
+
+  // Goal Guides
+  getGuides(): Observable<EducationGuide[]> {
+    return this.http.get<EducationGuide[]>(`${this.url}/guides`);
+  }
+
+  getGuideById(id: number): Observable<EducationGuide> {
+    return this.http.get<EducationGuide>(`${this.url}/guides/${id}`);
   }
 }

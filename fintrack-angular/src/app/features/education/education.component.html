@@ -1,0 +1,426 @@
+<!-- Header -->
+<div class="page-header">
+  <div>
+    <h1>Education</h1>
+    <p>Build your financial knowledge and skills</p>
+  </div>
+</div>
+
+<!-- Main Tabs -->
+<div class="tabs">
+  <button class="tab-btn" [class.active]="activeTab === 'tips'"        (click)="setTab('tips')">
+    <span>💡</span> Tips & Articles
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'modules'"     (click)="setTab('modules')">
+    <span>📚</span> Learning Modules
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'guides'"      (click)="setTab('guides')">
+    <span>🗺️</span> Goal Guides
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'calculators'" (click)="setTab('calculators')">
+    <span>🧮</span> Calculators
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: TIPS & ARTICLES                                  -->
+<!-- ══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeTab === 'tips'">
+
+  <!-- Article Loading Spinner -->
+  <div class="detail-loading" *ngIf="loadingArticle">
+    <div class="spinner-lg"></div>
+    <span>Loading article...</span>
+  </div>
+
+  <!-- Article Detail View -->
+  <div class="article-detail" *ngIf="activeArticle && !loadingArticle">
+    <button class="back-btn" (click)="closeArticle()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Articles
+    </button>
+    <div class="article-header">
+      <div class="article-icon-lg">{{ activeArticle.icon }}</div>
+      <div>
+        <span class="article-cat-badge">{{ activeArticle.category }}</span>
+        <h2 class="article-title-lg">{{ activeArticle.title }}</h2>
+        <div class="article-meta-row">
+          <span class="article-meta">{{ activeArticle.readTime }} min read</span>
+          <span class="article-meta">{{ formatDate(activeArticle.publishedAt) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="article-body" [innerHTML]="'<p>' + formatContent(activeArticle.content) + '</p>'"></div>
+  </div>
+
+  <!-- Article List -->
+  <ng-container *ngIf="!activeArticle && !loadingArticle">
+    <!-- Loading Skeletons -->
+    <ng-container *ngIf="loadingArticles">
+      <div class="filter-row">
+        <div class="skeleton chip" *ngFor="let i of [1,2,3,4,5]"></div>
+      </div>
+      <div class="articles-grid">
+        <div class="skeleton article-skeleton" *ngFor="let i of [1,2,3,4,5,6]"></div>
+      </div>
+    </ng-container>
+
+    <!-- Loaded Content -->
+    <ng-container *ngIf="!loadingArticles">
+      <!-- Category Filter -->
+      <div class="filter-row">
+        <button class="filter-chip"
+                *ngFor="let cat of categories; trackBy: trackByIndex"
+                [class.active]="filterCategory === cat || (filterCategory === '' && cat === 'All')"
+                (click)="filterCategory = cat === 'All' ? '' : cat">
+          {{ cat }}
+        </button>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state" *ngIf="filteredArticles.length === 0">
+        <div class="empty-icon">📰</div>
+        <h3>No articles found</h3>
+        <p>Try a different category filter</p>
+      </div>
+
+      <!-- Articles Grid -->
+      <div class="articles-grid" *ngIf="filteredArticles.length > 0">
+        <div class="article-card" *ngFor="let a of filteredArticles; trackBy: trackById" (click)="openArticle(a.id)">
+          <div class="ac-top">
+            <span class="ac-icon">{{ a.icon }}</span>
+            <span class="ac-cat">{{ a.category }}</span>
+          </div>
+          <h3 class="ac-title">{{ a.title }}</h3>
+          <p class="ac-summary">{{ a.summary }}</p>
+          <div class="ac-footer">
+            <span class="ac-read-time">{{ a.readTime }} min read</span>
+            <span class="ac-cta">Read →</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: LEARNING MODULES                                 -->
+<!-- ══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeTab === 'modules'">
+
+  <!-- Module loading spinner -->
+  <div class="detail-loading" *ngIf="loadingModule">
+    <div class="spinner-lg"></div>
+    <span>Loading module...</span>
+  </div>
+
+  <!-- Module Detail -->
+  <div class="module-detail" *ngIf="activeModule && !loadingModule">
+    <button class="back-btn" (click)="closeModule()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Modules
+    </button>
+    <div class="module-detail-header">
+      <div class="module-icon-lg">{{ activeModule.icon }}</div>
+      <div>
+        <span class="difficulty-badge" [class]="getDifficultyClass(activeModule.difficulty)">{{ activeModule.difficulty }}</span>
+        <h2 class="module-title-lg">{{ activeModule.title }}</h2>
+        <p class="module-desc-lg">{{ activeModule.description }}</p>
+        <span class="module-lessons-count">{{ activeModule.lessons }} lessons</span>
+      </div>
+    </div>
+    <h3 class="lessons-heading">What You'll Learn</h3>
+    <div class="lessons-list">
+      <div class="lesson-item" *ngFor="let topic of activeModule.topics; let i = index; trackBy: trackByIndex">
+        <div class="lesson-num">{{ i + 1 }}</div>
+        <span class="lesson-text">{{ topic }}</span>
+        <div class="lesson-icon">📖</div>
+      </div>
+    </div>
+    <div class="module-cta">
+      <span>🚀</span>
+      <span>Apply what you learn directly in FinTrack — track your progress as you build better financial habits.</span>
+    </div>
+  </div>
+
+  <!-- Modules List -->
+  <ng-container *ngIf="!activeModule && !loadingModule">
+    <!-- Loading skeletons -->
+    <div class="modules-grid" *ngIf="loadingModules">
+      <div class="skeleton module-skeleton" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!loadingModules && modules.length === 0">
+      <div class="empty-icon">📚</div>
+      <h3>No modules available</h3>
+      <p>Learning modules will appear here once added</p>
+    </div>
+
+    <!-- Modules Grid -->
+    <div class="modules-grid" *ngIf="!loadingModules && modules.length > 0">
+      <div class="module-card" *ngFor="let m of modules; trackBy: trackById" (click)="openModule(m.id)">
+        <div class="mc-header">
+          <span class="mc-icon">{{ m.icon }}</span>
+          <span class="difficulty-badge" [class]="getDifficultyClass(m.difficulty)">{{ m.difficulty }}</span>
+        </div>
+        <h3 class="mc-title">{{ m.title }}</h3>
+        <p class="mc-desc">{{ m.description }}</p>
+        <div class="mc-footer">
+          <span class="mc-lessons">{{ m.lessons }} lessons</span>
+          <span class="mc-cta">Explore →</span>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: GOAL GUIDES                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeTab === 'guides'">
+
+  <!-- Loading skeletons -->
+  <div class="guides-grid" *ngIf="loadingGuides">
+    <div class="skeleton guide-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loadingGuides && guides.length === 0">
+    <div class="empty-icon">🗺️</div>
+    <h3>No guides available</h3>
+    <p>Goal guides will appear here once added</p>
+  </div>
+
+  <!-- Guides Grid -->
+  <div class="guides-grid" *ngIf="!loadingGuides && guides.length > 0">
+    <div class="guide-card" *ngFor="let g of guides; trackBy: trackById">
+      <div class="gc-header">
+        <span class="gc-icon">{{ g.icon }}</span>
+        <h3 class="gc-title">{{ g.title }}</h3>
+      </div>
+      <p class="gc-goal">🎯 {{ g.goal }}</p>
+      <div class="steps-list">
+        <div class="step-item" *ngFor="let step of g.steps; let i = index; trackBy: trackByIndex">
+          <div class="step-num">{{ i + 1 }}</div>
+          <span class="step-text">{{ step }}</span>
+        </div>
+      </div>
+      <div class="guide-tip">
+        <span class="tip-icon">💡</span>
+        <span class="tip-text">{{ g.tip }}</span>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- TAB: CALCULATORS                                      -->
+<!-- ══════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeTab === 'calculators'">
+
+  <!-- Calc Sub-tabs -->
+  <div class="calc-tabs">
+    <button class="calc-tab" [class.active]="activeCalc === 'loan'"     (click)="setCalc('loan')">🏦 Loan / EMI</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'compound'" (click)="setCalc('compound')">📈 Compound Interest</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'savings'"  (click)="setCalc('savings')">🐷 Savings Goal</button>
+    <button class="calc-tab" [class.active]="activeCalc === 'debt'"     (click)="setCalc('debt')">💳 Debt Payoff</button>
+  </div>
+
+  <!-- LOAN CALCULATOR -->
+  <div class="calc-card" *ngIf="activeCalc === 'loan'">
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <h2 class="calc-title">Loan / EMI Calculator</h2>
+        <p class="calc-desc">Calculate your monthly repayment for any loan</p>
+        <form [formGroup]="loanForm" novalidate>
+          <div class="form-field">
+            <label class="form-label">Loan Amount (₦)</label>
+            <input class="input" type="number" formControlName="principal" min="1" (input)="calcLoan()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Annual Interest Rate (%)</label>
+            <input class="input" type="number" formControlName="rate" min="0.1" step="0.1" (input)="calcLoan()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Tenure (months)</label>
+            <input class="input" type="number" formControlName="tenure" min="1" (input)="calcLoan()">
+          </div>
+        </form>
+      </div>
+      <div class="calc-results" *ngIf="loanResult">
+        <div class="result-hero">
+          <span class="result-label">Monthly Payment</span>
+          <span class="result-value accent">{{ formatCurrency(loanResult.emi) }}</span>
+        </div>
+        <div class="result-breakdown">
+          <div class="rb-row"><span>Total Paid</span>         <span class="rb-val">{{ formatCurrency(loanResult.totalPayment) }}</span></div>
+          <div class="rb-row"><span>Total Interest</span>     <span class="rb-val negative">{{ formatCurrency(loanResult.totalInterest) }}</span></div>
+          <div class="rb-row"><span>Interest % of Loan</span> <span class="rb-val negative">{{ loanResult.interestPct }}%</span></div>
+        </div>
+        <div class="result-bar-wrap">
+          <div class="result-bar-label"><span>Principal</span><span>Interest</span></div>
+          <div class="result-stacked-bar">
+            <div class="sb-principal" [style.width]="loanResult.principalPct + '%'"></div>
+            <div class="sb-interest"  [style.width]="(100 - loanResult.principalPct) + '%'"></div>
+          </div>
+        </div>
+        <div class="result-tip">💡 A shorter tenure increases your monthly payment but saves significantly on interest.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPOUND INTEREST CALCULATOR -->
+  <div class="calc-card" *ngIf="activeCalc === 'compound'">
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <h2 class="calc-title">Compound Interest Calculator</h2>
+        <p class="calc-desc">See how your money grows exponentially over time</p>
+        <form [formGroup]="compoundForm" novalidate>
+          <div class="form-field">
+            <label class="form-label">Initial Investment (₦)</label>
+            <input class="input" type="number" formControlName="principal" min="1" (input)="calcCompound()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Annual Return Rate (%)</label>
+            <input class="input" type="number" formControlName="rate" min="0.1" step="0.1" (input)="calcCompound()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Investment Period (years)</label>
+            <input class="input" type="number" formControlName="years" min="1" (input)="calcCompound()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Compounding Frequency</label>
+            <select class="input" formControlName="frequency" (change)="calcCompound()">
+              <option [value]="1">Annually</option>
+              <option [value]="4">Quarterly</option>
+              <option [value]="12">Monthly</option>
+              <option [value]="365">Daily</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="calc-results" *ngIf="compoundResult">
+        <div class="result-hero">
+          <span class="result-label">Final Amount</span>
+          <span class="result-value positive">{{ formatCurrency(compoundResult.finalAmount) }}</span>
+        </div>
+        <div class="result-breakdown">
+          <div class="rb-row"><span>Initial Investment</span> <span class="rb-val">{{ formatCurrency(compoundForm.value.principal) }}</span></div>
+          <div class="rb-row"><span>Total Gains</span>        <span class="rb-val positive">{{ formatCurrency(compoundResult.interest) }}</span></div>
+          <div class="rb-row"><span>Multiplied By</span>      <span class="rb-val positive">{{ compoundResult.multiplier }}×</span></div>
+        </div>
+        <!-- Growth chart -->
+        <div class="growth-chart">
+          <div class="growth-bar-wrap" *ngFor="let y of compoundResult.yearlyData; trackBy: trackByIndex">
+            <div class="growth-bar"
+                 [style.height]="(y.amount / compoundResult.finalAmount * 100) + '%'"
+                 [title]="'Year ' + y.year + ': ' + formatCurrency(y.amount)">
+            </div>
+            <span class="growth-label" *ngIf="y.year === 1 || y.year % 5 === 0">{{ y.year }}y</span>
+            <span class="growth-label" *ngIf="y.year !== 1 && y.year % 5 !== 0"></span>
+          </div>
+        </div>
+        <div class="result-tip">💡 The longer you stay invested, the more dramatic the compounding effect becomes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVINGS GOAL CALCULATOR -->
+  <div class="calc-card" *ngIf="activeCalc === 'savings'">
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <h2 class="calc-title">Savings Goal Projector</h2>
+        <p class="calc-desc">Find out when you'll reach your savings target</p>
+        <form [formGroup]="savingsForm" novalidate>
+          <div class="form-field">
+            <label class="form-label">Savings Target (₦)</label>
+            <input class="input" type="number" formControlName="target" min="1" (input)="calcSavings()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Monthly Contribution (₦)</label>
+            <input class="input" type="number" formControlName="monthly" min="1" (input)="calcSavings()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Annual Interest Rate (%)</label>
+            <input class="input" type="number" formControlName="rate" min="0" step="0.1" (input)="calcSavings()">
+          </div>
+        </form>
+      </div>
+      <div class="calc-results" *ngIf="savingsResult">
+        <ng-container *ngIf="savingsResult.achieved">
+          <div class="result-hero">
+            <span class="result-label">Time to Goal</span>
+            <span class="result-value accent">
+              <ng-container *ngIf="savingsResult.years > 0">{{ savingsResult.years }}y </ng-container>
+              <ng-container *ngIf="savingsResult.remainingMonths > 0">{{ savingsResult.remainingMonths }}m</ng-container>
+            </span>
+          </div>
+          <div class="result-breakdown">
+            <div class="rb-row"><span>Total Months</span>      <span class="rb-val">{{ savingsResult.months }}</span></div>
+            <div class="rb-row"><span>Total Contributed</span> <span class="rb-val">{{ formatCurrency(savingsResult.totalContributed) }}</span></div>
+            <div class="rb-row"><span>Interest Earned</span>   <span class="rb-val positive">{{ formatCurrency(savingsResult.totalInterest) }}</span></div>
+            <div class="rb-row"><span>Final Balance</span>     <span class="rb-val positive">{{ formatCurrency(savingsResult.finalBalance) }}</span></div>
+          </div>
+          <div class="result-tip">💡 Increasing your monthly savings by just 10% can shave months off your goal date.</div>
+        </ng-container>
+        <ng-container *ngIf="!savingsResult.achieved">
+          <div class="result-hero">
+            <span class="result-label">Goal Unreachable</span>
+            <span class="result-value negative">50+ years</span>
+          </div>
+          <div class="result-tip negative-tip">⚠️ Your monthly savings is too low relative to your target. Increase your contribution or reduce your target.</div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEBT PAYOFF CALCULATOR -->
+  <div class="calc-card" *ngIf="activeCalc === 'debt'">
+    <div class="calc-layout">
+      <div class="calc-inputs">
+        <h2 class="calc-title">Debt Payoff Calculator</h2>
+        <p class="calc-desc">Find out exactly when you'll be debt-free</p>
+        <form [formGroup]="debtForm" novalidate>
+          <div class="form-field">
+            <label class="form-label">Current Balance (₦)</label>
+            <input class="input" type="number" formControlName="balance" min="1" (input)="calcDebt()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Annual Interest Rate (%)</label>
+            <input class="input" type="number" formControlName="rate" min="0.1" step="0.1" (input)="calcDebt()">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Monthly Payment (₦)</label>
+            <input class="input" type="number" formControlName="monthly" min="1" (input)="calcDebt()">
+          </div>
+        </form>
+      </div>
+      <div class="calc-results" *ngIf="debtResult">
+        <ng-container *ngIf="!debtResult.impossible">
+          <div class="result-hero">
+            <span class="result-label">Debt-Free In</span>
+            <span class="result-value positive">
+              <ng-container *ngIf="debtResult.years > 0">{{ debtResult.years }}y </ng-container>
+              <ng-container *ngIf="debtResult.remainingMonths > 0">{{ debtResult.remainingMonths }}m</ng-container>
+            </span>
+          </div>
+          <div class="result-breakdown">
+            <div class="rb-row"><span>Total Months</span>       <span class="rb-val">{{ debtResult.months }}</span></div>
+            <div class="rb-row"><span>Total Interest Paid</span><span class="rb-val negative">{{ formatCurrency(debtResult.totalInterest) }}</span></div>
+            <div class="rb-row"><span>Total Paid</span>         <span class="rb-val">{{ formatCurrency(debtResult.totalPaid) }}</span></div>
+          </div>
+          <div class="result-tip">💡 Paying just a little extra each month can cut months off your payoff timeline.</div>
+        </ng-container>
+        <ng-container *ngIf="debtResult.impossible">
+          <div class="result-hero">
+            <span class="result-label">Payment Too Low</span>
+            <span class="result-value negative">Never</span>
+          </div>
+          <div class="result-tip negative-tip">⚠️ Your payment doesn't cover the interest. Increase your monthly payment to start reducing the balance.</div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+</ng-container>

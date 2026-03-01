@@ -1,78 +1,88 @@
 /* ═══════════════════════════════════════════
-   FINTRACK — Global Design System
-   Amber Gold × Dark Luxury Finance
+   FINTRACK — Global Design System v3.0
+   Background: #0C1A2B  (Deep Navy)
+   Accent:     #B6FF3B  (Electric Lime)
    ═══════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;450;500;600&display=swap');
 
 /* ── CSS Variables: Dark Mode (default) ───── */
 :root, [data-theme="dark"] {
-  /* Surfaces */
-  --bg-void:    #08070c;
-  --bg-base:    #0c0b12;
-  --bg-raised:  #111019;
-  --bg-float:   #16152a;
-  --bg-overlay: rgba(8,7,12,0.85);
+  /* Surfaces — Navy scale */
+  --bg-void:    #070F1A;
+  --bg-base:    #0C1A2B;
+  --bg-raised:  #112236;
+  --bg-float:   #162B43;
+  --bg-overlay: rgba(7,15,26,0.88);
 
   /* Glass */
-  --glass-01:      rgba(255,255,255,0.03);
-  --glass-02:      rgba(255,255,255,0.06);
-  --glass-03:      rgba(255,255,255,0.10);
+  --glass-01:      rgba(182,255,59,0.025);
+  --glass-02:      rgba(255,255,255,0.045);
+  --glass-03:      rgba(255,255,255,0.075);
   --glass-border:  rgba(255,255,255,0.07);
-  --glass-border-h:rgba(255,255,255,0.12);
+  --glass-border-h:rgba(182,255,59,0.25);
 
-  /* Accent — Amber Gold */
-  --accent:       #f5a623;
-  --accent-bright:#ffbe5c;
-  --accent-dark:  #c4811a;
-  --accent-dim:   rgba(245,166,35,0.12);
-  --accent-glow:  rgba(245,166,35,0.25);
+  /* Accent — Electric Lime */
+  --accent:       #B6FF3B;
+  --accent-bright:#CCFF6B;
+  --accent-dark:  #8ACC1E;
+  --accent-dim:   rgba(182,255,59,0.10);
+  --accent-glow:  rgba(182,255,59,0.22);
 
   /* Semantic */
   --positive:     #3ecf8e;
   --positive-dim: rgba(62,207,142,0.12);
   --negative:     #f25c6e;
   --negative-dim: rgba(242,92,110,0.12);
-  --warning:      #f5a623;
-  --warning-dim:  rgba(245,166,35,0.12);
+  --warning:      #ffb547;
+  --warning-dim:  rgba(255,181,71,0.12);
   --info:         #5b9cf6;
   --info-dim:     rgba(91,156,246,0.12);
   --purple:       #a78bfa;
   --purple-dim:   rgba(167,139,250,0.12);
 
   /* Text */
-  --text-primary:   rgba(255,255,255,0.92);
-  --text-secondary: rgba(255,255,255,0.55);
-  --text-tertiary:  rgba(255,255,255,0.30);
-  --text-inverse:   #08070c;
+  --text-primary:   rgba(255,255,255,0.93);
+  --text-secondary: rgba(255,255,255,0.52);
+  --text-tertiary:  rgba(255,255,255,0.28);
+  --text-inverse:   #0C1A2B;
 
   /* Shadows */
-  --shadow-card:   0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3);
-  --shadow-float:  0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-accent: 0 4px 20px rgba(245,166,35,0.3);
+  --shadow-card:   0 1px 3px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-float:  0 8px 40px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-accent: 0 4px 24px rgba(182,255,59,0.22);
 }
 
 /* ── CSS Variables: Light Mode ─────────────── */
 [data-theme="light"] {
-  --bg-void:    #e8e4dc;
-  --bg-base:    #f0ede6;
+  /* Surfaces — Soft sky */
+  --bg-void:    #d8e8f4;
+  --bg-base:    #e8f2f9;
   --bg-raised:  #ffffff;
   --bg-float:   #ffffff;
-  --bg-overlay: rgba(240,237,230,0.9);
+  --bg-overlay: rgba(232,242,249,0.92);
 
-  --glass-01:      rgba(0,0,0,0.03);
-  --glass-02:      rgba(0,0,0,0.06);
-  --glass-03:      rgba(0,0,0,0.09);
+  --glass-01:      rgba(0,0,0,0.025);
+  --glass-02:      rgba(0,0,0,0.05);
+  --glass-03:      rgba(0,0,0,0.075);
   --glass-border:  rgba(0,0,0,0.08);
-  --glass-border-h:rgba(0,0,0,0.15);
+  --glass-border-h:rgba(106,175,0,0.35);
 
-  --text-primary:   rgba(0,0,0,0.88);
-  --text-secondary: rgba(0,0,0,0.55);
-  --text-tertiary:  rgba(0,0,0,0.35);
+  /* Accent darkened for readability on white */
+  --accent:       #6AAF00;
+  --accent-bright:#84D800;
+  --accent-dark:  #4E8200;
+  --accent-dim:   rgba(106,175,0,0.10);
+  --accent-glow:  rgba(106,175,0,0.20);
+
+  --text-primary:   rgba(12,26,43,0.92);
+  --text-secondary: rgba(12,26,43,0.52);
+  --text-tertiary:  rgba(12,26,43,0.35);
   --text-inverse:   #ffffff;
 
-  --shadow-card:   0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-  --shadow-float:  0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-card:   0 1px 3px rgba(12,26,43,0.08), 0 4px 16px rgba(12,26,43,0.06);
+  --shadow-float:  0 8px 32px rgba(12,26,43,0.12), 0 2px 8px rgba(12,26,43,0.06);
+  --shadow-accent: 0 4px 20px rgba(106,175,0,0.20);
 }
 
 /* ── Spacing ───────────────────────────────── */
@@ -162,7 +172,7 @@ button { font-family: var(--font-body); }
     width: 32px; height: 32px;
     border-radius: 9px;
     background: var(--accent);
-    color: #1a0e00;
+    color: var(--text-inverse);
     display: flex; align-items: center; justify-content: center;
     font-size: 15px; font-weight: 900;
   }
@@ -277,7 +287,7 @@ button { font-family: var(--font-body); }
   width: 100%;
   padding: 13px;
   background: var(--accent);
-  color: #1a0e00;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--r-md);
   font-family: var(--font-body);
@@ -287,11 +297,11 @@ button { font-family: var(--font-body); }
   margin-top: 6px;
   transition: all var(--t-fast) var(--ease-out-expo);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 16px rgba(245,166,35,0.28);
+  box-shadow: var(--shadow-accent);
 
   &:hover:not(:disabled) {
     background: var(--accent-bright);
-    box-shadow: 0 4px 24px rgba(245,166,35,0.42);
+    box-shadow: 0 6px 28px var(--accent-glow);
     transform: translateY(-1px);
   }
   &:active:not(:disabled) { transform: scale(0.97); }
@@ -301,7 +311,7 @@ button { font-family: var(--font-body); }
 .spinner {
   width: 18px; height: 18px;
   border: 2px solid rgba(0,0,0,0.2);
-  border-top-color: #1a0e00;
+  border-top-color: var(--text-inverse);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   display: inline-block;

@@ -316,3 +316,34 @@ export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+// Education
+export interface EducationArticle {
+  id: number;
+  title: string;
+  summary: string;
+  content: string;
+  category: string;
+  icon: string;
+  readTime: number;
+  publishedAt: string;
+}
+
+export interface EducationModule {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  lessons: number;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  topics: string[];
+}
+
+export interface EducationGuide {
+  id: number;
+  title: string;
+  goal: string;
+  icon: string;
+  steps: string[];
+  tip: string;
+}
