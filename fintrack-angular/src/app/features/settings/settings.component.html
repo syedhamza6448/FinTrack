@@ -12,188 +12,241 @@
     <!-- Sidebar Nav -->
     <div class="settings-nav">
         <button class="nav-item" [class.active]="activeTab === 'profile'" (click)="setTab('profile')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-            </svg>
+            <lucide-angular name="user" [size]="16"></lucide-angular>
             Profile
         </button>
-        <button class="nav-item" [class.active]="activeTab === 'security'" (click)="setTab('security')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            Security
-        </button>
         <button class="nav-item" [class.active]="activeTab === 'preferences'" (click)="setTab('preferences')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14" />
-            </svg>
+            <lucide-angular name="settings" [size]="16"></lucide-angular>
             Preferences
+        </button>
+        <button class="nav-item" [class.active]="activeTab === 'security'" (click)="setTab('security')">
+            <lucide-angular name="lock" [size]="16"></lucide-angular>
+            Security
         </button>
     </div>
 
     <!-- Content -->
     <div class="settings-content">
 
-        <!-- Profile Tab -->
+        <!-- ── Profile Tab ─────────────────────────────────────── -->
         <div class="settings-card" *ngIf="activeTab === 'profile'">
             <div class="sc-header">
                 <div class="avatar-section">
                     <div class="avatar">{{ initials }}</div>
                     <div>
-                        <div class="avatar-name">{{ profileForm.get('fullName')?.value || 'Your Name' }}</div>
-                        <div class="avatar-email">{{ profileForm.get('email')?.value }}</div>
+                        <div class="avatar-name">{{ (profileForm.get('firstName')?.value || '') + ' ' +
+                            (profileForm.get('lastName')?.value || '') }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="alert success" *ngIf="profileSuccess"><app-icon name="check-circle" [size]="18"></app-icon> {{ profileSuccess }}</div>
-            <div class="alert error" *ngIf="profileError">{{ profileError }}</div>
+            <div class="alert success" *ngIf="profileSuccess">
+                <lucide-angular name="check-circle" [size]="16"></lucide-angular>
+                {{ profileSuccess }}
+            </div>
+            <div class="alert error" *ngIf="profileError">
+                <lucide-angular name="alert-circle" [size]="16"></lucide-angular>
+                {{ profileError }}
+            </div>
 
             <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" novalidate>
+
                 <div class="form-row">
+                    <!-- First Name -->
                     <div class="form-field">
-                        <label class="form-label">Full Name *</label>
-                        <input class="input" type="text" formControlName="fullName" placeholder="Your full name">
+                        <label class="form-label">First Name *</label>
+                        <div class="input-wrap">
+                            <lucide-angular class="input-icon" name="user" [size]="15"></lucide-angular>
+                            <input class="input input-with-icon" type="text" formControlName="firstName"
+                                placeholder="John">
+                        </div>
                         <span class="form-error"
-                            *ngIf="profileForm.get('fullName')?.touched && profileForm.get('fullName')?.errors?.['required']">Required</span>
+                            *ngIf="profileForm.get('firstName')?.touched && profileForm.get('firstName')?.errors?.['required']">Required</span>
                     </div>
+                    <!-- Last Name -->
                     <div class="form-field">
-                        <label class="form-label">Email *</label>
-                        <input class="input" type="email" formControlName="email" placeholder="you@example.com">
+                        <label class="form-label">Last Name *</label>
+                        <div class="input-wrap">
+                            <lucide-angular class="input-icon" name="user" [size]="15"></lucide-angular>
+                            <input class="input input-with-icon" type="text" formControlName="lastName"
+                                placeholder="Doe">
+                        </div>
                         <span class="form-error"
-                            *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['required']">Required</span>
-                        <span class="form-error"
-                            *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['email']">Invalid
-                            email</span>
+                            *ngIf="profileForm.get('lastName')?.touched && profileForm.get('lastName')?.errors?.['required']">Required</span>
                     </div>
                 </div>
+
                 <div class="form-row">
+                    <!-- Occupation -->
                     <div class="form-field">
-                        <label class="form-label">Phone</label>
-                        <input class="input" type="tel" formControlName="phone" placeholder="+234 800 000 0000">
+                        <label class="form-label">Occupation</label>
+                        <div class="input-wrap">
+                            <lucide-angular class="input-icon" name="briefcase" [size]="15"></lucide-angular>
+                            <input class="input input-with-icon" type="text" formControlName="occupation"
+                                placeholder="e.g. Software Engineer">
+                        </div>
                     </div>
+                    <!-- Date of Birth -->
                     <div class="form-field">
-                        <label class="form-label">Currency</label>
-                        <app-dropdown
-                            formControlName="currency"
-                            [options]="currencyOptions"
-                            placeholder="Currency">
-                        </app-dropdown>
+                        <label class="form-label">Date of Birth</label>
+                        <div class="input-wrap">
+                            <lucide-angular class="input-icon" name="calendar-days" [size]="15"></lucide-angular>
+                            <input class="input input-with-icon" type="date" formControlName="dateOfBirth">
+                        </div>
                     </div>
                 </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" [disabled]="savingProfile">
-                        <span *ngIf="!savingProfile">Save Changes</span>
-                        <span *ngIf="savingProfile" class="spinner"></span>
+                        <ng-container *ngIf="!savingProfile">Save Profile</ng-container>
+                        <ng-container *ngIf="savingProfile">
+                            <lucide-angular name="loader-2" [size]="15" class="spin"></lucide-angular>
+                            Saving...
+                        </ng-container>
                     </button>
                 </div>
+
             </form>
         </div>
 
-        <!-- Security Tab -->
+        <!-- ── Preferences Tab ────────────────────────────────── -->
+        <div class="settings-card" *ngIf="activeTab === 'preferences'">
+            <div class="sc-title-row">
+                <h2 class="sc-title">Preferences</h2>
+                <p class="sc-subtitle">Customise your FinTrack experience</p>
+            </div>
+
+            <div class="alert success" *ngIf="prefsSuccess">
+                <lucide-angular name="check-circle" [size]="16"></lucide-angular>
+                {{ prefsSuccess }}
+            </div>
+            <div class="alert error" *ngIf="prefsError">
+                <lucide-angular name="alert-circle" [size]="16"></lucide-angular>
+                {{ prefsError }}
+            </div>
+
+            <form [formGroup]="prefsForm" (ngSubmit)="onSavePrefs()" novalidate>
+
+                <!-- Currency -->
+                <div class="form-field">
+                    <label class="form-label">Currency</label>
+                    <app-dropdown formControlName="currency" [options]="currencyOptions" placeholder="Select currency">
+                    </app-dropdown>
+                </div>
+
+                <!-- Theme Toggle -->
+                <div class="form-field">
+                    <label class="form-label">Theme</label>
+                    <div class="theme-toggle">
+                        <button type="button" class="theme-btn"
+                            [class.active]="prefsForm.get('theme')?.value === 'dark'" (click)="onThemeChange('dark')">
+                            <lucide-angular name="moon" [size]="16"></lucide-angular>
+                            Dark
+                        </button>
+                        <button type="button" class="theme-btn"
+                            [class.active]="prefsForm.get('theme')?.value === 'light'" (click)="onThemeChange('light')">
+                            <lucide-angular name="sun" [size]="16"></lucide-angular>
+                            Light
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" [disabled]="savingPrefs">
+                        <ng-container *ngIf="!savingPrefs">Save Preferences</ng-container>
+                        <ng-container *ngIf="savingPrefs">
+                            <lucide-angular name="loader-2" [size]="15" class="spin"></lucide-angular>
+                            Saving...
+                        </ng-container>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ── Security Tab ───────────────────────────────────── -->
         <div class="settings-card" *ngIf="activeTab === 'security'">
             <div class="sc-title-row">
                 <h2 class="sc-title">Change Password</h2>
                 <p class="sc-subtitle">Use a strong password with at least 8 characters</p>
             </div>
 
-            <div class="alert success" *ngIf="passwordSuccess"><app-icon name="check-circle" [size]="18"></app-icon> {{ passwordSuccess }}</div>
-            <div class="alert error" *ngIf="passwordError">{{ passwordError }}</div>
+            <div class="alert success" *ngIf="passwordSuccess">
+                <lucide-angular name="check-circle" [size]="16"></lucide-angular>
+                {{ passwordSuccess }}
+            </div>
+            <div class="alert error" *ngIf="passwordError">
+                <lucide-angular name="alert-circle" [size]="16"></lucide-angular>
+                {{ passwordError }}
+            </div>
 
             <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" novalidate>
+
+                <!-- Current Password -->
                 <div class="form-field">
                     <label class="form-label">Current Password *</label>
-                    <div class="pw-wrap">
-                        <input class="input" [type]="showCurrentPw ? 'text' : 'password'"
-                            formControlName="currentPassword" placeholder="Enter current password">
-                        <button type="button" class="pw-toggle" (click)="showCurrentPw = !showCurrentPw">
-                            <app-icon [name]="showCurrentPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
+                    <div class="input-wrap">
+                        <lucide-angular class="input-icon" name="lock" [size]="15"></lucide-angular>
+                        <input class="input input-with-icon" [type]="showCurrentPw ? 'text' : 'password'"
+                            formControlName="currentPassword" placeholder="Enter current password"
+                            autocomplete="current-password">
+                        <button type="button" class="toggle-pw" (click)="showCurrentPw = !showCurrentPw">
+                            <lucide-angular *ngIf="!showCurrentPw" name="eye" [size]="15"></lucide-angular>
+                            <lucide-angular *ngIf="showCurrentPw" name="eye-off" [size]="15"></lucide-angular>
                         </button>
                     </div>
                     <span class="form-error"
                         *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['required']">Required</span>
                 </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label class="form-label">New Password *</label>
-                        <div class="pw-wrap">
-                            <input class="input" [type]="showNewPw ? 'text' : 'password'" formControlName="newPassword"
-                                placeholder="Min 8 characters">
-                            <button type="button" class="pw-toggle" (click)="showNewPw = !showNewPw">
-                                <app-icon [name]="showNewPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
-                            </button>
-                        </div>
-                        <span class="form-error"
-                            *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']">Min
-                            8 characters</span>
+
+                <!-- New Password -->
+                <div class="form-field">
+                    <label class="form-label">New Password *</label>
+                    <div class="input-wrap">
+                        <lucide-angular class="input-icon" name="lock" [size]="15"></lucide-angular>
+                        <input class="input input-with-icon" [type]="showNewPw ? 'text' : 'password'"
+                            formControlName="newPassword" placeholder="Min 8 characters" autocomplete="new-password">
+                        <button type="button" class="toggle-pw" (click)="showNewPw = !showNewPw">
+                            <lucide-angular *ngIf="!showNewPw" name="eye" [size]="15"></lucide-angular>
+                            <lucide-angular *ngIf="showNewPw" name="eye-off" [size]="15"></lucide-angular>
+                        </button>
                     </div>
-                    <div class="form-field">
-                        <label class="form-label">Confirm Password *</label>
-                        <div class="pw-wrap">
-                            <input class="input" [type]="showConfirmPw ? 'text' : 'password'"
-                                formControlName="confirmPassword" placeholder="Repeat new password">
-                            <button type="button" class="pw-toggle" (click)="showConfirmPw = !showConfirmPw">
-                                <app-icon [name]="showConfirmPw ? 'eye-off' : 'eye'" [size]="18"></app-icon>
-                            </button>
-                        </div>
-                        <span class="form-error"
-                            *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.errors?.['mismatch']">Passwords
-                            do not match</span>
-                    </div>
+                    <span class="form-error"
+                        *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['required']">Required</span>
+                    <span class="form-error"
+                        *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']">Min
+                        8 characters</span>
                 </div>
+
+                <!-- Confirm Password -->
+                <div class="form-field">
+                    <label class="form-label">Confirm Password *</label>
+                    <div class="input-wrap">
+                        <lucide-angular class="input-icon" name="lock" [size]="15"></lucide-angular>
+                        <input class="input input-with-icon" [type]="showConfirmPw ? 'text' : 'password'"
+                            formControlName="confirmPassword" placeholder="Repeat new password"
+                            autocomplete="new-password">
+                        <button type="button" class="toggle-pw" (click)="showConfirmPw = !showConfirmPw">
+                            <lucide-angular *ngIf="!showConfirmPw" name="eye" [size]="15"></lucide-angular>
+                            <lucide-angular *ngIf="showConfirmPw" name="eye-off" [size]="15"></lucide-angular>
+                        </button>
+                    </div>
+                    <span class="form-error"
+                        *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.errors?.['mismatch']">Passwords
+                        do not match</span>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn-primary" [disabled]="savingPassword">
-                        <span *ngIf="!savingPassword">Change Password</span>
-                        <span *ngIf="savingPassword" class="spinner"></span>
+                        <ng-container *ngIf="!savingPassword">Change Password</ng-container>
+                        <ng-container *ngIf="savingPassword">
+                            <lucide-angular name="loader-2" [size]="15" class="spin"></lucide-angular>
+                            Saving...
+                        </ng-container>
                     </button>
                 </div>
-            </form>
-        </div>
 
-        <!-- Preferences Tab -->
-        <!-- Preferences Tab -->
-        <div class="settings-card" *ngIf="activeTab === 'preferences'">
-            <div class="sc-title-row">
-                <h2 class="sc-title">Preferences</h2>
-                <p class="sc-subtitle">Customise your FinTrack experience</p>
-            </div>
-            <form [formGroup]="profileForm">
-                <div class="pref-list">
-                    <div class="pref-item">
-                        <div class="pref-info">
-                            <span class="pref-label">Currency</span>
-                            <span class="pref-desc">Default currency for all amounts</span>
-                        </div>
-                        <app-dropdown
-                            class="input pref-select"
-                            formControlName="currency"
-                            [options]="currencyOptions"
-                            placeholder="Currency">
-                        </app-dropdown>
-                    </div>
-                    <div class="pref-item">
-                        <div class="pref-info">
-                            <span class="pref-label">Timezone</span>
-                            <span class="pref-desc">Used for date calculations</span>
-                        </div>
-                        <app-dropdown
-                            class="input pref-select"
-                            formControlName="timezone"
-                            [options]="timezoneOptions"
-                            placeholder="Timezone">
-                        </app-dropdown>
-                    </div>
-                </div>
             </form>
-            <div class="form-actions">
-                <button class="btn-primary" (click)="onSaveProfile()" [disabled]="savingProfile">
-                    <span *ngIf="!savingProfile">Save Preferences</span>
-                    <span *ngIf="savingProfile" class="spinner"></span>
-                </button>
-            </div>
         </div>
 
     </div>

@@ -4,6 +4,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DebtService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
 import { Debt, DebtRequest } from '../../core/models/models';
+import { extractError } from '../../shared/utils/error.util';
 
 @Component({
     selector: 'app-debt',
@@ -28,12 +29,9 @@ export class DebtComponent implements OnInit, OnDestroy {
     debtForm!: FormGroup;
     paymentForm!: FormGroup;
 
-    readonly types = ['Credit Card', 'Personal Loan', 'Mortgage', 'Car Loan', 'Student Loan', 'Medical', 'Other'];
-    get debtTypeOptions() { return this.types.map(t => ({ value: t, label: t })); }
-    debtStatusOptions = [
-        { value: 'Active', label: 'Active' },
-        { value: 'Overdue', label: 'Overdue' },
-        { value: 'PaidOff', label: 'Paid Off' }
+    readonly debtTypes = [
+        'Credit Card', 'Personal Loan', 'Mortgage',
+        'Car Loan', 'Student Loan', 'Medical', 'Other'
     ];
 
     get currency() { return this.authService.userCurrency; }
@@ -42,7 +40,6 @@ export class DebtComponent implements OnInit, OnDestroy {
     get totalDebt() { return this.debts.reduce((s, d) => s + d.balance, 0); }
     get totalOriginal() { return this.debts.reduce((s, d) => s + d.originalAmount, 0); }
     get totalMonthly() { return this.debts.reduce((s, d) => s + (d.minimumPayment ?? 0), 0); }
-    get paidOffCount() { return this.debts.filter(d => d.status === 'PaidOff').length; }
 
     constructor(
         private fb: FormBuilder,
@@ -54,19 +51,29 @@ export class DebtComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.debtForm = this.fb.group({
             name: ['', Validators.required],
-            type: ['Credit Card', Validators.required],
+            debtType: ['Credit Card', Validators.required],
             originalAmount: [null, [Validators.required, Validators.min(1)]],
-            balance: [null, [Validators.required, Validators.min(0)]],
-            interestRate: [null, [Validators.min(0), Validators.max(100)]],
-            minimumPayment: [null, Validators.min(0)],
-            dueDate: [null],
-            lender: [''],
-            status: ['Active'],
-            notes: ['']
+            remainingBalance: [null, [Validators.required, Validators.min(0)]],
+            monthlyPayment: [null, [Validators.required, Validators.min(1)]],
+            interestRate: [0, [Validators.required, Validators.min(0)]],
+            startDate: ['', Validators.required],
+            expectedPayoffDate: [''],
+            priority: ['Medium', Validators.required]
         });
+
         this.paymentForm = this.fb.group({
             amount: [null, [Validators.required, Validators.min(0.01)]]
         });
+
+        // When originalAmount changes and creating a new debt, sync remainingBalance
+        this.debtForm.get('originalAmount')!.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(val => {
+                if (!this.editingId) {
+                    this.debtForm.get('remainingBalance')!.setValue(val, { emitEvent: false });
+                }
+            });
+
         this.loadDebts();
     }
 
@@ -78,7 +85,7 @@ export class DebtComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (res: any) => {
-                    this.debts = Array.isArray(res) ? res : (res.debts ?? res.items ?? []) ?? [];
+                    this.debts = Array.isArray(res) ? res : (res.debts ?? res.items ?? []);
                     this.loading = false;
                     this.cdr.markForCheck();
                 },
@@ -88,46 +95,50 @@ export class DebtComponent implements OnInit, OnDestroy {
 
     openAdd(): void {
         this.editingId = null; this.modalError = '';
-        this.debtForm.reset({ name: '', type: 'Credit Card', originalAmount: null, balance: null, interestRate: null, minimumPayment: null, dueDate: null, lender: '', status: 'Active', notes: '' });
+        this.debtForm.reset({
+            name: '', debtType: 'Credit Card', originalAmount: null, remainingBalance: null,
+            monthlyPayment: null, interestRate: 0, startDate: '', expectedPayoffDate: '', priority: 'Medium'
+        });
         this.showModal = true;
     }
 
     openEdit(d: Debt): void {
         this.editingId = d.id; this.modalError = '';
         this.debtForm.patchValue({
-            name: d.name, type: d.type, originalAmount: d.originalAmount,
-            balance: d.balance, interestRate: d.interestRate, minimumPayment: d.minimumPayment,
-            dueDate: d.dueDate, lender: d.lender ?? '', status: d.status, notes: d.notes ?? ''
+            name: d.name,
+            debtType: d.type,
+            originalAmount: d.originalAmount,
+            remainingBalance: d.balance,
+            monthlyPayment: d.minimumPayment ?? null,
+            interestRate: d.interestRate,
+            startDate: d.dueDate ? String(d.dueDate).slice(0, 10) : '',
+            expectedPayoffDate: '',
+            priority: 'Medium'
         });
         this.showModal = true;
     }
 
     closeModal(): void { this.showModal = false; }
 
-    /** Map form value to API DebtRequest shape. */
-    private toDebtRequest(): DebtRequest {
-        const v = this.debtForm.value;
-        const due = v.dueDate ? String(v.dueDate).slice(0, 10) : new Date().toISOString().slice(0, 10);
-        return {
-            name: v.name,
-            debtType: v.type,
-            originalAmount: Number(v.originalAmount),
-            remainingBalance: Number(v.balance),
-            monthlyPayment: Number(v.minimumPayment) || 0,
-            interestRate: Number(v.interestRate) || 0,
-            startDate: due,
-            expectedPayoffDate: v.dueDate ? String(v.dueDate).slice(0, 10) : undefined,
-            priority: v.status === 'Overdue' ? 'High' : v.status === 'PaidOff' ? 'Low' : 'Medium'
-        };
-    }
-
     onSubmit(): void {
         if (this.debtForm.invalid) { this.debtForm.markAllAsTouched(); return; }
         this.submitting = true; this.modalError = '';
 
+        const v = this.debtForm.value;
+        const body: DebtRequest = {
+            name: v.name,
+            debtType: v.debtType,
+            originalAmount: Number(v.originalAmount),
+            remainingBalance: Number(v.remainingBalance),
+            monthlyPayment: Number(v.monthlyPayment),
+            interestRate: Number(v.interestRate) || 0,
+            startDate: v.startDate,
+            expectedPayoffDate: v.expectedPayoffDate || undefined,
+            priority: v.priority
+        };
+
         const done = () => { this.submitting = false; this.showModal = false; this.loadDebts(); };
-        const fail = (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to save.'; };
-        const body = this.toDebtRequest();
+        const fail = (err: any) => { this.submitting = false; this.modalError = extractError(err); };
 
         if (this.editingId) {
             this.debtService.update(this.editingId, body)
@@ -143,7 +154,6 @@ export class DebtComponent implements OnInit, OnDestroy {
         this.paymentForm.reset({ amount: null });
         this.showPaymentModal = true;
     }
-
     closePayment(): void { this.showPaymentModal = false; }
 
     onPayment(): void {
@@ -153,7 +163,7 @@ export class DebtComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: () => { this.submitting = false; this.showPaymentModal = false; this.loadDebts(); },
-                error: (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Payment failed.'; }
+                error: (err: any) => { this.submitting = false; this.modalError = extractError(err); }
             });
     }
 
@@ -170,28 +180,29 @@ export class DebtComponent implements OnInit, OnDestroy {
             });
     }
 
+    getPriorityIcon(p: string): string {
+        if (p === 'High') return 'alert-circle';
+        if (p === 'Medium') return 'alert-triangle';
+        return 'check-circle-2';
+    }
+
     getProgressPct(d: Debt): number {
         if (!d.originalAmount) return 0;
         return Math.min(((d.originalAmount - d.balance) / d.originalAmount) * 100, 100);
     }
 
-    getStatusClass(status: string): string {
-        if (status === 'PaidOff') return 'paidoff';
-        if (status === 'Overdue') return 'overdue';
-        return 'active';
-    }
-
     getTypeIcon(type: string): string {
-        const icons: Record<string, string> = {
+        const map: Record<string, string> = {
             'Credit Card': 'credit-card', 'Personal Loan': 'wallet', Mortgage: 'home',
             'Car Loan': 'car', 'Student Loan': 'graduation-cap', Medical: 'building2', Other: 'file-text'
         };
-        return icons[type] ?? 'file-text';
+        return map[type] ?? 'file-text';
     }
 
     formatCurrency(n: number): string {
         return new Intl.NumberFormat('en-NG', {
-            style: 'currency', currency: this.currency, minimumFractionDigits: 0, maximumFractionDigits: 0
+            style: 'currency', currency: this.currency,
+            minimumFractionDigits: 0, maximumFractionDigits: 0
         }).format(n);
     }
 

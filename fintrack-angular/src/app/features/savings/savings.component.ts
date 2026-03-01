@@ -14,22 +14,22 @@ import { SavingsGoal } from '../../core/models/models';
 export class SavingsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  goals: SavingsGoal[]     = [];
-  loading                  = true;
-  submitting               = false;
-  showModal                = false;
-  showDepositModal         = false;
+  goals: SavingsGoal[] = [];
+  loading = true;
+  submitting = false;
+  showModal = false;
+  showDepositModal = false;
   editingId: number | null = null;
   depositGoalId: number | null = null;
-  modalError               = '';
+  modalError = '';
   deletingId: number | null = null;
-  showDeleteConfirm        = false;
-  filterStatus             = '';
+  showDeleteConfirm = false;
+  filterStatus = '';
 
   goalForm!: FormGroup;
   depositForm!: FormGroup;
 
-  get currency()   { return this.authService.userCurrency; }
+  get currency() { return this.authService.userCurrency; }
   get modalTitle() { return this.editingId ? 'Edit Goal' : 'New Savings Goal'; }
   filterStatusOptions = [
     { value: '', label: 'All Goals' },
@@ -39,11 +39,10 @@ export class SavingsComponent implements OnInit, OnDestroy {
   ];
   goalStatusOptions = [
     { value: 'Active', label: 'Active' },
-    { value: 'Paused', label: 'Paused' },
-    { value: 'Completed', label: 'Completed' }
+    { value: 'Paused', label: 'Paused' }
   ];
 
-  get totalSaved()  { return this.goals.reduce((s, g) => s + g.savedAmount, 0); }
+  get totalSaved() { return this.goals.reduce((s, g) => s + g.savedAmount, 0); }
   get totalTarget() { return this.goals.reduce((s, g) => s + g.targetAmount, 0); }
   get activeGoals() { return this.goals.filter(g => g.status === 'Active').length; }
   get completedGoals() { return this.goals.filter(g => g.status === 'Completed').length; }
@@ -53,17 +52,17 @@ export class SavingsComponent implements OnInit, OnDestroy {
     private savingsService: SavingsService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.goalForm = this.fb.group({
-      name:         ['', Validators.required],
+      name: ['', Validators.required],
       targetAmount: [null, [Validators.required, Validators.min(1)]],
-      savedAmount:  [0],
-      targetDate:   [''],
-      status:       ['Active'],
-      icon:         ['target'],
-      color:        ['#f5a623']
+      savedAmount: [0, [Validators.min(0)]],
+      targetDate: [''],
+      status: ['Active'],
+      icon: ['target'],
+      color: ['#B6FF3B']
     });
     this.depositForm = this.fb.group({
       amount: [null, [Validators.required, Validators.min(0.01)]]
@@ -79,7 +78,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: goals => { this.goals = goals ?? []; this.loading = false; this.cdr.markForCheck(); },
-        error: ()   => { this.loading = false; this.cdr.markForCheck(); }
+        error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 
@@ -87,7 +86,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   openAdd(): void {
     this.editingId = null; this.modalError = '';
-    this.goalForm.reset({ name: '', targetAmount: null, savedAmount: 0, targetDate: '', status: 'Active', icon: 'target', color: '#f5a623' });
+    this.goalForm.reset({ name: '', targetAmount: null, savedAmount: 0, targetDate: '', status: 'Active', icon: 'target', color: '#B6FF3B' });
     this.showModal = true;
   }
 
@@ -95,7 +94,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
     this.editingId = g.id; this.modalError = '';
     this.goalForm.patchValue({
       name: g.name, targetAmount: g.targetAmount, savedAmount: g.savedAmount,
-      targetDate: g.targetDate?.substring(0, 10) ?? '', status: g.status, icon: g.icon ?? 'target', color: g.color ?? '#f5a623'
+      targetDate: g.targetDate?.substring(0, 10) ?? '', status: g.status, icon: g.icon ?? 'target', color: g.color ?? '#B6FF3B'
     });
     this.showModal = true;
   }
@@ -138,7 +137,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
   }
 
   confirmDelete(id: number): void { this.deletingId = id; this.showDeleteConfirm = true; }
-  cancelDelete(): void            { this.deletingId = null; this.showDeleteConfirm = false; }
+  cancelDelete(): void { this.deletingId = null; this.showDeleteConfirm = false; }
 
   doDelete(): void {
     if (!this.deletingId) return;
@@ -154,7 +153,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string): string {
     if (status === 'Completed') return 'completed';
-    if (status === 'Paused')    return 'paused';
+    if (status === 'Paused') return 'paused';
     return 'active';
   }
 

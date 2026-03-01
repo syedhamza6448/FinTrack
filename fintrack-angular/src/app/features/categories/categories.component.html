@@ -5,16 +5,17 @@
     <p>{{ expenseCategories.length }} expense · {{ incomeCategories.length }} income</p>
   </div>
   <button class="btn-primary" (click)="openAdd()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <lucide-angular name="plus" [size]="16"></lucide-angular>
     New Category
   </button>
 </div>
 
 <!-- Filter -->
 <div class="filter-row">
-  <button class="filter-chip" [class.active]="filterType === ''"        (click)="filterType = ''">All</button>
-  <button class="filter-chip" [class.active]="filterType === 'Expense'" (click)="filterType = 'Expense'">Expense</button>
-  <button class="filter-chip" [class.active]="filterType === 'Income'"  (click)="filterType = 'Income'">Income</button>
+  <button class="filter-chip" [class.active]="filterType === ''" (click)="filterType = ''">All</button>
+  <button class="filter-chip" [class.active]="filterType === 'Expense'"
+    (click)="filterType = 'Expense'">Expense</button>
+  <button class="filter-chip" [class.active]="filterType === 'Income'" (click)="filterType = 'Income'">Income</button>
 </div>
 
 <!-- Loading -->
@@ -24,7 +25,9 @@
 
 <!-- Empty -->
 <div class="empty-state" *ngIf="!loading && filteredCategories.length === 0">
-  <div class="empty-icon"><app-icon name="folder-open" [size]="48"></app-icon></div>
+  <div class="empty-icon">
+    <lucide-angular name="folder-open" [size]="48"></lucide-angular>
+  </div>
   <h3>No categories yet</h3>
   <p>Create categories to organize your transactions</p>
   <button class="btn-primary" (click)="openAdd()">Create First Category</button>
@@ -32,23 +35,30 @@
 
 <!-- Categories Grid -->
 <div class="cat-grid" *ngIf="!loading && filteredCategories.length > 0">
-  <div class="cat-card" *ngFor="let c of filteredCategories; trackBy: trackById">
+  <div class="cat-card" *ngFor="let c of filteredCategories; trackBy: trackById" [class.default-cat]="c.isDefault">
 
-    <div class="cat-icon-wrap">
-      <span class="cat-icon"><app-icon [name]="c.icon || 'package'" [size]="20"></app-icon></span>
+    <div class="cat-icon-wrap" [style.background]="c.color ? c.color + '22' : null">
+      <span class="cat-icon">
+        <lucide-angular [name]="c.icon || 'tag'" [size]="20"></lucide-angular>
+      </span>
     </div>
 
     <div class="cat-info">
-      <span class="cat-name">{{ c.name }}</span>
+      <div class="cat-name-row">
+        <span class="cat-name">{{ c.name }}</span>
+        <lucide-angular *ngIf="c.isDefault" name="lock" [size]="12" class="lock-icon"
+          title="System default"></lucide-angular>
+      </div>
       <span class="cat-type" [class]="c.type === 'Income' ? 'income' : 'expense'">{{ c.type }}</span>
     </div>
 
     <div class="cat-actions">
-      <button class="btn-icon edit"   (click)="openEdit(c)"       title="Edit">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <button class="btn-icon edit" (click)="openEdit(c)" title="Edit">
+        <lucide-angular name="pencil" [size]="13"></lucide-angular>
       </button>
-      <button class="btn-icon delete" (click)="confirmDelete(c.id)" title="Delete">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      <button class="btn-icon delete" (click)="confirmDelete(c.id)" title="Delete" [disabled]="c.isDefault"
+        [class.disabled]="c.isDefault">
+        <lucide-angular name="trash-2" [size]="13"></lucide-angular>
       </button>
     </div>
 
@@ -58,55 +68,63 @@
 <!-- Add/Edit Modal -->
 <div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
+
     <div class="modal-header">
       <h2 class="modal-title">{{ modalTitle }}</h2>
       <button class="modal-close" (click)="closeModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <lucide-angular name="x" [size]="18"></lucide-angular>
       </button>
     </div>
-    <div class="modal-error" *ngIf="modalError">{{ modalError }}</div>
+
+    <div class="form-server-error" *ngIf="modalError">
+      <lucide-angular name="alert-circle" [size]="14"></lucide-angular>
+      {{ modalError }}
+    </div>
+
     <form [formGroup]="catForm" (ngSubmit)="onSubmit()" novalidate>
 
       <div class="form-row">
         <div class="form-field" style="flex:1">
           <label class="form-label">Name *</label>
-          <input class="input" type="text" formControlName="name" placeholder="e.g. Groceries">
-          <span class="form-error" *ngIf="catForm.get('name')?.touched && catForm.get('name')?.errors?.['required']">Required</span>
+          <div class="input-wrap">
+            <lucide-angular class="input-icon" name="tag" [size]="15"></lucide-angular>
+            <input class="input input-with-icon" type="text" formControlName="name" placeholder="e.g. Groceries">
+          </div>
+          <span class="form-error"
+            *ngIf="catForm.get('name')?.touched && catForm.get('name')?.errors?.['required']">Required</span>
         </div>
-        <div class="form-field" style="width: 130px">
+        <div class="form-field" style="width:130px">
           <label class="form-label">Type *</label>
-          <app-dropdown
-            formControlName="type"
-            [options]="categoryTypeOptions"
-            placeholder="Type">
-          </app-dropdown>
+          <app-dropdown formControlName="type" [options]="categoryTypeOptions" placeholder="Type"></app-dropdown>
         </div>
       </div>
 
-      <!-- Icon picker -->
+      <!-- Icon Picker (shared component) -->
       <div class="form-field">
         <label class="form-label">Icon</label>
-        <div class="icon-picker icon-picker-grid">
-          <button type="button" class="icon-btn"
-                  *ngFor="let icon of icons; trackBy: trackByIndex"
-                  [class.selected]="catForm.get('icon')?.value === icon"
-                  (click)="selectIcon(icon)"
-                  [title]="icon">
-            <app-icon [name]="icon" [size]="24"></app-icon>
-          </button>
-        </div>
-        <div class="icon-preview" *ngIf="catForm.get('icon')?.value">
-          Selected: <app-icon [name]="catForm.get('icon')?.value" [size]="20"></app-icon>
-        </div>
+        <app-icon-picker [selected]="catForm.get('icon')?.value" (iconSelected)="catForm.get('icon')!.setValue($event)">
+        </app-icon-picker>
+      </div>
+
+      <!-- Color Picker (shared component) -->
+      <div class="form-field">
+        <label class="form-label">Color</label>
+        <app-color-picker [selected]="catForm.get('color')?.value"
+          (colorSelected)="catForm.get('color')!.setValue($event)">
+        </app-color-picker>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn-ghost" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn-primary" [disabled]="submitting">
-          <span *ngIf="!submitting">{{ editingId ? 'Save Changes' : 'Create Category' }}</span>
-          <span *ngIf="submitting" class="spinner"></span>
+          <ng-container *ngIf="!submitting">{{ editingId ? 'Save Changes' : 'Create Category' }}</ng-container>
+          <ng-container *ngIf="submitting">
+            <lucide-angular name="loader-2" [size]="15" class="spin"></lucide-angular>
+            Saving...
+          </ng-container>
         </button>
       </div>
+
     </form>
   </div>
 </div>
@@ -114,7 +132,9 @@
 <!-- Delete Confirm -->
 <div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
   <div class="modal modal-sm" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h2 class="modal-title">Delete Category</h2></div>
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Category</h2>
+    </div>
     <p class="delete-msg">Deleting this category may affect existing transactions assigned to it.</p>
     <div class="modal-footer">
       <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>

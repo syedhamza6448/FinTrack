@@ -1,0 +1,27 @@
+<div class="color-picker">
+  <div class="color-swatches">
+    <button
+      type="button"
+      class="swatch"
+      *ngFor="let c of colors"
+      [style.background]="c.hex"
+      [class.selected]="c.hex === selected"
+      (click)="select(c.hex)"
+      [title]="c.label"
+    >
+      <lucide-angular
+        *ngIf="c.hex === selected"
+        name="check"
+        [size]="14"
+        [color]="isLight(c.hex) ? '#0C1A2B' : '#ffffff'"
+      ></lucide-angular>
+    </button>
+  </div>
+
+  <div class="color-preview">
+    <span class="preview-dot" [style.background]="selected"></span>
+    <span class="preview-label">{{ colorLabel }}</span>
+    <code class="preview-hex">{{ selected }}</code>
+  </div>
+</div>
+

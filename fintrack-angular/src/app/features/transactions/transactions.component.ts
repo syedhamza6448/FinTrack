@@ -4,6 +4,8 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { TransactionService, CategoryService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
 import { Transaction, Category, PaginationParams } from '../../core/models/models';
+import { today } from '../../shared/utils/date.util';
+import { extractError } from '../../shared/utils/error.util';
 
 @Component({
     selector: 'app-transactions',
@@ -50,14 +52,22 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     get filterCategoryOptions() {
         return [
             { value: '', label: 'All Categories' },
-            ...this.incomeCategories.map(c => ({ value: c.id, label: c.name + ' (Income)' })),
-            ...this.expenseCategories.map(c => ({ value: c.id, label: c.name + ' (Expense)' }))
+      ...this.incomeCategories.map(c => ({
+        value: c.id,
+        label: `${c.name} (Income)`,
+        icon: c.icon
+      })),
+      ...this.expenseCategories.map(c => ({
+        value: c.id,
+        label: `${c.name} (Expense)`,
+        icon: c.icon
+      }))
         ];
     }
     get modalCategoryOptions() {
         const type = this.txnForm?.get('type')?.value;
         const cats = type === 'Income' ? this.incomeCategories : this.expenseCategories;
-        return cats.map(c => ({ value: c.id, label: c.name }));
+    return cats.map(c => ({ value: c.id, label: c.name, icon: c.icon }));
     }
 
     constructor(
@@ -91,7 +101,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
             amount: [null, [Validators.required, Validators.min(0.01)]],
             type: ['Expense', Validators.required],
             categoryId: [null, Validators.required],
-            date: [this.todayValue(), Validators.required],
+        date: [this.todayValue(), Validators.required],
             notes: ['']
         });
     }
@@ -155,8 +165,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         if (this.txnForm.invalid) { this.txnForm.markAllAsTouched(); return; }
         this.submitting = true; this.modalError = '';
 
-        const done = () => { this.submitting = false; this.showModal = false; this.loadTransactions(); };
-        const fail = (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to save.'; };
+    const done = () => { this.submitting = false; this.showModal = false; this.loadTransactions(); };
+    const fail = (err: any) => { this.submitting = false; this.modalError = extractError(err); };
 
         if (this.editingId) {
             this.txnService.update(this.editingId, this.txnForm.value)
@@ -196,7 +206,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     }
 
     getTypeClass(type: string): string { return type === 'Income' ? 'income' : 'expense'; }
-    private todayValue(): string { return new Date().toISOString().substring(0, 10); }
+  private todayValue(): string { return today(); }
     private currentMonthValue(): string {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;

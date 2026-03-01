@@ -10,7 +10,7 @@
     <p class="auth-sub">Start managing your finances today</p>
 
     <div class="auth-error" *ngIf="error">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <lucide-angular name="alert-circle" [size]="14"></lucide-angular>
       {{ error }}
     </div>
 
@@ -19,12 +19,18 @@
       <div class="form-row">
         <div class="form-field">
           <label class="form-label">First Name</label>
-          <input class="input" type="text" formControlName="firstName" placeholder="John">
+          <div class="input-wrap">
+            <lucide-angular class="input-icon" name="user" [size]="15"></lucide-angular>
+            <input class="input input-with-icon" type="text" formControlName="firstName" placeholder="John">
+          </div>
           <span class="form-error" *ngIf="firstName.touched && firstName.errors?.['required']">Required</span>
         </div>
         <div class="form-field">
           <label class="form-label">Last Name</label>
-          <input class="input" type="text" formControlName="lastName" placeholder="Doe">
+          <div class="input-wrap">
+            <lucide-angular class="input-icon" name="user" [size]="15"></lucide-angular>
+            <input class="input input-with-icon" type="text" formControlName="lastName" placeholder="Doe">
+          </div>
           <span class="form-error" *ngIf="lastName.touched && lastName.errors?.['required']">Required</span>
         </div>
       </div>
@@ -32,8 +38,8 @@
       <div class="form-field">
         <label class="form-label">Email</label>
         <div class="input-wrap">
-          <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <input class="input" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email">
+          <lucide-angular class="input-icon" name="mail" [size]="15"></lucide-angular>
+          <input class="input input-with-icon" type="email" formControlName="email" placeholder="you@example.com" autocomplete="email">
         </div>
         <span class="form-error" *ngIf="email.touched && email.errors?.['required']">Email is required</span>
         <span class="form-error" *ngIf="email.touched && email.errors?.['email']">Enter a valid email</span>
@@ -42,11 +48,11 @@
       <div class="form-field">
         <label class="form-label">Password</label>
         <div class="input-wrap">
-          <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input class="input" [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="Min. 6 characters" autocomplete="new-password">
+          <lucide-angular class="input-icon" name="lock" [size]="15"></lucide-angular>
+          <input class="input input-with-icon" [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="Min. 6 characters" autocomplete="new-password">
           <button type="button" class="toggle-pw" (click)="showPw = !showPw">
-            <svg *ngIf="!showPw" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            <svg *ngIf="showPw"  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <lucide-angular *ngIf="!showPw" name="eye" [size]="15"></lucide-angular>
+            <lucide-angular *ngIf="showPw" name="eye-off" [size]="15"></lucide-angular>
           </button>
         </div>
         <span class="form-error" *ngIf="password.touched && password.errors?.['required']">Password is required</span>
@@ -55,16 +61,26 @@
 
       <div class="form-field">
         <label class="form-label">Currency</label>
-        <app-dropdown
-          formControlName="currency"
-          [options]="registerCurrencyOptions"
-          placeholder="Currency">
-        </app-dropdown>
+        <div class="input-wrap">
+          <lucide-angular class="input-icon" name="coins" [size]="15"></lucide-angular>
+          <app-dropdown
+            class="input input-with-icon"
+            formControlName="currency"
+            [options]="registerCurrencyOptions"
+            placeholder="Currency">
+          </app-dropdown>
+        </div>
       </div>
 
       <button class="btn-submit" type="submit" [disabled]="loading">
-        <span *ngIf="!loading">Create Account</span>
-        <span *ngIf="loading" class="spinner"></span>
+        <ng-container *ngIf="!loading; else saving">
+          <lucide-angular name="arrow-right" [size]="16" class="me-2"></lucide-angular>
+          <span>Create Account</span>
+        </ng-container>
+        <ng-template #saving>
+          <lucide-angular name="loader-2" [size]="16" class="spin"></lucide-angular>
+          <span>Creating...</span>
+        </ng-template>
       </button>
 
     </form>

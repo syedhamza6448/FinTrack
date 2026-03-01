@@ -1,8 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
+import { extractError } from '../../shared/utils/error.util';
+
+function passwordsMatch(g: AbstractControl): ValidationErrors | null {
+  const pw = g.get('newPassword')?.value;
+  const cpw = g.get('confirmPassword')?.value;
+  return pw && cpw && pw !== cpw ? { mismatch: true } : null;
+}
 
 @Component({
   selector: 'app-settings',
@@ -13,18 +20,22 @@ import { AuthService } from '../../core/services/auth.service';
 export class SettingsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  activeTab       = 'profile';
-  savingProfile   = false;
-  savingPassword  = false;
-  profileSuccess  = '';
-  profileError    = '';
+  activeTab = 'profile';
+  savingProfile = false;
+  savingPrefs = false;
+  savingPassword = false;
+  profileSuccess = '';
+  profileError = '';
+  prefsSuccess = '';
+  prefsError = '';
   passwordSuccess = '';
-  passwordError   = '';
-  showCurrentPw   = false;
-  showNewPw       = false;
-  showConfirmPw   = false;
+  passwordError = '';
+  showCurrentPw = false;
+  showNewPw = false;
+  showConfirmPw = false;
 
-  profileForm!:  FormGroup;
+  profileForm!: FormGroup;
+  prefsForm!: FormGroup;
   passwordForm!: FormGroup;
 
   readonly currencies = [
@@ -35,57 +46,61 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { code: 'GHS', label: 'Ghanaian Cedi (₵)' },
     { code: 'KES', label: 'Kenyan Shilling (KSh)' },
     { code: 'ZAR', label: 'South African Rand (R)' },
-    { code: 'CAD', label: 'Canadian Dollar (CA$)' },
+    { code: 'CAD', label: 'Canadian Dollar (CA$)' }
   ];
   get currencyOptions() { return this.currencies.map(c => ({ value: c.code, label: c.label })); }
-  timezoneOptions = [
-    { value: 'Africa/Lagos', label: 'Africa/Lagos (WAT)' },
-    { value: 'Africa/Nairobi', label: 'Africa/Nairobi (EAT)' },
-    { value: 'Africa/Accra', label: 'Africa/Accra (GMT)' },
-    { value: 'Africa/Johannesburg', label: 'Africa/Johannesburg (SAST)' },
-    { value: 'Europe/London', label: 'Europe/London (GMT/BST)' },
-    { value: 'America/New_York', label: 'America/New_York (EST)' },
-    { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST)' }
-  ];
+
+  get initials(): string {
+    const fn = this.profileForm?.get('firstName')?.value ?? '';
+    const ln = this.profileForm?.get('lastName')?.value ?? '';
+    return (fn[0] ?? '').toUpperCase() + (ln[0] ?? '').toUpperCase() || 'U';
+  }
 
   constructor(
     private fb: FormBuilder,
     private settingsService: SettingsService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const user = this.authService.currentUser;
 
     this.profileForm = this.fb.group({
-      fullName: [user?.fullName ?? '', Validators.required],
-      email:    [user?.email    ?? '', [Validators.required, Validators.email]],
+      firstName: [user?.fullName?.split(' ')[0] ?? '', Validators.required],
+      lastName: [user?.fullName?.split(' ').slice(1).join(' ') ?? '', Validators.required],
+      occupation: [''],
+      dateOfBirth: ['']
+    });
+
+    this.prefsForm = this.fb.group({
       currency: [user?.currency ?? 'NGN'],
-      phone:    [''],
-      timezone: ['Africa/Lagos']
+      theme: [user?.theme ?? 'dark']
     });
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
-      newPassword:     ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordsMatch });
+    }, { validators: passwordsMatch });
 
-    // Load latest settings from API
+    // Load latest from API
     this.settingsService.get()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (s: any) => {
-          const fullName = s.fullName ?? s.name ?? [s.firstName, s.lastName].filter(Boolean).join(' ') ?? '';
+        next: s => {
           this.profileForm.patchValue({
-            fullName: fullName,
-            email:    s.email    ?? '',
-            currency: s.currency ?? 'NGN',
-            phone:    s.phone    ?? '',
-            timezone: s.timezone ?? 'Africa/Lagos'
+            firstName: s.firstName ?? '',
+            lastName: s.lastName ?? '',
+            occupation: s.occupation ?? '',
+            dateOfBirth: s.dateOfBirth ? s.dateOfBirth.substring(0, 10) : ''
           });
+          this.prefsForm.patchValue({
+            currency: s.currency ?? 'NGN',
+            theme: s.theme ?? 'dark'
+          });
+          this.applyTheme(s.theme ?? 'dark');
         },
-        error: () => {}
+        error: () => { }
       });
   }
 
@@ -93,61 +108,65 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   setTab(tab: string): void {
     this.activeTab = tab;
-    this.profileSuccess = this.profileError = this.passwordSuccess = this.passwordError = '';
+    this.profileSuccess = this.profileError = this.prefsSuccess = this.prefsError = this.passwordSuccess = this.passwordError = '';
   }
-
-  // Typed getters for use with [formControl] in template
-  get currencyControl(): FormControl  { return this.profileForm.get('currency') as FormControl; }
-  get timezoneControl(): FormControl  { return this.profileForm.get('timezone') as FormControl; }
 
   onSaveProfile(): void {
     if (this.profileForm.invalid) { this.profileForm.markAllAsTouched(); return; }
     this.savingProfile = true;
     this.profileSuccess = this.profileError = '';
 
-    const fullName = (this.profileForm.get('fullName')?.value ?? '').trim();
-    const parts = fullName.split(/\s+/).filter(Boolean);
-    const profilePayload = {
-      firstName: parts[0] ?? '',
-      lastName:  (parts.slice(1).join(' ') || parts[0]) ?? '',
-      occupation: undefined as string | undefined,
-      dateOfBirth: undefined as string | undefined
-    };
+    const v = this.profileForm.value;
+    this.settingsService.updateProfile({
+      firstName: v.firstName,
+      lastName: v.lastName,
+      occupation: v.occupation || undefined,
+      dateOfBirth: v.dateOfBirth || undefined
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.savingProfile = false;
+        this.profileSuccess = 'Profile updated successfully!';
+        this.authService.updateCurrentUser({
+          fullName: `${v.firstName} ${v.lastName}`.trim()
+        } as any);
+        setTimeout(() => this.profileSuccess = '', 3000);
+      },
+      error: (err: any) => {
+        this.savingProfile = false;
+        this.profileError = extractError(err);
+      }
+    });
+  }
 
-    const prefsPayload = {
-      currency: this.profileForm.get('currency')?.value ?? 'NGN',
-      theme: this.authService.userTheme
-    };
+  onSavePrefs(): void {
+    if (this.prefsForm.invalid) { this.prefsForm.markAllAsTouched(); return; }
+    this.savingPrefs = true;
+    this.prefsSuccess = this.prefsError = '';
 
-    this.settingsService.updateProfile(profilePayload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+    const v = this.prefsForm.value;
+    this.settingsService.updatePreferences({ currency: v.currency, theme: v.theme })
+      .pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          this.settingsService.updatePreferences(prefsPayload)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-              next: () => {
-                this.savingProfile  = false;
-                this.profileSuccess = 'Profile updated successfully!';
-                this.authService.updateCurrentUser({
-                  fullName,
-                  email: this.profileForm.get('email')?.value,
-                  currency: prefsPayload.currency,
-                  theme: prefsPayload.theme
-                } as any);
-                setTimeout(() => this.profileSuccess = '', 3000);
-              },
-              error: (err: any) => {
-                this.savingProfile = false;
-                this.profileError  = err.error?.message ?? 'Failed to update preferences.';
-              }
-            });
+          this.savingPrefs = false;
+          this.prefsSuccess = 'Preferences saved!';
+          this.applyTheme(v.theme);
+          this.authService.updateCurrentUser({ currency: v.currency, theme: v.theme } as any);
+          setTimeout(() => this.prefsSuccess = '', 3000);
         },
         error: (err: any) => {
-          this.savingProfile = false;
-          this.profileError  = err.error?.message ?? 'Failed to update profile.';
+          this.savingPrefs = false;
+          this.prefsError = extractError(err);
         }
       });
+  }
+
+  onThemeChange(theme: string): void {
+    this.prefsForm.get('theme')!.setValue(theme);
+    this.applyTheme(theme);
+  }
+
+  private applyTheme(theme: string): void {
+    document.documentElement.setAttribute('data-theme', theme);
   }
 
   onChangePassword(): void {
@@ -157,29 +176,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const { currentPassword, newPassword } = this.passwordForm.value;
     this.settingsService.changePassword({ currentPassword, newPassword })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
+      .pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
-          this.savingPassword  = false;
+          this.savingPassword = false;
           this.passwordSuccess = 'Password changed successfully!';
           this.passwordForm.reset();
           setTimeout(() => this.passwordSuccess = '', 3000);
         },
         error: (err: any) => {
           this.savingPassword = false;
-          this.passwordError  = err.error?.message ?? 'Failed to change password.';
+          this.passwordError = extractError(err);
         }
       });
-  }
-
-  private passwordsMatch(g: FormGroup): { mismatch: true } | null {
-    const pw  = g.get('newPassword')?.value;
-    const cpw = g.get('confirmPassword')?.value;
-    return pw && cpw && pw !== cpw ? { mismatch: true } : null;
-  }
-
-  get initials(): string {
-    const name = this.profileForm?.get('fullName')?.value ?? '';
-    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
   }
 }

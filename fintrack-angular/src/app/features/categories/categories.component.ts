@@ -13,15 +13,15 @@ import { Category } from '../../core/models/models';
 export class CategoriesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  categories: Category[]   = [];
-  loading                  = true;
-  submitting               = false;
-  showModal                = false;
+  categories: Category[] = [];
+  loading = true;
+  submitting = false;
+  showModal = false;
   editingId: number | null = null;
-  modalError               = '';
+  modalError = '';
   deletingId: number | null = null;
-  showDeleteConfirm        = false;
-  filterType               = '';
+  showDeleteConfirm = false;
+  filterType = '';
 
   catForm!: FormGroup;
 
@@ -34,20 +34,20 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   get modalTitle() { return this.editingId ? 'Edit Category' : 'New Category'; }
   get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
-  get incomeCategories()  { return this.categories.filter(c => c.type === 'Income'); }
+  get incomeCategories() { return this.categories.filter(c => c.type === 'Income'); }
   get filteredCategories() {
     if (!this.filterType) return this.categories;
     return this.categories.filter(c => c.type === this.filterType);
   }
 
-  constructor(private fb: FormBuilder, private categoryService: CategoryService, private cdr: ChangeDetectorRef) {}
+  constructor(private fb: FormBuilder, private categoryService: CategoryService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.catForm = this.fb.group({
-      name:  ['', Validators.required],
-      type:  ['Expense', Validators.required],
-      icon:  ['package'],
-      color: ['#f5a623']
+      name: ['', Validators.required],
+      type: ['Expense', Validators.required],
+      icon: ['tag'],
+      color: ['#B6FF3B']
     });
     this.loadCategories();
   }
@@ -70,13 +70,18 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   openAdd(): void {
     this.editingId = null; this.modalError = '';
-    this.catForm.reset({ name: '', type: 'Expense', icon: 'package', color: '#f5a623' });
+    this.catForm.reset({ name: '', type: 'Expense', icon: 'tag', color: '#B6FF3B' });
     this.showModal = true;
   }
 
   openEdit(c: Category): void {
     this.editingId = c.id; this.modalError = '';
-    this.catForm.patchValue({ name: c.name, type: c.type, icon: c.icon ?? 'package', color: c.color ?? '#f5a623' });
+    this.catForm.patchValue({ name: c.name, type: c.type, icon: c.icon ?? 'tag', color: c.color ?? '#B6FF3B' });
+    if (c.isDefault) {
+      this.catForm.get('type')!.disable();
+    } else {
+      this.catForm.get('type')!.enable();
+    }
     this.showModal = true;
   }
 
@@ -99,7 +104,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   confirmDelete(id: number): void { this.deletingId = id; this.showDeleteConfirm = true; }
-  cancelDelete(): void            { this.deletingId = null; this.showDeleteConfirm = false; }
+  cancelDelete(): void { this.deletingId = null; this.showDeleteConfirm = false; }
 
   doDelete(): void {
     if (!this.deletingId) return;

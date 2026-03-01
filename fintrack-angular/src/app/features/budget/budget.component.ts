@@ -14,28 +14,28 @@ import { Budget, Category } from '../../core/models/models';
 export class BudgetComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  budgets: Budget[]       = [];
-  categories: Category[]  = [];
-  overview: any           = null;
-  loading                 = true;
-  submitting              = false;
-  showModal               = false;
+  budgets: Budget[] = [];
+  categories: Category[] = [];
+  overview: any = null;
+  loading = true;
+  submitting = false;
+  showModal = false;
   editingId: number | null = null;
-  modalError              = '';
+  modalError = '';
   deletingId: number | null = null;
-  showDeleteConfirm       = false;
-  selectedMonth           = this.currentMonthValue();
+  showDeleteConfirm = false;
+  selectedMonth = this.currentMonthValue();
 
   budgetForm!: FormGroup;
 
-  get currency()           { return this.authService.userCurrency; }
-  get expenseCategories()  { return this.categories.filter(c => c.type === 'Expense'); }
+  get currency() { return this.authService.userCurrency; }
+  get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
   get budgetCategoryOptions() { return this.expenseCategories.map(c => ({ value: c.id, label: c.name })); }
-  get modalTitle()         { return this.editingId ? 'Edit Budget' : 'Set Budget'; }
+  get modalTitle() { return this.editingId ? 'Edit Budget' : 'Set Budget'; }
 
   get totalBudgeted() { return this.budgets.reduce((s, b) => s + b.amount, 0); }
-  get totalSpent()    { return this.budgets.reduce((s, b) => s + b.spent, 0); }
-  get overallPct()    { return this.totalBudgeted > 0 ? (this.totalSpent / this.totalBudgeted) * 100 : 0; }
+  get totalSpent() { return this.budgets.reduce((s, b) => s + b.spent, 0); }
+  get overallPct() { return this.totalBudgeted > 0 ? (this.totalSpent / this.totalBudgeted) * 100 : 0; }
 
   constructor(
     private fb: FormBuilder,
@@ -43,14 +43,15 @@ export class BudgetComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.budgetForm = this.fb.group({
       categoryId: [null, Validators.required],
-      amount:     [null, [Validators.required, Validators.min(1)]],
-      month:      [new Date().getMonth() + 1],
-      year:       [new Date().getFullYear()]
+      amount: [null, [Validators.required, Validators.min(1)]],
+      period: ['Monthly'],
+      month: [new Date().getMonth() + 1],
+      year: [new Date().getFullYear()]
     });
     this.loadCategories();
     this.loadBudgets();
@@ -64,7 +65,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: budgets => { this.budgets = budgets ?? []; this.loading = false; this.cdr.markForCheck(); },
-        error: ()     => { this.loading = false; this.cdr.markForCheck(); }
+        error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 
@@ -78,7 +79,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
 
   openAdd(): void {
     this.editingId = null; this.modalError = '';
-    this.budgetForm.reset({ categoryId: null, amount: null, month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+    this.budgetForm.reset({ categoryId: null, amount: null, period: 'Monthly', month: new Date().getMonth() + 1, year: new Date().getFullYear() });
     this.showModal = true;
   }
 
@@ -95,7 +96,11 @@ export class BudgetComponent implements OnInit, OnDestroy {
     this.submitting = true; this.modalError = '';
 
     const done = () => { this.submitting = false; this.showModal = false; this.loadBudgets(); };
-    const fail = (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to save budget.'; };
+    const fail = (err: any) => {
+      this.submitting = false;
+      const msg = err.error?.message ?? '';
+      this.modalError = msg || 'Failed to save budget.';
+    };
 
     if (this.editingId) {
       this.budgetService.update(this.editingId, this.budgetForm.value)
@@ -107,7 +112,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
   }
 
   confirmDelete(id: number): void { this.deletingId = id; this.showDeleteConfirm = true; }
-  cancelDelete(): void            { this.deletingId = null; this.showDeleteConfirm = false; }
+  cancelDelete(): void { this.deletingId = null; this.showDeleteConfirm = false; }
 
   doDelete(): void {
     if (!this.deletingId) return;
@@ -121,7 +126,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
 
   getStatusClass(status: string): string {
     if (status === 'exceeded') return 'negative';
-    if (status === 'warning')  return 'warning';
+    if (status === 'warning') return 'warning';
     return 'positive';
   }
 

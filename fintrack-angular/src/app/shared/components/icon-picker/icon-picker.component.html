@@ -1,0 +1,69 @@
+<div class="icon-picker-wrap">
+  <!-- Trigger -->
+  <button type="button" class="icon-trigger" (click)="isOpen = !isOpen">
+    <div class="selected-icon-wrap">
+      <lucide-angular [name]="selected" [size]="18" [strokeWidth]="1.8"></lucide-angular>
+    </div>
+    <span class="trigger-label">Choose icon</span>
+    <lucide-angular
+      name="chevron-down"
+      [size]="14"
+      class="trigger-chevron"
+      [class.flipped]="isOpen"
+    ></lucide-angular>
+  </button>
+
+  <!-- Panel -->
+  <div class="icon-panel" [class.open]="isOpen">
+    <!-- Search bar -->
+    <div class="icon-search-wrap">
+      <lucide-angular name="search" [size]="14" class="search-icon"></lucide-angular>
+      <input
+        class="icon-search"
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Search icons..."
+      />
+      <button
+        type="button"
+        class="search-clear"
+        *ngIf="searchQuery"
+        (click)="searchQuery = ''"
+      >
+        <lucide-angular name="x" [size]="12"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- Grid -->
+    <div class="icon-scroll">
+      <ng-container *ngIf="filteredIcons.length > 0; else noResults">
+        <ng-container *ngFor="let cat of categories">
+          <div class="icon-category-label">{{ cat }}</div>
+          <div class="icon-grid">
+            <button
+              type="button"
+              class="icon-option"
+              *ngFor="let icon of iconsInCategory(cat)"
+              [class.selected]="icon.name === selected"
+              (click)="select(icon.name)"
+              [title]="icon.label"
+            >
+              <lucide-angular
+                [name]="icon.name"
+                [size]="16"
+                [strokeWidth]="1.8"
+              ></lucide-angular>
+            </button>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-template #noResults>
+        <div class="icon-empty">
+          <lucide-angular name="search" [size]="20"></lucide-angular>
+          <span>No icons found for "{{ searchQuery }}"</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+

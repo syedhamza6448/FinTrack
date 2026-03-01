@@ -15,8 +15,16 @@ export class RegisterComponent {
   error   = '';
   showPw  = false;
 
-  currencies = ['NGN', 'USD', 'EUR', 'GBP', 'GHS', 'KES', 'ZAR'];
-  get registerCurrencyOptions() { return this.currencies.map(c => ({ value: c, label: c })); }
+  currencies = [
+    { value: 'NGN', label: 'NGN — Nigerian Naira',    symbol: '₦'   },
+    { value: 'USD', label: 'USD — US Dollar',         symbol: '$'   },
+    { value: 'GBP', label: 'GBP — British Pound',     symbol: '£'   },
+    { value: 'EUR', label: 'EUR — Euro',              symbol: '€'   },
+    { value: 'GHS', label: 'GHS — Ghanaian Cedi',     symbol: '₵'   },
+    { value: 'KES', label: 'KES — Kenyan Shilling',   symbol: 'KSh' },
+    { value: 'ZAR', label: 'ZAR — South African Rand',symbol: 'R'   }
+  ];
+  get registerCurrencyOptions() { return this.currencies.map(c => ({ value: c.value, label: c.label })); }
 
   constructor(
     private fb: FormBuilder,
