@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { SavingsService } from '../../core/services/api.services';
@@ -40,7 +40,8 @@ export class SavingsComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private savingsService: SavingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -66,8 +67,8 @@ export class SavingsComponent implements OnInit, OnDestroy {
     this.savingsService.getAll(this.filterStatus || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: goals => { this.goals = goals; this.loading = false; },
-        error: ()   => { this.loading = false; }
+        next: goals => { this.goals = goals ?? []; this.loading = false; this.cdr.markForCheck(); },
+        error: ()   => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 

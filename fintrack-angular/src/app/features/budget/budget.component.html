@@ -62,7 +62,7 @@
 
     <div class="bc-header">
       <div class="bc-cat">
-        <span class="bc-icon">{{ b.category.icon || '📦' }}</span>
+        <span class="bc-icon"><app-icon [name]="b.category?.icon || 'package'" [size]="16"></app-icon></span>
         <span class="bc-name">{{ b.category.name }}</span>
       </div>
       <div class="bc-actions">
@@ -114,7 +114,7 @@
         <label class="form-label">Category *</label>
         <select class="input" formControlName="categoryId">
           <option [value]="null" disabled>Select category</option>
-          <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+          <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
         </select>
         <span class="form-error" *ngIf="budgetForm.get('categoryId')?.touched && budgetForm.get('categoryId')?.errors?.['required']">Required</span>
       </div>

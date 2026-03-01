@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DashboardService } from '../../core/services/api.services';
@@ -34,7 +34,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void { this.loadDashboard(); }
@@ -50,8 +51,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dashboardService.get()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: data => { this.data = data; this.loading = false; },
-        error: err  => { this.error = 'Failed to load dashboard data.'; this.loading = false; console.error(err); }
+        next: data => { this.data = data; this.loading = false; this.cdr.markForCheck(); },
+        error: err  => { this.error = 'Failed to load dashboard data.'; this.loading = false; console.error(err); this.cdr.markForCheck(); }
       });
   }
 

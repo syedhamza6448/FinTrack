@@ -131,7 +131,7 @@
         <div class="txn-item"
              *ngFor="let txn of data.recentTransactions; trackBy: trackById">
           <div class="txn-icon" [class]="getTransactionClass(txn.type)">
-            <span>{{ txn.category?.icon || (txn.type === 'Income' ? '↑' : '↓') }}</span>
+            <app-icon [name]="txn.category?.icon || (txn.type === 'Income' ? 'arrow-up' : 'arrow-down')" [size]="16"></app-icon>
           </div>
           <div class="txn-info">
             <div class="txn-desc">{{ txn.description }}</div>
@@ -189,7 +189,7 @@
                *ngFor="let goal of data.savingsGoals; trackBy: trackById">
             <div class="goal-top">
               <div class="goal-name-wrap">
-                <span class="goal-icon">{{ goal.icon || '🎯' }}</span>
+                <span class="goal-icon"><app-icon [name]="goal.icon || 'target'" [size]="18"></app-icon></span>
                 <span class="goal-name">{{ goal.name }}</span>
               </div>
               <span class="goal-pct">{{ formatPercent(goal.progressPercent) }}</span>

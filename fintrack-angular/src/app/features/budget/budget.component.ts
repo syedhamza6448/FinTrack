@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { BudgetService, CategoryService } from '../../core/services/api.services';
@@ -40,7 +40,8 @@ export class BudgetComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private budgetService: BudgetService,
     private categoryService: CategoryService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -61,15 +62,15 @@ export class BudgetComponent implements OnInit, OnDestroy {
     this.budgetService.getAll(this.selectedMonth)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: budgets => { this.budgets = budgets; this.loading = false; },
-        error: ()     => { this.loading = false; }
+        next: budgets => { this.budgets = budgets ?? []; this.loading = false; this.cdr.markForCheck(); },
+        error: ()     => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 
   loadCategories(): void {
     this.categoryService.getAll('Expense')
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: cats => this.categories = cats, error: () => {} });
+      .subscribe({ next: cats => { this.categories = cats ?? []; this.cdr.markForCheck(); }, error: () => { this.cdr.markForCheck(); } });
   }
 
   onMonthChange(): void { this.loadBudgets(); }

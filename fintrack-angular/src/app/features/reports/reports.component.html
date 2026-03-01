@@ -67,20 +67,12 @@
       <div class="empty-icon">📊</div>
       <p>No trend data available</p>
     </div>
-    <div class="bar-chart" *ngIf="monthlyTrend.length > 0">
-      <div class="bar-chart-inner">
-        <div class="bar-group" *ngFor="let m of monthlyTrend; trackBy: trackByIndex">
-          <div class="bar-pair">
-            <div class="bar income-bar"  [style.height]="getBarHeight(m.income  ?? 0)" [title]="'Income: '  + formatCurrency(m.income)"></div>
-            <div class="bar expense-bar" [style.height]="getBarHeight(m.expense ?? 0)" [title]="'Expense: ' + formatCurrency(m.expense)"></div>
-          </div>
-          <span class="bar-label">{{ getMonthLabel(m) }}</span>
-        </div>
-      </div>
-      <div class="chart-legend">
-        <span class="legend-dot income"></span> Income
-        <span class="legend-dot expense"></span> Expenses
-      </div>
+    <div class="chart-container bar-chart-container" *ngIf="monthlyTrend.length > 0">
+      <canvas baseChart
+        type="bar"
+        [data]="barChartData"
+        [options]="barChartOptions">
+      </canvas>
     </div>
   </div>
 
@@ -94,12 +86,20 @@
       <div class="empty-icon">🛍️</div>
       <p>No expense data for this period</p>
     </div>
-    <div class="category-list" *ngIf="topExpenseCategories.length > 0">
+    <div class="expense-breakdown-content" *ngIf="topExpenseCategories.length > 0">
+      <div class="chart-container pie-chart-container">
+        <canvas baseChart
+          type="pie"
+          [data]="pieChartData"
+          [options]="pieChartOptions">
+        </canvas>
+      </div>
+    <div class="category-list">
       <div class="cat-row" *ngFor="let cat of topExpenseCategories; let i = index; trackBy: trackByIndex">
         <div class="cat-rank">{{ i + 1 }}</div>
         <div class="cat-info">
           <div class="cat-top">
-            <span class="cat-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+            <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
             <div class="cat-right">
               <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
               <span class="cat-amount">{{ formatCurrency(cat.total) }}</span>
@@ -110,6 +110,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -128,7 +129,7 @@
         <div class="cat-rank">{{ i + 1 }}</div>
         <div class="cat-info">
           <div class="cat-top">
-            <span class="cat-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+            <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
             <div class="cat-right">
               <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
               <span class="cat-amount positive">{{ formatCurrency(cat.total) }}</span>

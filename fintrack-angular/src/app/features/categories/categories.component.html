@@ -35,7 +35,7 @@
   <div class="cat-card" *ngFor="let c of filteredCategories; trackBy: trackById">
 
     <div class="cat-icon-wrap">
-      <span class="cat-icon">{{ c.icon || '📦' }}</span>
+      <span class="cat-icon"><app-icon [name]="c.icon || 'package'" [size]="20"></app-icon></span>
     </div>
 
     <div class="cat-info">
@@ -94,7 +94,7 @@
           </button>
         </div>
         <div class="icon-preview" *ngIf="catForm.get('icon')?.value">
-          Selected: <span>{{ catForm.get('icon')?.value }}</span>
+          Selected: <app-icon [name]="catForm.get('icon')?.value" [size]="20"></app-icon>
         </div>
       </div>
 

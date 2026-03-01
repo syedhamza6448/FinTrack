@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { DebtService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
-import { Debt } from '../../core/models/models';
+import { Debt, DebtRequest } from '../../core/models/models';
 
 @Component({
     selector: 'app-debt',
@@ -41,7 +41,8 @@ export class DebtComponent implements OnInit, OnDestroy {
     constructor(
         private fb: FormBuilder,
         private debtService: DebtService,
-        private authService: AuthService
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -71,10 +72,11 @@ export class DebtComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (res: any) => {
-                    this.debts = Array.isArray(res) ? res : (res.debts ?? res.items ?? []);
+                    this.debts = Array.isArray(res) ? res : (res.debts ?? res.items ?? []) ?? [];
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
-                error: () => { this.loading = false; }
+                error: () => { this.loading = false; this.cdr.markForCheck(); }
             });
     }
 
@@ -96,18 +98,36 @@ export class DebtComponent implements OnInit, OnDestroy {
 
     closeModal(): void { this.showModal = false; }
 
+    /** Map form value to API DebtRequest shape. */
+    private toDebtRequest(): DebtRequest {
+        const v = this.debtForm.value;
+        const due = v.dueDate ? String(v.dueDate).slice(0, 10) : new Date().toISOString().slice(0, 10);
+        return {
+            name: v.name,
+            debtType: v.type,
+            originalAmount: Number(v.originalAmount),
+            remainingBalance: Number(v.balance),
+            monthlyPayment: Number(v.minimumPayment) || 0,
+            interestRate: Number(v.interestRate) || 0,
+            startDate: due,
+            expectedPayoffDate: v.dueDate ? String(v.dueDate).slice(0, 10) : undefined,
+            priority: v.status === 'Overdue' ? 'High' : v.status === 'PaidOff' ? 'Low' : 'Medium'
+        };
+    }
+
     onSubmit(): void {
         if (this.debtForm.invalid) { this.debtForm.markAllAsTouched(); return; }
         this.submitting = true; this.modalError = '';
 
         const done = () => { this.submitting = false; this.showModal = false; this.loadDebts(); };
         const fail = (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to save.'; };
+        const body = this.toDebtRequest();
 
         if (this.editingId) {
-            this.debtService.update(this.editingId, this.debtForm.value)
+            this.debtService.update(this.editingId, body)
                 .pipe(takeUntil(this.destroy$)).subscribe({ next: done, error: fail });
         } else {
-            this.debtService.create(this.debtForm.value)
+            this.debtService.create(body)
                 .pipe(takeUntil(this.destroy$)).subscribe({ next: done, error: fail });
         }
     }

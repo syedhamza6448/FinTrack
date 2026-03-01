@@ -229,9 +229,48 @@
     }
 }
 
-// Bar Chart
-// .chart-card {}   
+// Chart.js containers
+.chart-container {
+  position: relative;
+  width: 100%;
 
+  canvas {
+    display: block;
+  }
+}
+
+.bar-chart-container {
+  height: 280px;
+}
+
+.pie-chart-container {
+  height: 260px;
+  max-width: 320px;
+  margin-bottom: 20px;
+}
+
+.expense-breakdown-content {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+
+    .pie-chart-container {
+      flex-shrink: 0;
+      margin-bottom: 0;
+    }
+
+    .category-list {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+// Legacy bar (kept for reference, chart replaces it)
 .bar-chart {
     display: flex;
     flex-direction: column;

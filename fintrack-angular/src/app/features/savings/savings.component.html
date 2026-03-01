@@ -53,7 +53,7 @@
 
     <div class="gc-header">
       <div class="gc-icon-wrap">
-        <span class="gc-icon">{{ g.icon || '🎯' }}</span>
+        <span class="gc-icon"><app-icon [name]="g.icon || 'target'" [size]="18"></app-icon></span>
       </div>
       <div class="gc-title-wrap">
         <span class="gc-name">{{ g.name }}</span>

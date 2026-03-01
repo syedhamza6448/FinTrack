@@ -12,7 +12,7 @@
     <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
     <select class="filter-select" formControlName="categoryId" (change)="applyFilters()">
       <option value="">All Categories</option>
-      <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+      <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
     </select>
     <button class="btn-ghost" (click)="clearFilters()">Clear</button>
   </div>
@@ -50,7 +50,7 @@
     <div class="cat-bars" *ngIf="!loadingCats && topCategories.length > 0">
       <div class="cat-bar-item" *ngFor="let cat of topCategories; let i = index; trackBy: trackByIndex">
         <div class="cat-bar-top">
-          <span class="cat-bar-name">{{ cat.icon }} {{ cat.categoryName }}</span>
+          <span class="cat-bar-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
           <div class="cat-bar-right">
             <span class="cat-bar-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
             <span class="cat-bar-amount">{{ formatCurrency(cat.total) }}</span>
@@ -104,7 +104,7 @@
           <div class="txn-notes" *ngIf="exp.notes">{{ exp.notes }}</div>
         </td>
         <td>
-          <span class="category-chip">{{ exp.category?.icon }} {{ exp.category?.name }}</span>
+          <span class="category-chip"><app-icon [name]="exp.category?.icon" [size]="14"></app-icon> {{ exp.category?.name }}</span>
         </td>
         <td class="text-secondary">{{ formatDate(exp.date) }}</td>
         <td class="text-right">

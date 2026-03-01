@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -40,7 +40,8 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private expenseService: ExpenseService,
     private categoryService: CategoryService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -66,12 +67,14 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          this.expenses    = res.items ?? [];
-          this.totalAmount = res.totalAmount ?? 0;
-          this.count       = res.count ?? 0;
+          const list = Array.isArray(res) ? res : (res?.items ?? res?.data ?? []);
+          this.expenses    = list ?? [];
+          this.totalAmount = res?.totalAmount ?? 0;
+          this.count       = res?.count ?? this.expenses.length ?? 0;
           this.loading     = false;
+          this.cdr.markForCheck();
         },
-        error: () => { this.loading = false; }
+        error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 
@@ -81,15 +84,15 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.expenseService.getTopCategories(month || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: cats => { this.topCategories = cats; this.loadingCats = false; },
-        error: () => { this.loadingCats = false; }
+        next: cats => { this.topCategories = cats ?? []; this.loadingCats = false; this.cdr.markForCheck(); },
+        error: () => { this.loadingCats = false; this.cdr.markForCheck(); }
       });
   }
 
   loadCategories(): void {
     this.categoryService.getAll('Expense')
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: cats => this.categories = cats, error: () => {} });
+      .subscribe({ next: cats => { this.categories = cats ?? []; this.cdr.markForCheck(); }, error: () => { this.cdr.markForCheck(); } });
   }
 
   applyFilters(): void {

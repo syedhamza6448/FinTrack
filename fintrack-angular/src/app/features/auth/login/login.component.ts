@@ -34,7 +34,10 @@ export class LoginComponent {
     this.loading = true;
     this.error   = '';
     this.authService.login(this.form.value).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/dashboard']);
+      },
       error: err => {
         this.loading = false;
         this.error   = err.error?.message ?? 'Invalid email or password';

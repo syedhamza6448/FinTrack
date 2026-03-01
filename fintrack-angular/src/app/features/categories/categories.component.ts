@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { CategoryService } from '../../core/services/api.services';
@@ -35,7 +35,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     return this.categories.filter(c => c.type === this.filterType);
   }
 
-  constructor(private fb: FormBuilder, private categoryService: CategoryService) {}
+  constructor(private fb: FormBuilder, private categoryService: CategoryService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.catForm = this.fb.group({
@@ -55,10 +55,11 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: any) => {
-          this.categories = Array.isArray(res) ? res : (res.categories ?? res.items ?? []);
+          this.categories = Array.isArray(res) ? res : (res.categories ?? res.items ?? []) ?? [];
           this.loading = false;
+          this.cdr.markForCheck();
         },
-        error: () => { this.loading = false; }
+        error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 

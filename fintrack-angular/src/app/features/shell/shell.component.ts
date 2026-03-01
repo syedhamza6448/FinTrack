@@ -14,10 +14,15 @@ import { NotificationService } from '../../core/services/api.services';
 export class ShellComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  sidebarOpen  = false;
-  currentRoute = '';
-  unreadCount  = 0;
-  isDark       = true;
+  sidebarOpen     = false;
+  sidebarCollapsed = false;
+  currentRoute    = '';
+  unreadCount     = 0;
+  isDark          = true;
+  tooltipLabel    = '';
+  tooltipVisible  = false;
+  tooltipX        = 0;
+  tooltipY        = 0;
 
   navItems = [
     { path: '/dashboard',     label: 'Dashboard',     icon: 'grid',         group: 'overview' },
@@ -83,6 +88,22 @@ export class ShellComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar(): void { this.sidebarOpen = !this.sidebarOpen; }
+
+  toggleSidebarCollapse(): void { this.sidebarCollapsed = !this.sidebarCollapsed; }
+
+  showTooltip(label: string, event: MouseEvent): void {
+    if (!this.sidebarCollapsed) return;
+    this.tooltipLabel = label;
+    this.tooltipVisible = true;
+    const el = event.target as HTMLElement;
+    const rect = el.closest?.('.nav-item')?.getBoundingClientRect?.() ?? el.getBoundingClientRect();
+    this.tooltipX = rect.right + 8;
+    this.tooltipY = rect.top + rect.height / 2;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = false;
+  }
 
   toggleTheme(): void {
     this.isDark = !this.isDark;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { ReportsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,15 +23,56 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
+  // Chart.js: monthly bar chart
+  barChartData: { labels: string[]; datasets: { label: string; data: number[]; backgroundColor: string; borderColor?: string }[] } = {
+    labels: [],
+    datasets: [
+      { label: 'Income',  data: [], backgroundColor: 'rgba(76, 175, 80, 0.8)', borderColor: 'rgb(76, 175, 80)' },
+      { label: 'Expenses', data: [], backgroundColor: 'rgba(244, 67, 54, 0.8)', borderColor: 'rgb(244, 67, 54)' }
+    ]
+  };
+  barChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: true, color: 'rgba(128,128,128,0.15)' } },
+      y: {
+        grid: { display: true, color: 'rgba(128,128,128,0.15)' },
+        ticks: { callback: (v: number) => (v >= 1e6 ? (v / 1e6) + 'M' : v >= 1e3 ? (v / 1e3) + 'k' : v) }
+      }
+    },
+    plugins: { legend: { position: 'top' } }
+  };
+
+  // Chart.js: expense pie chart
+  pieChartData: { labels: string[]; datasets: { data: number[]; backgroundColor: string[] }[] } = {
+    labels: [],
+    datasets: [{ data: [], backgroundColor: [] }]
+  };
+  pieChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'right' } }
+  };
+
   get currency() { return this.authService.userCurrency; }
 
   get monthlyIncome(): number {
-    const current = this.monthlyTrend.find(m => m.month === this.selectedMonth);
+    const current = this.getMonthlyTrendEntry();
     return current?.income ?? 0;
   }
   get monthlyExpense(): number {
-    const current = this.monthlyTrend.find(m => m.month === this.selectedMonth);
+    const current = this.getMonthlyTrendEntry();
     return current?.expense ?? 0;
+  }
+
+  /** Resolve trend entry for selectedMonth (YYYY-MM); API may return month as number (1–12) or string. */
+  private getMonthlyTrendEntry(): any {
+    const [y, mo] = this.selectedMonth.split('-');
+    const monthNum = parseInt(mo, 10);
+    return this.monthlyTrend.find((m: any) =>
+      typeof m.month === 'number' ? m.month === monthNum : String(m.month) === this.selectedMonth
+    );
   }
   get monthlyNet():   number { return this.monthlyIncome - this.monthlyExpense; }
   get savingsRate():  number { return this.monthlyIncome > 0 ? (this.monthlyNet / this.monthlyIncome) * 100 : 0; }
@@ -43,7 +84,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   constructor(
     private reportsService: ReportsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void { this.loadReport(); }
@@ -60,14 +102,34 @@ export class ReportsComponent implements OnInit, OnDestroy {
         this.monthlyTrend         = res.monthly ?? [];
         this.topExpenseCategories = res.expenseCategories ?? [];
         this.topIncomeCategories  = res.incomeCategories ?? [];
+        this.updateBarChartData();
+        this.updatePieChartData();
         this.loading = false;
+        this.cdr.markForCheck();
       },
-      error: () => { this.loading = false; }
+      error: () => { this.loading = false; this.cdr.markForCheck(); }
     });
   }
 
   onFilterChange(): void { this.loadReport(); }
   setTab(tab: string): void { this.activeTab = tab; }
+
+  private updateBarChartData(): void {
+    this.barChartData.labels = this.monthlyTrend.map((m: any) => this.getMonthLabel(m));
+    this.barChartData.datasets[0].data = this.monthlyTrend.map((m: any) => m.income ?? 0);
+    this.barChartData.datasets[1].data = this.monthlyTrend.map((m: any) => m.expense ?? 0);
+  }
+
+  private updatePieChartData(): void {
+    const colors = ['#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0'];
+    this.pieChartData = {
+      labels: this.topExpenseCategories.map((c: any) => c.categoryName ?? ''),
+      datasets: [{
+        data: this.topExpenseCategories.map((c: any) => c.total ?? 0),
+        backgroundColor: this.topExpenseCategories.map((_: any, i: number) => colors[i % colors.length])
+      }]
+    };
+  }
 
   getBarHeight(value: number): string {
     return `${Math.round((value / this.maxTrendValue) * 100)}%`;
@@ -81,9 +143,15 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   getMonthLabel(m: any): string {
-    if (!m?.month) return '';
-    const [y, mo] = m.month.split('-');
-    return new Date(+y, +mo - 1).toLocaleString('default', { month: 'short' });
+    if (m?.month == null) return '';
+    if (typeof m.month === 'number') {
+      return new Date(this.selectedYear, m.month - 1).toLocaleString('default', { month: 'short' });
+    }
+    const parts = String(m.month).split('-');
+    if (parts.length >= 2) {
+      return new Date(+parts[0], +parts[1] - 1).toLocaleString('default', { month: 'short' });
+    }
+    return m.label ?? '';
   }
 
   formatCurrency(n: number): string {

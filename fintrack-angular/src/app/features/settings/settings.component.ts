@@ -66,8 +66,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (s: any) => {
+          const fullName = s.fullName ?? s.name ?? [s.firstName, s.lastName].filter(Boolean).join(' ') ?? '';
           this.profileForm.patchValue({
-            fullName: s.fullName ?? s.name ?? '',
+            fullName: fullName,
             email:    s.email    ?? '',
             currency: s.currency ?? 'NGN',
             phone:    s.phone    ?? '',
@@ -94,14 +95,43 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.savingProfile = true;
     this.profileSuccess = this.profileError = '';
 
-    this.settingsService.updateProfile(this.profileForm.value)
+    const fullName = (this.profileForm.get('fullName')?.value ?? '').trim();
+    const parts = fullName.split(/\s+/).filter(Boolean);
+    const profilePayload = {
+      firstName: parts[0] ?? '',
+      lastName:  (parts.slice(1).join(' ') || parts[0]) ?? '',
+      occupation: undefined as string | undefined,
+      dateOfBirth: undefined as string | undefined
+    };
+
+    const prefsPayload = {
+      currency: this.profileForm.get('currency')?.value ?? 'NGN',
+      theme: this.authService.userTheme
+    };
+
+    this.settingsService.updateProfile(profilePayload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.savingProfile  = false;
-          this.profileSuccess = 'Profile updated successfully!';
-          this.authService.updateCurrentUser(this.profileForm.value);
-          setTimeout(() => this.profileSuccess = '', 3000);
+          this.settingsService.updatePreferences(prefsPayload)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                this.savingProfile  = false;
+                this.profileSuccess = 'Profile updated successfully!';
+                this.authService.updateCurrentUser({
+                  fullName,
+                  email: this.profileForm.get('email')?.value,
+                  currency: prefsPayload.currency,
+                  theme: prefsPayload.theme
+                } as any);
+                setTimeout(() => this.profileSuccess = '', 3000);
+              },
+              error: (err: any) => {
+                this.savingProfile = false;
+                this.profileError  = err.error?.message ?? 'Failed to update preferences.';
+              }
+            });
         },
         error: (err: any) => {
           this.savingProfile = false;
@@ -115,7 +145,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.savingPassword = true;
     this.passwordSuccess = this.passwordError = '';
 
-    this.settingsService.changePassword(this.passwordForm.value)
+    const { currentPassword, newPassword } = this.passwordForm.value;
+    this.settingsService.changePassword({ currentPassword, newPassword })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {

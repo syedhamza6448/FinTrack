@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NotificationService } from '../../core/services/api.services';
 import { Notification } from '../../core/models/models';
@@ -22,7 +22,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     return this.notifications.filter(n => n.type === this.filterType);
   }
 
-  constructor(private notifService: NotificationService) {}
+  constructor(private notifService: NotificationService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void { this.loadNotifications(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -33,10 +33,11 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: any) => {
-          this.notifications = Array.isArray(res) ? res : (res.notifications ?? res.items ?? []);
+          this.notifications = Array.isArray(res) ? res : (res.notifications ?? res.items ?? []) ?? [];
           this.loading = false;
+          this.cdr.markForCheck();
         },
-        error: () => { this.loading = false; }
+        error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
   }
 

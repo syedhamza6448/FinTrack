@@ -202,11 +202,9 @@ export interface Debt {
 export interface DebtListResponse {
   debts: Debt[];
   totalDebt: number;
-}
-
-export interface DebtListResponse {
-  items: Debt[];
-  summary: { totalDebt: number; totalMonthlyPayment: number; debtCount: number };
+  /** Alternative API shape; components handle both. */
+  items?: Debt[];
+  summary?: { totalDebt: number; totalMonthlyPayment: number; debtCount: number };
 }
 
 export interface DebtRequest {

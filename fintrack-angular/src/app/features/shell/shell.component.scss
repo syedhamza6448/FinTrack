@@ -19,6 +19,8 @@ $bottom-nav-h: 64px;
   z-index: 40;
 }
 
+$sidebar-collapsed-w: 56px;
+
 // ── Sidebar ──────────────────────────────────
 .sidebar {
   width: $sidebar-w;
@@ -28,9 +30,58 @@ $bottom-nav-h: 64px;
   flex-direction: column;
   background: var(--bg-raised);
   border-right: 1px solid var(--glass-border);
-  transition: transform var(--t-base) var(--ease-out-expo);
+  transition: width var(--t-base) var(--ease-out-expo), transform var(--t-base) var(--ease-out-expo);
   z-index: 50;
   overflow: hidden;
+  position: relative;
+
+  &.sidebar-collapsed {
+    width: $sidebar-collapsed-w;
+
+    .sidebar-logo {
+      padding: 20px 10px 20px;
+      justify-content: center;
+    }
+
+    .nav-item {
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .nav-divider {
+      margin: 6px 8px;
+    }
+
+    .sidebar-footer {
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px;
+    }
+
+    .user-pill-collapsed {
+      justify-content: center;
+    }
+
+    .collapse-toggle-btn {
+      width: 100%;
+    }
+  }
+}
+
+.sidebar-tooltip {
+  position: fixed;
+  transform: translateY(-50%);
+  padding: 6px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-float);
+  z-index: 60;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .sidebar-logo {
@@ -191,6 +242,26 @@ $bottom-nav-h: 64px;
   }
 }
 
+.collapse-toggle-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--glass-01);
+  border: 1px solid var(--glass-border);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--glass-02);
+    color: var(--text-primary);
+  }
+}
+
 .logout-btn {
   width: 30px;
   height: 30px;
@@ -210,6 +281,16 @@ $bottom-nav-h: 64px;
     color: var(--negative);
     border-color: rgba(242, 92, 110, 0.3);
   }
+}
+
+.nav-badge-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  font-size: 9px;
 }
 
 // ── Main wrapper ────────────────────────────

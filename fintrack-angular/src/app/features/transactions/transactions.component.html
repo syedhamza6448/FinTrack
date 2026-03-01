@@ -78,7 +78,8 @@
         </td>
         <td>
           <span class="category-chip">
-            {{ txn.category?.icon }} {{ txn.category?.name }}
+            <app-icon [name]="txn.category?.icon" [size]="14"></app-icon>
+            {{ txn.category?.name }}
           </span>
         </td>
         <td class="text-secondary">{{ formatDate(txn.date) }}</td>
@@ -176,10 +177,10 @@
         <select class="input select" formControlName="categoryId">
           <option [value]="null" disabled>Select a category</option>
           <optgroup *ngIf="txnForm.get('type')?.value === 'Income'" label="Income Categories">
-            <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+            <option *ngFor="let c of incomeCategories" [value]="c.id">{{ c.name }}</option>
           </optgroup>
           <optgroup *ngIf="txnForm.get('type')?.value === 'Expense'" label="Expense Categories">
-            <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.icon }} {{ c.name }}</option>
+            <option *ngFor="let c of expenseCategories" [value]="c.id">{{ c.name }}</option>
           </optgroup>
         </select>
         <span class="form-error" *ngIf="txnForm.get('categoryId')?.touched && txnForm.get('categoryId')?.errors?.['required']">Required</span>

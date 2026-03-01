@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { TransactionService, CategoryService } from '../../core/services/api.services';
@@ -47,7 +47,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         private fb: FormBuilder,
         private txnService: TransactionService,
         private categoryService: CategoryService,
-        private authService: AuthService
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -81,17 +82,28 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         const params: PaginationParams = {
             page: this.page, pageSize: this.pageSize,
             search: f.search || undefined, type: f.type || undefined,
-            categoryId: f.categoryId || undefined, month: f.month || undefined
+            categoryId: f.categoryId ? Number(f.categoryId) : undefined, month: f.month || undefined
         };
         this.txnService.getAll(params).pipe(takeUntil(this.destroy$)).subscribe({
-            next: res => { this.transactions = res.items; this.total = res.total; this.loading = false; },
-            error: () => { this.error = 'Failed to load transactions.'; this.loading = false; }
+            next: res => {
+                const items = res?.items ?? (res as any)?.data ?? (Array.isArray(res) ? res : []);
+                this.transactions = items ?? [];
+                this.total = res?.total ?? this.transactions.length ?? 0;
+                this.loading = false;
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.error = 'Failed to load transactions.';
+                this.loading = false;
+                this.cdr.markForCheck();
+            }
         });
     }
 
     loadCategories(): void {
         this.categoryService.getAll().pipe(takeUntil(this.destroy$)).subscribe({
-            next: cats => this.categories = cats, error: () => { }
+            next: cats => { this.categories = cats ?? []; this.cdr.markForCheck(); },
+            error: () => { this.cdr.markForCheck(); }
         });
     }
 

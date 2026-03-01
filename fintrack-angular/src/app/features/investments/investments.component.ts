@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { InvestmentService } from '../../core/services/api.services';
@@ -38,7 +38,8 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     constructor(
         private fb: FormBuilder,
         private investService: InvestmentService,
-        private authService: AuthService
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -64,10 +65,11 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (res: any) => {
-                    this.investments = Array.isArray(res) ? res : (res.investments ?? res.items ?? []);
+                    this.investments = Array.isArray(res) ? res : (res.investments ?? res.items ?? []) ?? [];
                     this.loading = false;
+                    this.cdr.markForCheck();
                 },
-                error: () => { this.loading = false; }
+                error: () => { this.loading = false; this.cdr.markForCheck(); }
             });
     }
 
