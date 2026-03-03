@@ -116,8 +116,8 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
             name: inv.name,
             ticker: (inv as any).ticker ?? '',
             assetType: (inv as any).assetType ?? inv.type ?? 'Stocks',
-            quantity: inv.units ?? null,
-            buyPrice: inv.purchasePrice ?? null,
+            quantity: inv.units ?? (inv as any).quantity ?? null,
+            buyPrice: inv.purchasePrice ?? (inv as any).buyPrice ?? null,
             currentPrice: inv.currentPrice ?? null,
             purchaseDate: inv.purchaseDate?.substring(0, 10) ?? '',
             dividendEarned: (inv as any).dividendEarned ?? 0

@@ -67,6 +67,14 @@ export class SavingsComponent implements OnInit, OnDestroy {
     this.depositForm = this.fb.group({
       amount: [null, [Validators.required, Validators.min(0.01)]]
     });
+
+    // Auto-update status to Completed when savedAmount >= targetAmount
+    this.goalForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(values => {
+      if (values.targetAmount && values.savedAmount >= values.targetAmount && this.goalForm.get('status')?.value !== 'Completed') {
+        this.goalForm.get('status')?.setValue('Completed', { emitEvent: false });
+      }
+    });
+
     this.loadGoals();
   }
 

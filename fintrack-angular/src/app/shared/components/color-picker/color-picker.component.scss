@@ -32,6 +32,27 @@
     outline-color: var(--accent);
     transform: scale(1.12);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.custom-color-swatch {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(from 180deg, red, yellow, lime, aqua, blue, magenta, red);
+
+  .native-color-input {
+    position: absolute;
+    opacity: 0;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    cursor: pointer;
+  }
 }
 
 .color-preview {
@@ -63,4 +84,3 @@
   border-radius: var(--r-sm);
   letter-spacing: 0.05em;
 }
-

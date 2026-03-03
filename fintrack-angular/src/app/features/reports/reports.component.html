@@ -5,12 +5,11 @@
     <p>Financial insights and trends</p>
   </div>
   <div class="header-filters">
+    <app-dropdown class="filter-select" [value]="selectedPeriod" [options]="periodOptions" placeholder="Period"
+      (valueChange)="selectedPeriod = $event; onFilterChange()">
+    </app-dropdown>
     <input class="filter-select" type="month" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
-    <app-dropdown
-      class="filter-select"
-      [value]="selectedYear"
-      [options]="yearOptions"
-      placeholder="Year"
+    <app-dropdown class="filter-select" [value]="selectedYear" [options]="yearOptions" placeholder="Year"
       (valueChange)="selectedYear = $event; onFilterChange()">
     </app-dropdown>
   </div>
@@ -43,7 +42,8 @@
       <div class="sc-icon">≡</div>
       <div class="sc-body">
         <span class="sc-label">Net</span>
-        <span class="sc-value" [class]="monthlyNet >= 0 ? 'positive' : 'negative'">{{ formatCurrency(monthlyNet) }}</span>
+        <span class="sc-value" [class]="monthlyNet >= 0 ? 'positive' : 'negative'">{{ formatCurrency(monthlyNet)
+          }}</span>
       </div>
     </div>
     <div class="sc savings-rate">
@@ -57,9 +57,10 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn" [class.active]="activeTab === 'monthly'"  (click)="setTab('monthly')">Monthly Trend</button>
-    <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense Breakdown</button>
-    <button class="tab-btn" [class.active]="activeTab === 'income'"   (click)="setTab('income')">Income Sources</button>
+    <button class="tab-btn" [class.active]="activeTab === 'monthly'" (click)="setTab('monthly')">Monthly Trend</button>
+    <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense
+      Breakdown</button>
+    <button class="tab-btn" [class.active]="activeTab === 'income'" (click)="setTab('income')">Income Sources</button>
   </div>
 
   <!-- Monthly Trend Chart -->
@@ -72,10 +73,7 @@
       <p>No trend data available</p>
     </div>
     <div class="chart-container bar-chart-container" *ngIf="monthlyTrend.length > 0">
-      <canvas baseChart
-        type="bar"
-        [data]="barChartData"
-        [options]="barChartOptions">
+      <canvas baseChart type="bar" [data]="barChartData" [options]="barChartOptions">
       </canvas>
     </div>
   </div>
@@ -92,29 +90,27 @@
     </div>
     <div class="expense-breakdown-content" *ngIf="topExpenseCategories.length > 0">
       <div class="chart-container pie-chart-container">
-        <canvas baseChart
-          type="pie"
-          [data]="pieChartData"
-          [options]="pieChartOptions">
+        <canvas baseChart type="pie" [data]="pieChartData" [options]="pieChartOptions">
         </canvas>
       </div>
-    <div class="category-list">
-      <div class="cat-row" *ngFor="let cat of topExpenseCategories; let i = index; trackBy: trackByIndex">
-        <div class="cat-rank">{{ i + 1 }}</div>
-        <div class="cat-info">
-          <div class="cat-top">
-            <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
-            <div class="cat-right">
-              <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
-              <span class="cat-amount">{{ formatCurrency(cat.total) }}</span>
+      <div class="category-list">
+        <div class="cat-row" *ngFor="let cat of topExpenseCategories; let i = index; trackBy: trackByIndex">
+          <div class="cat-rank">{{ i + 1 }}</div>
+          <div class="cat-info">
+            <div class="cat-top">
+              <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
+              <div class="cat-right">
+                <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
+                <span class="cat-amount">{{ formatCurrency(cat.total) }}</span>
+              </div>
             </div>
-          </div>
-          <div class="cat-track">
-            <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)" [style.background]="getCategoryColor(i)"></div>
+            <div class="cat-track">
+              <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)"
+                [style.background]="getCategoryColor(i)"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -140,7 +136,8 @@
             </div>
           </div>
           <div class="cat-track">
-            <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)" style="background: var(--positive)"></div>
+            <div class="cat-fill" [style.width]="getCategoryBarWidth(cat.percentage)"
+              style="background: var(--positive)"></div>
           </div>
         </div>
       </div>

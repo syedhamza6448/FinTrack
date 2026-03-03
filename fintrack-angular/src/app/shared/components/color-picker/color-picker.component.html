@@ -1,21 +1,19 @@
 <div class="color-picker">
   <div class="color-swatches">
-    <button
-      type="button"
-      class="swatch"
-      *ngFor="let c of colors"
-      [style.background]="c.hex"
-      [class.selected]="c.hex === selected"
-      (click)="select(c.hex)"
-      [title]="c.label"
-    >
-      <lucide-angular
-        *ngIf="c.hex === selected"
-        name="check"
-        [size]="14"
-        [color]="isLight(c.hex) ? '#0C1A2B' : '#ffffff'"
-      ></lucide-angular>
+    <button type="button" class="swatch" *ngFor="let c of colors" [style.background]="c.hex"
+      [class.selected]="c.hex === selected" (click)="select(c.hex)" [title]="c.label">
+      <lucide-angular *ngIf="c.hex === selected" name="check" [size]="14"
+        [color]="isLight(c.hex) ? '#0C1A2B' : '#ffffff'"></lucide-angular>
     </button>
+
+    <label class="swatch custom-color-swatch" [title]="'Custom Color'">
+      <span class="color-wheel-icon"></span>
+      <input type="color" class="native-color-input" [value]="isPredefinedColor(selected) ? '#ffffff' : selected"
+        (input)="onCustomColorChange($event)">
+      <lucide-angular *ngIf="!isPredefinedColor(selected)" name="check" [size]="14"
+        [color]="isLight(selected) ? '#0C1A2B' : '#ffffff'">
+      </lucide-angular>
+    </label>
   </div>
 
   <div class="color-preview">
@@ -24,4 +22,3 @@
     <code class="preview-hex">{{ selected }}</code>
   </div>
 </div>
-

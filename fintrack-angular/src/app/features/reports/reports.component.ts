@@ -12,23 +12,31 @@ import { AuthService } from '../../core/services/auth.service';
 export class ReportsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  loading           = true;
-  activeTab         = 'monthly';
-  selectedYear      = new Date().getFullYear();
-  selectedMonth     = this.currentMonthValue();
+  loading = true;
+  activeTab = 'monthly';
+  selectedYear = new Date().getFullYear();
+  selectedMonth = this.currentMonthValue();
+  selectedPeriod = 'Monthly';
 
-  monthlyTrend:          any[] = [];
-  topExpenseCategories:  any[] = [];
-  topIncomeCategories:   any[] = [];
+  monthlyTrend: any[] = [];
+  topExpenseCategories: any[] = [];
+  topIncomeCategories: any[] = [];
 
   years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   get yearOptions() { return this.years.map(y => ({ value: y, label: String(y) })); }
+
+  periodOptions = [
+    { value: 'Monthly', label: 'Monthly' },
+    { value: 'Quarterly', label: 'Quarterly' },
+    { value: 'Half-Yearly', label: 'Half-Yearly' },
+    { value: 'Yearly', label: 'Yearly' }
+  ];
 
   // Chart.js: monthly bar chart
   barChartData: { labels: string[]; datasets: { label: string; data: number[]; backgroundColor: string; borderColor?: string }[] } = {
     labels: [],
     datasets: [
-      { label: 'Income',  data: [], backgroundColor: 'rgba(76, 175, 80, 0.8)', borderColor: 'rgb(76, 175, 80)' },
+      { label: 'Income', data: [], backgroundColor: 'rgba(76, 175, 80, 0.8)', borderColor: 'rgb(76, 175, 80)' },
       { label: 'Expenses', data: [], backgroundColor: 'rgba(244, 67, 54, 0.8)', borderColor: 'rgb(244, 67, 54)' }
     ]
   };
@@ -75,8 +83,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
       typeof m.month === 'number' ? m.month === monthNum : String(m.month) === this.selectedMonth
     );
   }
-  get monthlyNet():   number { return this.monthlyIncome - this.monthlyExpense; }
-  get savingsRate():  number { return this.monthlyIncome > 0 ? (this.monthlyNet / this.monthlyIncome) * 100 : 0; }
+  get monthlyNet(): number { return this.monthlyIncome - this.monthlyExpense; }
+  get savingsRate(): number { return this.monthlyIncome > 0 ? (this.monthlyNet / this.monthlyIncome) * 100 : 0; }
 
   get maxTrendValue(): number {
     if (!this.monthlyTrend.length) return 1;
@@ -87,7 +95,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private reportsService: ReportsService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void { this.loadReport(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -95,14 +103,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
   loadReport(): void {
     this.loading = true;
     forkJoin({
-      monthly:        this.reportsService.getMonthly(this.selectedYear),
+      monthly: this.reportsService.getMonthly(this.selectedYear),
       expenseCategories: this.reportsService.getByCategory(this.selectedMonth, 'Expense'),
-      incomeCategories:  this.reportsService.getByCategory(this.selectedMonth, 'Income')
+      incomeCategories: this.reportsService.getByCategory(this.selectedMonth, 'Income')
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: res => {
-        this.monthlyTrend         = res.monthly ?? [];
+        this.monthlyTrend = res.monthly ?? [];
         this.topExpenseCategories = res.expenseCategories ?? [];
-        this.topIncomeCategories  = res.incomeCategories ?? [];
+        this.topIncomeCategories = res.incomeCategories ?? [];
         this.updateBarChartData();
         this.updatePieChartData();
         this.loading = false;
@@ -116,9 +124,61 @@ export class ReportsComponent implements OnInit, OnDestroy {
   setTab(tab: string): void { this.activeTab = tab; }
 
   private updateBarChartData(): void {
-    this.barChartData.labels = this.monthlyTrend.map((m: any) => this.getMonthLabel(m));
-    this.barChartData.datasets[0].data = this.monthlyTrend.map((m: any) => m.income ?? 0);
-    this.barChartData.datasets[1].data = this.monthlyTrend.map((m: any) => m.expense ?? 0);
+    if (!this.monthlyTrend || this.monthlyTrend.length === 0) {
+      this.barChartData.labels = [];
+      this.barChartData.datasets[0].data = [];
+      this.barChartData.datasets[1].data = [];
+      return;
+    }
+
+    if (this.selectedPeriod === 'Monthly') {
+      this.barChartData.labels = this.monthlyTrend.map((m: any) => this.getMonthLabel(m));
+      this.barChartData.datasets[0].data = this.monthlyTrend.map((m: any) => m.income ?? 0);
+      this.barChartData.datasets[1].data = this.monthlyTrend.map((m: any) => m.expense ?? 0);
+    } else if (this.selectedPeriod === 'Quarterly') {
+      const qData = [
+        { label: 'Q1', income: 0, expense: 0 },
+        { label: 'Q2', income: 0, expense: 0 },
+        { label: 'Q3', income: 0, expense: 0 },
+        { label: 'Q4', income: 0, expense: 0 }
+      ];
+      this.monthlyTrend.forEach((m: any) => {
+        const monthNum = typeof m.month === 'number' ? m.month : parseInt(String(m.month).split('-')[1] || '1', 10);
+        const qIndex = Math.floor((monthNum - 1) / 3);
+        if (qIndex >= 0 && qIndex < 4) {
+          qData[qIndex].income += (m.income ?? 0);
+          qData[qIndex].expense += (m.expense ?? 0);
+        }
+      });
+      this.barChartData.labels = qData.map(q => q.label);
+      this.barChartData.datasets[0].data = qData.map(q => q.income);
+      this.barChartData.datasets[1].data = qData.map(q => q.expense);
+    } else if (this.selectedPeriod === 'Half-Yearly') {
+      const hData = [
+        { label: 'H1', income: 0, expense: 0 },
+        { label: 'H2', income: 0, expense: 0 }
+      ];
+      this.monthlyTrend.forEach((m: any) => {
+        const monthNum = typeof m.month === 'number' ? m.month : parseInt(String(m.month).split('-')[1] || '1', 10);
+        const hIndex = Math.floor((monthNum - 1) / 6);
+        if (hIndex >= 0 && hIndex < 2) {
+          hData[hIndex].income += (m.income ?? 0);
+          hData[hIndex].expense += (m.expense ?? 0);
+        }
+      });
+      this.barChartData.labels = hData.map(h => h.label);
+      this.barChartData.datasets[0].data = hData.map(h => h.income);
+      this.barChartData.datasets[1].data = hData.map(h => h.expense);
+    } else if (this.selectedPeriod === 'Yearly') {
+      const yData = { label: String(this.selectedYear), income: 0, expense: 0 };
+      this.monthlyTrend.forEach((m: any) => {
+        yData.income += (m.income ?? 0);
+        yData.expense += (m.expense ?? 0);
+      });
+      this.barChartData.labels = [yData.label];
+      this.barChartData.datasets[0].data = [yData.income];
+      this.barChartData.datasets[1].data = [yData.expense];
+    }
   }
 
   private updatePieChartData(): void {

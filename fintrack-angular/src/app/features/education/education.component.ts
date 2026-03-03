@@ -14,37 +14,37 @@ export class EducationComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // ── Tab state ──────────────────────────────────────────────
-  activeTab  = 'tips';
+  activeTab = 'tips';
   activeCalc = 'loan';
 
   // ── Loading states ─────────────────────────────────────────
   loadingArticles = true;
-  loadingModules  = true;
-  loadingGuides   = true;
-  loadingArticle  = false;
-  loadingModule   = false;
+  loadingModules = true;
+  loadingGuides = true;
+  loadingArticle = false;
+  loadingModule = false;
 
   // ── Data ───────────────────────────────────────────────────
-  articles:   EducationArticle[] = [];
-  modules:    EducationModule[]  = [];
-  guides:     EducationGuide[]   = [];
-  categories: string[]           = ['All'];
+  articles: EducationArticle[] = [];
+  modules: EducationModule[] = [];
+  guides: EducationGuide[] = [];
+  categories: string[] = ['All'];
   filterCategory = '';
 
   activeArticle: EducationArticle | null = null;
-  activeModule:  EducationModule  | null = null;
+  activeModule: EducationModule | null = null;
 
   // ── Calculator Forms ───────────────────────────────────────
-  loanForm!:     FormGroup;
+  loanForm!: FormGroup;
   compoundForm!: FormGroup;
-  savingsForm!:  FormGroup;
-  debtForm!:     FormGroup;
+  savingsForm!: FormGroup;
+  debtForm!: FormGroup;
 
   // ── Calculator Results ─────────────────────────────────────
-  loanResult:     any = null;
+  loanResult: any = null;
   compoundResult: any = null;
-  savingsResult:  any = null;
-  debtResult:     any = null;
+  savingsResult: any = null;
+  debtResult: any = null;
 
   frequencyOptions = [
     { value: 1, label: 'Annually' },
@@ -62,7 +62,7 @@ export class EducationComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private educationService: EducationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.buildCalculatorForms();
@@ -76,13 +76,30 @@ export class EducationComponent implements OnInit, OnDestroy {
   // ── Data Loading ───────────────────────────────────────────
   loadArticles(): void {
     this.loadingArticles = true;
-    forkJoin({
-      articles:   this.educationService.getArticles(),
-      categories: this.educationService.getArticleCategories()
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: res => {
-        this.articles   = res.articles;
-        this.categories = ['All', ...res.categories];
+    this.educationService.getArticles().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res: any) => {
+        let items = Array.isArray(res) ? res : (res.items ?? []);
+        if (items.length === 0) {
+          // Fallback mock data
+          items = [
+            {
+              id: 1, title: 'Mastering the 50/30/20 Rule', summary: 'A simple budgeting method to build financial stability.',
+              content: 'The 50/30/20 rule is a straightforward way to manage your money: \\n\\n**50% for Needs:** Housing, groceries, utilities, and essential transportation.\\n\\n**30% for Wants:** Entertainment, dining out, and hobbies.\\n\\n**20% for Savings & Debt:** Building an emergency fund, investing, or paying down high-interest debt.\\n\\nStart by tracking your expenses for a month, then categorize them into these three buckets to see where you can adjust.',
+              category: 'Budgeting', icon: 'pie-chart', readTime: 4, publishedAt: new Date().toISOString()
+            },
+            {
+              id: 2, title: 'Understanding Compound Interest', summary: 'How your money can grow exponentially over time.',
+              content: 'Compound interest is the interest on savings calculated on both the initial principal and the accumulated interest from previous periods.\\n\\n**Why it matters:** It allows your wealth to grow faster. The earlier you start investing, the more time your money has to compound.\\n\\n**Rule of 72:** Divide 72 by your annual interest rate to estimate how many years it will take to double your money.\\n\\nStart small, but start early!',
+              category: 'Investing', icon: 'trending-up', readTime: 6, publishedAt: new Date().toISOString()
+            },
+            {
+              id: 3, title: 'Emergency Funds 101', summary: 'Why you need one and how to build it efficiently.',
+              content: 'An emergency fund is a stash of money set aside to cover the financial surprises life throws your way.\\n\\n**How much do you need?** Aim for 3 to 6 months of essential living expenses.\\n\\n**Where to keep it:** A high-yield savings account (HYSA) so it’s easily accessible but still earns some interest.\\n\\n**How to start:** Automate a small transfer every payday into your emergency fund account until you hit your goal.',
+              category: 'Savings', icon: 'shield', readTime: 5, publishedAt: new Date().toISOString()
+            }
+          ];
+        }
+        this.articles = items;
         this.loadingArticles = false;
       },
       error: () => { this.loadingArticles = false; }
@@ -94,8 +111,29 @@ export class EducationComponent implements OnInit, OnDestroy {
     this.educationService.getModules()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: modules => { this.modules = modules; this.loadingModules = false; },
-        error: ()     => { this.loadingModules = false; }
+        next: (res: any) => {
+          let items = Array.isArray(res) ? res : (res.items ?? []);
+          if (items.length === 0) {
+            // Fallback mock data
+            items = [
+              {
+                id: 101, title: 'Personal Finance Basics', description: 'Everything you need to know to get started with managing your money.',
+                icon: 'book-open', lessons: 5, difficulty: 'Beginner', topics: ['Budgeting', 'Banking', 'Credit Scores']
+              },
+              {
+                id: 102, title: 'Investing for Beginners', description: 'Learn the fundamentals of stocks, bonds, and building a portfolio.',
+                icon: 'bar-chart', lessons: 8, difficulty: 'Intermediate', topics: ['Stocks & Bonds', 'ETFs & Mutual Funds', 'Risk Tolerance']
+              },
+              {
+                id: 103, title: 'Debt Payoff Strategies', description: 'Actionable plans to eliminate high-interest debt efficiently.',
+                icon: 'target', lessons: 4, difficulty: 'Beginner', topics: ['Snowball Method', 'Avalanche Method', 'Consolidation']
+              }
+            ];
+          }
+          this.modules = items;
+          this.loadingModules = false;
+        },
+        error: () => { this.loadingModules = false; }
       });
   }
 
@@ -104,8 +142,32 @@ export class EducationComponent implements OnInit, OnDestroy {
     this.educationService.getGuides()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: guides => { this.guides = guides; this.loadingGuides = false; },
-        error: ()    => { this.loadingGuides = false; }
+        next: (res: any) => {
+          let items = Array.isArray(res) ? res : (res.items ?? []);
+          if (items.length === 0) {
+            // Fallback mock data
+            items = [
+              {
+                id: 201, title: 'Buying Your First Home', goal: 'Save for down payment, improve credit score, get pre-approved.',
+                icon: 'home', steps: ['Determine your budget', 'Save 20% for down payment', 'Check and improve your credit score', 'Get pre-approved for a mortgage'],
+                tip: 'Don\'t forget closing costs! Set aside an extra 2-5% of the purchase price.'
+              },
+              {
+                id: 202, title: 'Planning for Retirement', goal: 'Understand accounts, set target age, maximize contributions.',
+                icon: 'sunset', steps: ['Calculate your retirement number', 'Open and fund a 401(k) or IRA', 'Take advantage of employer matching', 'Diversify your investments'],
+                tip: 'The earlier you start, the less you have to save monthly thanks to compound interest.'
+              },
+              {
+                id: 203, title: 'Planning a Major Vacation', goal: 'Set travel budget, start a sinking fund, book in advance.',
+                icon: 'plane', steps: ['Estimate total trip cost', 'Set up a dedicated savings bucket', 'Automate weekly transfers', 'Book flights and hotels early'],
+                tip: 'Travel rewards credit cards can heavily subsidize your flights if used responsibly.'
+              }
+            ];
+          }
+          this.guides = items;
+          this.loadingGuides = false;
+        },
+        error: () => { this.loadingGuides = false; }
       });
   }
 
@@ -115,7 +177,7 @@ export class EducationComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: article => { this.activeArticle = article; this.loadingArticle = false; },
-        error: ()     => { this.loadingArticle = false; }
+        error: () => { this.loadingArticle = false; }
       });
   }
 
@@ -126,8 +188,8 @@ export class EducationComponent implements OnInit, OnDestroy {
     this.educationService.getModuleById(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: mod  => { this.activeModule = mod; this.loadingModule = false; },
-        error: ()  => { this.loadingModule = false; }
+        next: mod => { this.activeModule = mod; this.loadingModule = false; },
+        error: () => { this.loadingModule = false; }
       });
   }
 
@@ -135,9 +197,9 @@ export class EducationComponent implements OnInit, OnDestroy {
 
   // ── Tab / Calc navigation ──────────────────────────────────
   setTab(tab: string): void {
-    this.activeTab    = tab;
+    this.activeTab = tab;
     this.activeArticle = null;
-    this.activeModule  = null;
+    this.activeModule = null;
   }
 
   setCalc(calc: string): void { this.activeCalc = calc; }
@@ -146,24 +208,24 @@ export class EducationComponent implements OnInit, OnDestroy {
   private buildCalculatorForms(): void {
     this.loanForm = this.fb.group({
       principal: [500000, [Validators.required, Validators.min(1)]],
-      rate:      [18,     [Validators.required, Validators.min(0.1)]],
-      tenure:    [24,     [Validators.required, Validators.min(1)]]
+      rate: [18, [Validators.required, Validators.min(0.1)]],
+      tenure: [24, [Validators.required, Validators.min(1)]]
     });
     this.compoundForm = this.fb.group({
       principal: [100000, [Validators.required, Validators.min(1)]],
-      rate:      [12,     [Validators.required, Validators.min(0.1)]],
-      years:     [10,     [Validators.required, Validators.min(1)]],
+      rate: [12, [Validators.required, Validators.min(0.1)]],
+      years: [10, [Validators.required, Validators.min(1)]],
       frequency: [12]
     });
     this.savingsForm = this.fb.group({
-      target:  [1000000, [Validators.required, Validators.min(1)]],
-      monthly: [50000,   [Validators.required, Validators.min(1)]],
-      rate:    [10,      [Validators.required, Validators.min(0)]]
+      target: [1000000, [Validators.required, Validators.min(1)]],
+      monthly: [50000, [Validators.required, Validators.min(1)]],
+      rate: [10, [Validators.required, Validators.min(0)]]
     });
     this.debtForm = this.fb.group({
       balance: [500000, [Validators.required, Validators.min(1)]],
-      rate:    [24,     [Validators.required, Validators.min(0.1)]],
-      monthly: [30000,  [Validators.required, Validators.min(1)]]
+      rate: [24, [Validators.required, Validators.min(0.1)]],
+      monthly: [30000, [Validators.required, Validators.min(1)]]
     });
 
     // Auto-calculate with default values
@@ -177,31 +239,31 @@ export class EducationComponent implements OnInit, OnDestroy {
   calcLoan(): void {
     if (this.loanForm?.invalid) return;
     const { principal, rate, tenure } = this.loanForm.value;
-    const r   = rate / 100 / 12;
-    const n   = tenure;
+    const r = rate / 100 / 12;
+    const n = tenure;
     const emi = principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-    const total    = emi * n;
+    const total = emi * n;
     const interest = total - principal;
     this.loanResult = {
-      emi:           Math.round(emi),
-      totalPayment:  Math.round(total),
+      emi: Math.round(emi),
+      totalPayment: Math.round(total),
       totalInterest: Math.round(interest),
-      interestPct:   Math.round((interest / principal) * 100),
-      principalPct:  Math.round((principal / total) * 100)
+      interestPct: Math.round((interest / principal) * 100),
+      principalPct: Math.round((principal / total) * 100)
     };
   }
 
   calcCompound(): void {
     if (this.compoundForm?.invalid) return;
     const { principal, rate, years, frequency } = this.compoundForm.value;
-    const r      = rate / 100;
+    const r = rate / 100;
     const amount = principal * Math.pow(1 + r / frequency, frequency * years);
     this.compoundResult = {
       finalAmount: Math.round(amount),
-      interest:    Math.round(amount - principal),
-      multiplier:  (amount / principal).toFixed(2),
-      yearlyData:  Array.from({ length: Math.min(years, 20) }, (_, i) => ({
-        year:   i + 1,
+      interest: Math.round(amount - principal),
+      multiplier: (amount / principal).toFixed(2),
+      yearlyData: Array.from({ length: Math.min(years, 20) }, (_, i) => ({
+        year: i + 1,
         amount: Math.round(principal * Math.pow(1 + r / frequency, frequency * (i + 1)))
       }))
     };
@@ -212,7 +274,7 @@ export class EducationComponent implements OnInit, OnDestroy {
     const { target, monthly, rate } = this.savingsForm.value;
     const r = rate / 100 / 12;
     let balance = 0;
-    let months  = 0;
+    let months = 0;
     while (balance < target && months < 600) {
       balance = balance * (1 + r) + monthly;
       months++;
@@ -220,12 +282,12 @@ export class EducationComponent implements OnInit, OnDestroy {
     const contributed = monthly * months;
     this.savingsResult = {
       months,
-      years:           Math.floor(months / 12),
+      years: Math.floor(months / 12),
       remainingMonths: months % 12,
       totalContributed: Math.round(contributed),
-      totalInterest:    Math.round(balance - contributed),
-      finalBalance:     Math.round(balance),
-      achieved:         months < 600
+      totalInterest: Math.round(balance - contributed),
+      finalBalance: Math.round(balance),
+      achieved: months < 600
     };
   }
 
@@ -235,28 +297,28 @@ export class EducationComponent implements OnInit, OnDestroy {
     const r = rate / 100 / 12;
     if (monthly <= balance * r) { this.debtResult = { impossible: true }; return; }
     let remaining = balance;
-    let months    = 0;
+    let months = 0;
     let totalInterest = 0;
     while (remaining > 0 && months < 600) {
-      const interest  = remaining * r;
-      totalInterest  += interest;
-      remaining       = remaining + interest - monthly;
+      const interest = remaining * r;
+      totalInterest += interest;
+      remaining = remaining + interest - monthly;
       if (remaining < 0) remaining = 0;
       months++;
     }
     this.debtResult = {
       months,
-      years:           Math.floor(months / 12),
+      years: Math.floor(months / 12),
       remainingMonths: months % 12,
-      totalInterest:   Math.round(totalInterest),
-      totalPaid:       Math.round(monthly * months),
-      impossible:      false
+      totalInterest: Math.round(totalInterest),
+      totalPaid: Math.round(monthly * months),
+      impossible: false
     };
   }
 
   // ── Helpers ────────────────────────────────────────────────
   getDifficultyClass(d: string): string {
-    if (d === 'Beginner')     return 'beginner';
+    if (d === 'Beginner') return 'beginner';
     if (d === 'Intermediate') return 'intermediate';
     return 'advanced';
   }

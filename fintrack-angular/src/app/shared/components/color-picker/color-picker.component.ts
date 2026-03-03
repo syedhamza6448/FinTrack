@@ -36,6 +36,17 @@ export class ColorPickerComponent {
     return r * 0.299 + g * 0.587 + b * 0.114 > 160;
   }
 
+  isPredefinedColor(hex: string): boolean {
+    return this.colors.some(c => c.hex.toLowerCase() === hex?.toLowerCase());
+  }
+
+  onCustomColorChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input && input.value) {
+      this.select(input.value);
+    }
+  }
+
   select(hex: string): void {
     this.colorSelected.emit(hex);
   }

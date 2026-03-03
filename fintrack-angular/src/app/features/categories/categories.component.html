@@ -47,7 +47,7 @@
       <div class="cat-name-row">
         <span class="cat-name">{{ c.name }}</span>
         <lucide-angular *ngIf="c.isDefault" name="lock" [size]="12" class="lock-icon"
-          title="System default"></lucide-angular>
+          title="System default (cannot be changed or deleted)"></lucide-angular>
       </div>
       <span class="cat-type" [class]="c.type === 'Income' ? 'income' : 'expense'">{{ c.type }}</span>
     </div>
@@ -56,8 +56,7 @@
       <button class="btn-icon edit" (click)="openEdit(c)" title="Edit">
         <lucide-angular name="pencil" [size]="13"></lucide-angular>
       </button>
-      <button class="btn-icon delete" (click)="confirmDelete(c.id)" title="Delete" [disabled]="c.isDefault"
-        [class.disabled]="c.isDefault">
+      <button class="btn-icon delete" (click)="confirmDelete(c.id)" title="Delete" *ngIf="!c.isDefault">
         <lucide-angular name="trash-2" [size]="13"></lucide-angular>
       </button>
     </div>

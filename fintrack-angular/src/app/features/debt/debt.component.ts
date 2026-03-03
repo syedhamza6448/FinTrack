@@ -109,11 +109,11 @@ export class DebtComponent implements OnInit, OnDestroy {
             debtType: d.type,
             originalAmount: d.originalAmount,
             remainingBalance: d.balance,
-            monthlyPayment: d.minimumPayment ?? null,
+            monthlyPayment: d.minimumPayment ?? (d as any).monthlyPayment ?? null,
             interestRate: d.interestRate,
-            startDate: d.dueDate ? String(d.dueDate).slice(0, 10) : '',
-            expectedPayoffDate: '',
-            priority: 'Medium'
+            startDate: d.dueDate ? String(d.dueDate).slice(0, 10) : ((d as any).startDate ? String((d as any).startDate).slice(0, 10) : ''),
+            expectedPayoffDate: (d as any).expectedPayoffDate ? String((d as any).expectedPayoffDate).slice(0, 10) : '',
+            priority: (d as any).priority ?? 'Medium'
         });
         this.showModal = true;
     }
