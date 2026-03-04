@@ -34,6 +34,8 @@ export class EducationComponent implements OnInit, OnDestroy {
   activeArticle: EducationArticle | null = null;
   activeModule: EducationModule | null = null;
 
+  get currency() { return '₦'; }
+
   // ── Calculator Forms ───────────────────────────────────────
   loanForm!: FormGroup;
   compoundForm!: FormGroup;
@@ -330,7 +332,7 @@ export class EducationComponent implements OnInit, OnDestroy {
 
   formatCurrency(n: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency', currency: 'NGN',
+      style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n ?? 0);
   }

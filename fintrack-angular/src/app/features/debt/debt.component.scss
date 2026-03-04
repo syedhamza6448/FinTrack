@@ -544,3 +544,51 @@ form {
         transform: rotate(360deg);
     }
 }
+
+// Priority Chips
+.priority-chips {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.priority-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-01);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast);
+
+    &:hover {
+        background: var(--glass-02);
+        color: var(--text-primary);
+    }
+
+    &.active {
+        &.high {
+            background: var(--negative-dim);
+            color: var(--negative);
+            border-color: rgba(242, 92, 110, 0.3);
+        }
+
+        &.medium {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-color: rgba(245, 166, 35, 0.3);
+        }
+
+        &.low {
+            background: var(--positive-dim);
+            color: var(--positive);
+            border-color: rgba(62, 207, 142, 0.3);
+        }
+    }
+}

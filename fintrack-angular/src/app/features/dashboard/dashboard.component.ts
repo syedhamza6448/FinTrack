@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   data: DashboardData | null = null;
   loading = true;
-  error   = '';
+  error = '';
   topCategories: CategoryReport[] = [];
 
   pieChartData: { labels: string[]; datasets: { data: number[]; backgroundColor: string[] }[] } = {
@@ -34,7 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }
-  get currency()    { return this.authService.userCurrency; }
+  get currency() { return this.authService.userCurrency; }
 
   get greeting(): string {
     const h = new Date().getHours();
@@ -52,7 +52,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private expenseService: ExpenseService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void { this.loadDashboard(); }
 
@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   loadDashboard(): void {
     this.loading = true;
-    this.error   = '';
+    this.error = '';
     const month = this.currentMonthValue;
     forkJoin({
       dashboard: this.dashboardService.get(),
@@ -100,8 +100,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: this.currency,
+      style: 'decimal',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
@@ -113,22 +112,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   formatPercent(n: number): string { return `${Math.round(n)}%`; }
 
-  getDeltaClass(delta: number): string  { return delta >= 0 ? 'positive' : 'negative'; }
-  getDeltaIcon(delta: number): string   { return delta >= 0 ? '↑' : '↓'; }
-  absValue(n: number): number           { return Math.abs(n); }
+  getDeltaClass(delta: number): string { return delta >= 0 ? 'positive' : 'negative'; }
+  getDeltaIcon(delta: number): string { return delta >= 0 ? '↑' : '↓'; }
+  absValue(n: number): number { return Math.abs(n); }
 
   getBudgetClass(status: string): string {
     if (status === 'exceeded') return 'negative';
-    if (status === 'warning')  return 'warning';
+    if (status === 'warning') return 'warning';
     return 'positive';
   }
 
-  getGoalBarWidth(percent: number): string   { return `${Math.min(percent, 100)}%`; }
-  getTransactionClass(type: string): string  { return type === 'Income' ? 'income' : 'expense'; }
+  getGoalBarWidth(percent: number): string { return `${Math.min(percent, 100)}%`; }
+  getTransactionClass(type: string): string { return type === 'Income' ? 'income' : 'expense'; }
 
   // Fixed: separate trackBy functions for items with and without id
-  trackById(_: number, item: { id: number }): number         { return item.id; }
-  trackByIndex(index: number): number                         { return index; }
+  trackById(_: number, item: { id: number }): number { return item.id; }
+  trackByIndex(index: number): number { return index; }
 
   // Safe name split
   getFirstName(): string {

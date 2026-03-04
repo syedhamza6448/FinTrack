@@ -111,7 +111,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   // ─── Helpers ────────────────────────────────
   formatCurrency(n: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency', currency: this.currency,
+      style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);
   }

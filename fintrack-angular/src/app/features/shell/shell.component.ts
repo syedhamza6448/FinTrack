@@ -3,7 +3,8 @@ import { Router, NavigationEnd } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
-import { NotificationService } from '../../core/services/api.services';
+import { NotificationService, BudgetService, SavingsService } from '../../core/services/api.services';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-shell',
@@ -61,7 +62,10 @@ export class ShellComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private notifService: NotificationService
+    private notifService: NotificationService,
+    private budgetService: BudgetService,
+    private savingsService: SavingsService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +82,9 @@ export class ShellComponent implements OnInit, OnDestroy {
     this.isDark = this.authService.userTheme === 'dark';
     this.applyTheme();
     this.loadUnreadCount();
+
+    // Run smart notification checks after 2s (let the app settle)
+    setTimeout(() => this.checkSmartNotifications(), 2000);
   }
 
   ngOnDestroy(): void {
@@ -121,6 +128,65 @@ export class ShellComponent implements OnInit, OnDestroy {
   private loadUnreadCount(): void {
     this.notifService.getUnreadCount().pipe(takeUntil(this.destroy$)).subscribe({
       next: res => this.unreadCount = res.count,
+      error: () => {}
+    });
+  }
+
+  private checkSmartNotifications(): void {
+    this.checkBudgetAlerts();
+    this.checkSavingsDeadlines();
+  }
+
+  private checkBudgetAlerts(): void {
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    this.budgetService.getAll(month).pipe(takeUntil(this.destroy$)).subscribe({
+      next: budgets => {
+        if (!Array.isArray(budgets)) return;
+        budgets.forEach(b => {
+          const pct = b.percentUsed ?? 0;
+          const name = b.category?.name ?? 'Budget';
+          if (pct >= 90) {
+            this.toastService.show(
+              'danger',
+              'Budget Exceeded!',
+              `${name} is at ${Math.round(pct)}% — you've nearly exhausted your budget.`,
+              'alert-circle'
+            );
+          } else if (pct >= 80) {
+            this.toastService.show(
+              'warning',
+              'Budget Alert',
+              `${name} is at ${Math.round(pct)}% of your monthly budget.`,
+              'alert-triangle'
+            );
+          }
+        });
+      },
+      error: () => {}
+    });
+  }
+
+  private checkSavingsDeadlines(): void {
+    this.savingsService.getAll('Active').pipe(takeUntil(this.destroy$)).subscribe({
+      next: goals => {
+        if (!Array.isArray(goals)) return;
+        const now = new Date();
+        goals.forEach(g => {
+          if (!g.targetDate) return;
+          const target = new Date(g.targetDate);
+          const daysLeft = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysLeft >= 0 && daysLeft <= 5) {
+            this.toastService.show(
+              'warning',
+              'Savings Deadline Near',
+              `"${g.name}" goal deadline is in ${daysLeft === 0 ? 'today' : daysLeft + ' day' + (daysLeft !== 1 ? 's' : '')}.`,
+              'clock'
+            );
+          }
+        });
+      },
       error: () => {}
     });
   }

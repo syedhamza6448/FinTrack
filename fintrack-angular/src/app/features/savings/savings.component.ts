@@ -113,14 +113,17 @@ export class SavingsComponent implements OnInit, OnDestroy {
     if (this.goalForm.invalid) { this.goalForm.markAllAsTouched(); return; }
     this.submitting = true; this.modalError = '';
 
+    const payload = { ...this.goalForm.value };
+    if (!payload.targetDate) delete payload.targetDate;
+
     const done = () => { this.submitting = false; this.showModal = false; this.loadGoals(); };
     const fail = (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to save goal.'; };
 
     if (this.editingId) {
-      this.savingsService.update(this.editingId, this.goalForm.value)
+      this.savingsService.update(this.editingId, payload)
         .pipe(takeUntil(this.destroy$)).subscribe({ next: done, error: fail });
     } else {
-      this.savingsService.create(this.goalForm.value)
+      this.savingsService.create(payload)
         .pipe(takeUntil(this.destroy$)).subscribe({ next: done, error: fail });
     }
   }
@@ -136,10 +139,24 @@ export class SavingsComponent implements OnInit, OnDestroy {
   onDeposit(): void {
     if (this.depositForm.invalid || !this.depositGoalId) return;
     this.submitting = true;
-    this.savingsService.deposit(this.depositGoalId, this.depositForm.value.amount)
+    const amount = this.depositForm.value.amount;
+    this.savingsService.deposit(this.depositGoalId, amount)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => { this.submitting = false; this.showDepositModal = false; this.loadGoals(); },
+        next: () => {
+          const g = this.goals.find(x => x.id === this.depositGoalId);
+          if (g && (g.savedAmount + amount) >= g.targetAmount && g.status !== 'Completed') {
+            this.savingsService.update(g.id, {
+              name: g.name, targetAmount: g.targetAmount, savedAmount: g.savedAmount + amount,
+              targetDate: g.targetDate ? g.targetDate.substring(0, 10) : undefined,
+              status: 'Completed', icon: g.icon, color: g.color
+            }).subscribe(() => {
+              this.submitting = false; this.showDepositModal = false; this.loadGoals();
+            });
+          } else {
+            this.submitting = false; this.showDepositModal = false; this.loadGoals();
+          }
+        },
         error: (err: any) => { this.submitting = false; this.modalError = err.error?.message ?? 'Failed to deposit.'; }
       });
   }
@@ -167,7 +184,8 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   formatCurrency(n: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency', currency: this.currency, minimumFractionDigits: 0, maximumFractionDigits: 0
+      style: 'decimal',
+      minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);
   }
 

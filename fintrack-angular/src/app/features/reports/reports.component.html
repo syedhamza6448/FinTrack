@@ -28,22 +28,21 @@
       <div class="sc-icon">↑</div>
       <div class="sc-body">
         <span class="sc-label">Income</span>
-        <span class="sc-value positive">{{ formatCurrency(monthlyIncome) }}</span>
+        <span class="sc-value positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(monthlyIncome) }}</span>
       </div>
     </div>
     <div class="sc expense">
       <div class="sc-icon">↓</div>
       <div class="sc-body">
         <span class="sc-label">Expenses</span>
-        <span class="sc-value negative">{{ formatCurrency(monthlyExpense) }}</span>
+        <span class="sc-value negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(monthlyExpense) }}</span>
       </div>
     </div>
     <div class="sc net" [class.surplus]="monthlyNet >= 0" [class.deficit]="monthlyNet < 0">
       <div class="sc-icon">≡</div>
       <div class="sc-body">
         <span class="sc-label">Net</span>
-        <span class="sc-value" [class]="monthlyNet >= 0 ? 'positive' : 'negative'">{{ formatCurrency(monthlyNet)
-          }}</span>
+        <span class="sc-value" [class]="monthlyNet >= 0 ? 'positive' : 'negative'"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(monthlyNet) }}</span>
       </div>
     </div>
     <div class="sc savings-rate">
@@ -82,7 +81,7 @@
   <div class="card" *ngIf="activeTab === 'expenses'">
     <div class="card-header">
       <h2 class="card-title">Expenses by Category</h2>
-      <span class="card-total">{{ formatCurrency(monthlyExpense) }} total</span>
+      <span class="card-total"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(monthlyExpense) }} total</span>
     </div>
     <div class="empty-state" *ngIf="topExpenseCategories.length === 0">
       <div class="empty-icon"><app-icon name="shopping-cart" [size]="48"></app-icon></div>
@@ -101,7 +100,7 @@
               <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
               <div class="cat-right">
                 <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
-                <span class="cat-amount">{{ formatCurrency(cat.total) }}</span>
+                <span class="cat-amount"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(cat.total) }}</span>
               </div>
             </div>
             <div class="cat-track">
@@ -118,7 +117,7 @@
   <div class="card" *ngIf="activeTab === 'income'">
     <div class="card-header">
       <h2 class="card-title">Income by Source</h2>
-      <span class="card-total positive">{{ formatCurrency(monthlyIncome) }} total</span>
+      <span class="card-total positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(monthlyIncome) }} total</span>
     </div>
     <div class="empty-state" *ngIf="topIncomeCategories.length === 0">
       <div class="empty-icon"><app-icon name="wallet" [size]="48"></app-icon></div>
@@ -132,7 +131,7 @@
             <span class="cat-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
             <div class="cat-right">
               <span class="cat-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
-              <span class="cat-amount positive">{{ formatCurrency(cat.total) }}</span>
+              <span class="cat-amount positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(cat.total) }}</span>
             </div>
           </div>
           <div class="cat-track">

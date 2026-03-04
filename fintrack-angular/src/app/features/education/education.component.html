@@ -255,11 +255,11 @@
       <div class="calc-results" *ngIf="loanResult">
         <div class="result-hero">
           <span class="result-label">Monthly Payment</span>
-          <span class="result-value accent">{{ formatCurrency(loanResult.emi) }}</span>
+          <span class="result-value accent"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(loanResult.emi) }}</span>
         </div>
         <div class="result-breakdown">
-          <div class="rb-row"><span>Total Paid</span>         <span class="rb-val">{{ formatCurrency(loanResult.totalPayment) }}</span></div>
-          <div class="rb-row"><span>Total Interest</span>     <span class="rb-val negative">{{ formatCurrency(loanResult.totalInterest) }}</span></div>
+          <div class="rb-row"><span>Total Paid</span>         <span class="rb-val"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(loanResult.totalPayment) }}</span></div>
+          <div class="rb-row"><span>Total Interest</span>     <span class="rb-val negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(loanResult.totalInterest) }}</span></div>
           <div class="rb-row"><span>Interest % of Loan</span> <span class="rb-val negative">{{ loanResult.interestPct }}%</span></div>
         </div>
         <div class="result-bar-wrap">
@@ -307,11 +307,11 @@
       <div class="calc-results" *ngIf="compoundResult">
         <div class="result-hero">
           <span class="result-label">Final Amount</span>
-          <span class="result-value positive">{{ formatCurrency(compoundResult.finalAmount) }}</span>
+          <span class="result-value positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(compoundResult.finalAmount) }}</span>
         </div>
         <div class="result-breakdown">
-          <div class="rb-row"><span>Initial Investment</span> <span class="rb-val">{{ formatCurrency(compoundForm.value.principal) }}</span></div>
-          <div class="rb-row"><span>Total Gains</span>        <span class="rb-val positive">{{ formatCurrency(compoundResult.interest) }}</span></div>
+          <div class="rb-row"><span>Initial Investment</span> <span class="rb-val"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(compoundForm.value.principal) }}</span></div>
+          <div class="rb-row"><span>Total Gains</span>        <span class="rb-val positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(compoundResult.interest) }}</span></div>
           <div class="rb-row"><span>Multiplied By</span>      <span class="rb-val positive">{{ compoundResult.multiplier }}×</span></div>
         </div>
         <!-- Growth chart -->
@@ -362,9 +362,9 @@
           </div>
           <div class="result-breakdown">
             <div class="rb-row"><span>Total Months</span>      <span class="rb-val">{{ savingsResult.months }}</span></div>
-            <div class="rb-row"><span>Total Contributed</span> <span class="rb-val">{{ formatCurrency(savingsResult.totalContributed) }}</span></div>
-            <div class="rb-row"><span>Interest Earned</span>   <span class="rb-val positive">{{ formatCurrency(savingsResult.totalInterest) }}</span></div>
-            <div class="rb-row"><span>Final Balance</span>     <span class="rb-val positive">{{ formatCurrency(savingsResult.finalBalance) }}</span></div>
+            <div class="rb-row"><span>Total Contributed</span> <span class="rb-val"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(savingsResult.totalContributed) }}</span></div>
+            <div class="rb-row"><span>Interest Earned</span>   <span class="rb-val positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(savingsResult.totalInterest) }}</span></div>
+            <div class="rb-row"><span>Final Balance</span>     <span class="rb-val positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(savingsResult.finalBalance) }}</span></div>
           </div>
           <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> Increasing your monthly savings by just 10% can shave months off your goal date.</div>
         </ng-container>
@@ -411,8 +411,8 @@
           </div>
           <div class="result-breakdown">
             <div class="rb-row"><span>Total Months</span>       <span class="rb-val">{{ debtResult.months }}</span></div>
-            <div class="rb-row"><span>Total Interest Paid</span><span class="rb-val negative">{{ formatCurrency(debtResult.totalInterest) }}</span></div>
-            <div class="rb-row"><span>Total Paid</span>         <span class="rb-val">{{ formatCurrency(debtResult.totalPaid) }}</span></div>
+            <div class="rb-row"><span>Total Interest Paid</span><span class="rb-val negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(debtResult.totalInterest) }}</span></div>
+            <div class="rb-row"><span>Total Paid</span>         <span class="rb-val"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(debtResult.totalPaid) }}</span></div>
           </div>
           <div class="result-tip"><app-icon name="lightbulb" [size]="16"></app-icon> Paying just a little extra each month can cut months off your payoff timeline.</div>
         </ng-container>

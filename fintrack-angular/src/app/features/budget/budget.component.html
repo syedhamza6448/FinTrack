@@ -18,15 +18,15 @@
   <div class="overview-stats">
     <div class="ov-stat">
       <span class="ov-label">Total Budgeted</span>
-      <span class="ov-value">{{ formatCurrency(totalBudgeted) }}</span>
+      <span class="ov-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalBudgeted) }}</span>
     </div>
     <div class="ov-stat">
       <span class="ov-label">Total Spent</span>
-      <span class="ov-value negative">{{ formatCurrency(totalSpent) }}</span>
+      <span class="ov-value negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalSpent) }}</span>
     </div>
     <div class="ov-stat">
       <span class="ov-label">Remaining</span>
-      <span class="ov-value positive">{{ formatCurrency(totalBudgeted - totalSpent) }}</span>
+      <span class="ov-value positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalBudgeted - totalSpent) }}</span>
     </div>
     <div class="ov-stat">
       <span class="ov-label">Overall Usage</span>
@@ -76,8 +76,8 @@
     </div>
 
     <div class="bc-amounts">
-      <span class="bc-spent">{{ formatCurrency(b.spent) }}</span>
-      <span class="bc-of">of {{ formatCurrency(b.amount) }}</span>
+      <span class="bc-spent"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(b.spent) }}</span>
+      <span class="bc-of">of <span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(b.amount) }}</span>
     </div>
 
     <div class="bc-track">

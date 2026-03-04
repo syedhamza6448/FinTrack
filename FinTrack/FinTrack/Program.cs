@@ -130,7 +130,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AngularClient");       
+app.UseCors("AngularClient");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

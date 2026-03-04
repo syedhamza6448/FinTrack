@@ -197,7 +197,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
     formatCurrency(amount: number): string {
         return new Intl.NumberFormat('en-NG', {
-            style: 'currency', currency: this.currency, minimumFractionDigits: 0, maximumFractionDigits: 0
+            style: 'decimal',
+      minimumFractionDigits: 0, maximumFractionDigits: 0
         }).format(amount);
     }
 

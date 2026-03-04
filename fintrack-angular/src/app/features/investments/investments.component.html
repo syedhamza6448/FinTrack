@@ -14,17 +14,17 @@
 <div class="portfolio-summary" *ngIf="!loading && investments.length > 0">
   <div class="ps-card">
     <span class="ps-label">Total Invested</span>
-    <span class="ps-value">{{ formatCurrency(totalInvested) }}</span>
+    <span class="ps-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalInvested) }}</span>
   </div>
   <div class="ps-card">
     <span class="ps-label">Current Value</span>
-    <span class="ps-value" [class]="getGainClass(totalGain)">{{ formatCurrency(totalValue) }}</span>
+    <span class="ps-value" [class]="getGainClass(totalGain)"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalValue) }}</span>
   </div>
   <div class="ps-card highlight" [class.gain]="totalGain >= 0" [class.loss]="totalGain < 0">
     <span class="ps-label">Total Gain / Loss</span>
     <div class="ps-gain-row">
       <lucide-angular [name]="totalGain >= 0 ? 'trending-up' : 'trending-down'" [size]="16"></lucide-angular>
-      <span class="ps-value">{{ totalGain >= 0 ? '+' : '' }}{{ formatCurrency(totalGain) }}</span>
+      <span class="ps-value">{{ totalGain >= 0 ? '+' : '' }}<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalGain) }}</span>
     </div>
     <span class="ps-pct">{{ totalGain >= 0 ? '+' : '' }}{{ totalGainPct | number:'1.1-1' }}%</span>
   </div>
@@ -77,12 +77,12 @@
           </div>
         </td>
         <td><span class="type-chip">{{ inv.type }}</span></td>
-        <td class="text-right mono">{{ formatCurrency(inv.amountInvested) }}</td>
-        <td class="text-right mono">{{ formatCurrency(inv.currentValue) }}</td>
+        <td class="text-right mono"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(inv.amountInvested) }}</td>
+        <td class="text-right mono"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(inv.currentValue) }}</td>
         <td class="text-right">
           <div class="gain-row" [class]="getGainClass(inv.gainLoss)">
             <lucide-angular [name]="inv.gainLoss >= 0 ? 'trending-up' : 'trending-down'" [size]="13"></lucide-angular>
-            <span class="gain-val">{{ inv.gainLoss >= 0 ? '+' : '' }}{{ formatCurrency(inv.gainLoss) }}</span>
+            <span class="gain-val">{{ inv.gainLoss >= 0 ? '+' : '' }}<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(inv.gainLoss) }}</span>
           </div>
         </td>
         <td class="text-right">
@@ -217,7 +217,7 @@
         <lucide-angular [name]="previewPositive ? 'trending-up' : 'trending-down'" [size]="15" [class]="previewPositive ? 'positive' : 'negative'"></lucide-angular>
         <span class="gp-label">Estimated Gain / Loss:</span>
         <span class="gp-value" [class]="previewPositive ? 'positive' : 'negative'">
-          {{ previewPositive ? '+' : '' }}{{ formatCurrency(previewGain) }}
+          {{ previewPositive ? '+' : '' }}<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(previewGain) }}
           ({{ previewPositive ? '+' : '' }}{{ previewGainPct | number:'1.1-1' }}%)
         </span>
       </div>

@@ -516,3 +516,43 @@ form {
         transform: rotate(360deg);
     }
 }
+
+// Asset Type Cards
+.asset-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.asset-type-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-01);
+    cursor: pointer;
+    transition: all var(--t-fast);
+    color: var(--text-secondary);
+
+    &:hover {
+        background: var(--glass-02);
+        border-color: var(--glass-border-h);
+        color: var(--text-primary);
+    }
+
+    &.active {
+        background: var(--accent-dim);
+        border-color: rgba(245, 166, 35, 0.4);
+        color: var(--accent);
+        box-shadow: 0 4px 12px rgba(245, 166, 35, 0.1);
+    }
+
+    span {
+        font-size: 13px;
+        font-weight: 600;
+    }
+}

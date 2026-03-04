@@ -31,7 +31,7 @@
         <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
       </svg>
     </div>
-    <div class="summary-value">{{ formatCurrency(totalAmount) }}</div>
+    <div class="summary-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalAmount) }}</div>
     <div class="summary-label">Total Spent</div>
     <div class="summary-sub">{{ count }} transactions</div>
   </div>
@@ -56,7 +56,7 @@
           <span class="cat-bar-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
           <div class="cat-bar-right">
             <span class="cat-bar-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
-            <span class="cat-bar-amount">{{ formatCurrency(cat.total) }}</span>
+            <span class="cat-bar-amount"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(cat.total) }}</span>
           </div>
         </div>
         <div class="cat-bar-track">
@@ -111,7 +111,7 @@
         </td>
         <td class="text-secondary">{{ formatDate(exp.date) }}</td>
         <td class="text-right">
-          <span class="amount expense">-{{ formatCurrency(exp.amount) }}</span>
+          <span class="amount expense">-<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(exp.amount) }}</span>
         </td>
       </tr>
     </tbody>
@@ -119,7 +119,7 @@
       <tr>
         <td colspan="3" class="total-label">Total</td>
         <td class="text-right">
-          <span class="amount expense total-amount">-{{ formatCurrency(totalAmount) }}</span>
+          <span class="amount expense total-amount">-<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalAmount) }}</span>
         </td>
       </tr>
     </tfoot>

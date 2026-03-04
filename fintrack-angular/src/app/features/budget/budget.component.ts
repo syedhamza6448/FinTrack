@@ -134,7 +134,8 @@ export class BudgetComponent implements OnInit, OnDestroy {
 
   formatCurrency(n: number): string {
     return new Intl.NumberFormat('en-NG', {
-      style: 'currency', currency: this.currency, minimumFractionDigits: 0, maximumFractionDigits: 0
+      style: 'decimal',
+      minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);
   }
 

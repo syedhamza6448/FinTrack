@@ -14,19 +14,19 @@
 <div class="debt-summary" *ngIf="!loading && debts.length > 0">
   <div class="ds-card">
     <span class="ds-label">Total Debt</span>
-    <span class="ds-value negative">{{ formatCurrency(totalDebt) }}</span>
+    <span class="ds-value negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalDebt) }}</span>
   </div>
   <div class="ds-card">
     <span class="ds-label">Original Amount</span>
-    <span class="ds-value">{{ formatCurrency(totalOriginal) }}</span>
+    <span class="ds-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalOriginal) }}</span>
   </div>
   <div class="ds-card">
     <span class="ds-label">Total Paid Off</span>
-    <span class="ds-value positive">{{ formatCurrency(totalOriginal - totalDebt) }}</span>
+    <span class="ds-value positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalOriginal - totalDebt) }}</span>
   </div>
   <div class="ds-card">
     <span class="ds-label">Monthly Payment</span>
-    <span class="ds-value accent">{{ formatCurrency(totalMonthly) }}</span>
+    <span class="ds-value accent"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalMonthly) }}</span>
   </div>
 </div>
 
@@ -61,7 +61,7 @@
           <span class="dc-name">{{ d.name }}</span>
           <span class="dc-type">{{ d.type }}</span>
         </div>
-        <div class="dc-balance">{{ formatCurrency(d.balance) }}</div>
+        <div class="dc-balance"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(d.balance) }}</div>
       </div>
 
       <div class="dc-progress-wrap">
@@ -73,7 +73,7 @@
 
       <div class="dc-meta">
         <span *ngIf="d.interestRate">{{ d.interestRate }}% APR</span>
-        <span *ngIf="d.minimumPayment">Min: {{ formatCurrency(d.minimumPayment) }}/mo</span>
+        <span *ngIf="d.minimumPayment">Min: <span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(d.minimumPayment) }}/mo</span>
       </div>
     </div>
 
