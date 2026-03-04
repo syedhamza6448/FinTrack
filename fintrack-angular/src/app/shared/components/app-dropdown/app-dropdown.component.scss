@@ -1,7 +1,7 @@
 .app-dropdown {
   position: relative;
   display: inline-block;
-  min-width: 140px;
+  min-width: 0;
 
   &.disabled .dropdown-trigger {
     opacity: 0.6;

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
-import { NotificationService } from '../../core/services/api.services';
-import { Notification } from '../../core/models/models';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { DashboardService, NotificationService, TransactionService } from '../../core/services/api.services';
+import { DashboardData, Notification, Transaction } from '../../core/models/models';
 
 @Component({
   selector: 'app-notifications',
@@ -22,23 +22,125 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     return this.notifications.filter(n => n.type === this.filterType);
   }
 
-  constructor(private notifService: NotificationService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private notifService: NotificationService,
+    private dashboardService: DashboardService,
+    private transactionService: TransactionService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void { this.loadNotifications(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
   loadNotifications(): void {
     this.loading = true;
-    this.notifService.getAll()
+
+    forkJoin({
+      apiNotifs: this.notifService.getAll(),
+      dashboard: this.dashboardService.get(),
+      transactions: this.transactionService.getAll({ page: 1, pageSize: 10 })
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res: any) => {
-          this.notifications = Array.isArray(res) ? res : (res.notifications ?? res.items ?? []) ?? [];
+        next: ({ apiNotifs, dashboard, transactions }) => {
+          const baseItems = (apiNotifs?.items ?? []) as Notification[];
+
+          const derived = [
+            ...this.buildBudgetNotifications(dashboard),
+            ...this.buildSavingsNotifications(dashboard),
+            ...this.buildTransactionNotifications(transactions?.items ?? [])
+          ];
+
+          this.notifications = [...baseItems, ...derived].sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+
           this.loading = false;
           this.cdr.markForCheck();
         },
         error: () => { this.loading = false; this.cdr.markForCheck(); }
       });
+  }
+
+  private buildBudgetNotifications(data: DashboardData | null): Notification[] {
+    if (!data?.budgetAlerts?.length) return [];
+    const now = new Date().toISOString();
+
+    return data.budgetAlerts.map((b, idx) => {
+      const over = b.status === 'exceeded' || b.percentUsed >= 100;
+      const near = !over && b.percentUsed >= 80;
+      const title = over
+        ? `Budget exceeded: ${b.categoryName}`
+        : `Budget nearing limit: ${b.categoryName}`;
+
+      const message = over
+        ? `${b.categoryName} has exceeded its budget. Spent ${b.spent} of ${b.budgeted}.`
+        : `${b.categoryName} has used ${Math.round(b.percentUsed)}% of its budget.`;
+
+      return {
+        id: 10_000 + idx,
+        title,
+        message,
+        type: 'budget',
+        isRead: false,
+        createdAt: now
+      } as Notification;
+    });
+  }
+
+  private buildSavingsNotifications(data: DashboardData | null): Notification[] {
+    if (!data?.savingsGoals?.length) return [];
+    const now = new Date().toISOString();
+
+    return data.savingsGoals.flatMap((g, idx) => {
+      const notifs: Notification[] = [];
+
+      if (g.status === 'Completed') {
+        notifs.push({
+          id: 20_000 + idx * 2,
+          title: `Goal completed: ${g.name}`,
+          message: `You reached your savings goal of ${g.targetAmount}.`,
+          type: 'savings',
+          isRead: false,
+          createdAt: now
+        });
+      } else if (g.status === 'Active' && g.targetDate) {
+        const days = this.daysUntil(g.targetDate);
+        if (days >= 0 && days <= 5) {
+          notifs.push({
+            id: 20_000 + idx * 2 + 1,
+            title: `Goal due soon: ${g.name}`,
+            message: `${g.name} is due in ${days} day${days === 1 ? '' : 's'}.`,
+            type: 'savings',
+            isRead: false,
+            createdAt: now
+          });
+        }
+      }
+
+      return notifs;
+    });
+  }
+
+  private buildTransactionNotifications(items: Transaction[]): Notification[] {
+    const now = new Date().toISOString();
+    return items.slice(0, 10).map(txn => ({
+      id: 30_000 + txn.id,
+      title: txn.type === 'Income' ? 'Income recorded' : 'Expense recorded',
+      message: `${txn.description} • ${txn.category?.name}`,
+      type: 'transaction',
+      isRead: false,
+      createdAt: txn.createdAt || now
+    }));
+  }
+
+  private daysUntil(dateStr: string): number {
+    const target = new Date(dateStr);
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const end = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    const diffMs = end.getTime() - start.getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
   }
 
   markRead(n: Notification): void {

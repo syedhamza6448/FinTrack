@@ -1,7 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
-import { EducationService } from '../../core/services/api.services';
 import { EducationArticle, EducationModule, EducationGuide } from '../../core/models/models';
 
 @Component({
@@ -11,24 +9,124 @@ import { EducationArticle, EducationModule, EducationGuide } from '../../core/mo
   styleUrls: ['./education.component.scss']
 })
 export class EducationComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
   // ── Tab state ──────────────────────────────────────────────
   activeTab = 'tips';
   activeCalc = 'loan';
 
   // ── Loading states ─────────────────────────────────────────
-  loadingArticles = true;
-  loadingModules = true;
-  loadingGuides = true;
+  loadingArticles = false;
+  loadingModules = false;
+  loadingGuides = false;
   loadingArticle = false;
   loadingModule = false;
 
   // ── Data ───────────────────────────────────────────────────
-  articles: EducationArticle[] = [];
-  modules: EducationModule[] = [];
-  guides: EducationGuide[] = [];
-  categories: string[] = ['All'];
+  articles: EducationArticle[] = [
+    {
+      id: 1,
+      title: 'Mastering the 50/30/20 Rule',
+      summary: 'A simple budgeting method to build financial stability.',
+      content: 'The 50/30/20 rule is a straightforward way to manage your money:\n\n**50% for Needs:** Housing, groceries, utilities, and essential transportation.\n\n**30% for Wants:** Entertainment, dining out, and hobbies.\n\n**20% for Savings & Debt:** Building an emergency fund, investing, or paying down high-interest debt.\n\nStart by tracking your expenses for a month, then categorize them into these three buckets to see where you can adjust.',
+      category: 'Budgeting',
+      icon: '📊',
+      readTime: 4,
+      publishedAt: new Date().toISOString()
+    },
+    {
+      id: 2,
+      title: 'Understanding Compound Interest',
+      summary: 'How your money can grow exponentially over time.',
+      content: 'Compound interest is the interest on savings calculated on both the initial principal and the accumulated interest from previous periods.\n\n**Why it matters:** It allows your wealth to grow faster. The earlier you start investing, the more time your money has to compound.\n\n**Rule of 72:** Divide 72 by your annual interest rate to estimate how many years it will take to double your money.\n\nStart small, but start early!',
+      category: 'Investing',
+      icon: '📈',
+      readTime: 6,
+      publishedAt: new Date().toISOString()
+    },
+    {
+      id: 3,
+      title: 'Emergency Funds 101',
+      summary: 'Why you need one and how to build it efficiently.',
+      content: 'An emergency fund is a stash of money set aside to cover the financial surprises life throws your way.\n\n**How much do you need?** Aim for 3 to 6 months of essential living expenses.\n\n**Where to keep it:** A high-yield savings account (HYSA) so it’s easily accessible but still earns some interest.\n\n**How to start:** Automate a small transfer every payday into your emergency fund account until you hit your goal.',
+      category: 'Savings',
+      icon: '🛡️',
+      readTime: 5,
+      publishedAt: new Date().toISOString()
+    }
+  ];
+
+  modules: EducationModule[] = [
+    {
+      id: 101,
+      title: 'Personal Finance Basics',
+      description: 'Everything you need to know to get started with managing your money.',
+      icon: '📘',
+      lessons: 5,
+      difficulty: 'Beginner',
+      topics: ['Budgeting', 'Banking', 'Credit Scores']
+    },
+    {
+      id: 102,
+      title: 'Investing for Beginners',
+      description: 'Learn the fundamentals of stocks, bonds, and building a portfolio.',
+      icon: '📊',
+      lessons: 8,
+      difficulty: 'Intermediate',
+      topics: ['Stocks & Bonds', 'ETFs & Mutual Funds', 'Risk Tolerance']
+    },
+    {
+      id: 103,
+      title: 'Debt Payoff Strategies',
+      description: 'Actionable plans to eliminate high-interest debt efficiently.',
+      icon: '🎯',
+      lessons: 4,
+      difficulty: 'Beginner',
+      topics: ['Snowball Method', 'Avalanche Method', 'Consolidation']
+    }
+  ];
+
+  guides: EducationGuide[] = [
+    {
+      id: 201,
+      title: 'Buying Your First Home',
+      goal: 'Save for a down payment, improve credit score, and get pre-approved.',
+      icon: '🏠',
+      steps: [
+        'Determine your budget',
+        'Save 20% for down payment',
+        'Check and improve your credit score',
+        'Get pre-approved for a mortgage'
+      ],
+      tip: 'Don\'t forget closing costs! Set aside an extra 2–5% of the purchase price.'
+    },
+    {
+      id: 202,
+      title: 'Planning for Retirement',
+      goal: 'Understand accounts, set target age, and maximise contributions.',
+      icon: '🌅',
+      steps: [
+        'Calculate your retirement number',
+        'Open and fund a 401(k) or IRA',
+        'Take advantage of employer matching',
+        'Diversify your investments'
+      ],
+      tip: 'The earlier you start, the less you have to save monthly thanks to compound interest.'
+    },
+    {
+      id: 203,
+      title: 'Planning a Major Vacation',
+      goal: 'Set a travel budget, start a sinking fund, and book in advance.',
+      icon: '✈️',
+      steps: [
+        'Estimate total trip cost',
+        'Set up a dedicated savings bucket',
+        'Automate weekly transfers',
+        'Book flights and hotels early'
+      ],
+      tip: 'Travel rewards credit cards can heavily subsidise your flights if used responsibly.'
+    }
+  ];
+
+  categories: string[] = ['All', 'Budgeting', 'Investing', 'Savings'];
   filterCategory = '';
 
   activeArticle: EducationArticle | null = null;
@@ -62,137 +160,31 @@ export class EducationComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private fb: FormBuilder,
-    private educationService: EducationService
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
     this.buildCalculatorForms();
-    this.loadArticles();
-    this.loadModules();
-    this.loadGuides();
   }
 
-  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
-
-  // ── Data Loading ───────────────────────────────────────────
-  loadArticles(): void {
-    this.loadingArticles = true;
-    this.educationService.getArticles().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: any) => {
-        let items = Array.isArray(res) ? res : (res.items ?? []);
-        if (items.length === 0) {
-          // Fallback mock data
-          items = [
-            {
-              id: 1, title: 'Mastering the 50/30/20 Rule', summary: 'A simple budgeting method to build financial stability.',
-              content: 'The 50/30/20 rule is a straightforward way to manage your money: \\n\\n**50% for Needs:** Housing, groceries, utilities, and essential transportation.\\n\\n**30% for Wants:** Entertainment, dining out, and hobbies.\\n\\n**20% for Savings & Debt:** Building an emergency fund, investing, or paying down high-interest debt.\\n\\nStart by tracking your expenses for a month, then categorize them into these three buckets to see where you can adjust.',
-              category: 'Budgeting', icon: 'pie-chart', readTime: 4, publishedAt: new Date().toISOString()
-            },
-            {
-              id: 2, title: 'Understanding Compound Interest', summary: 'How your money can grow exponentially over time.',
-              content: 'Compound interest is the interest on savings calculated on both the initial principal and the accumulated interest from previous periods.\\n\\n**Why it matters:** It allows your wealth to grow faster. The earlier you start investing, the more time your money has to compound.\\n\\n**Rule of 72:** Divide 72 by your annual interest rate to estimate how many years it will take to double your money.\\n\\nStart small, but start early!',
-              category: 'Investing', icon: 'trending-up', readTime: 6, publishedAt: new Date().toISOString()
-            },
-            {
-              id: 3, title: 'Emergency Funds 101', summary: 'Why you need one and how to build it efficiently.',
-              content: 'An emergency fund is a stash of money set aside to cover the financial surprises life throws your way.\\n\\n**How much do you need?** Aim for 3 to 6 months of essential living expenses.\\n\\n**Where to keep it:** A high-yield savings account (HYSA) so it’s easily accessible but still earns some interest.\\n\\n**How to start:** Automate a small transfer every payday into your emergency fund account until you hit your goal.',
-              category: 'Savings', icon: 'shield', readTime: 5, publishedAt: new Date().toISOString()
-            }
-          ];
-        }
-        this.articles = items;
-        this.loadingArticles = false;
-      },
-      error: () => { this.loadingArticles = false; }
-    });
-  }
-
-  loadModules(): void {
-    this.loadingModules = true;
-    this.educationService.getModules()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res: any) => {
-          let items = Array.isArray(res) ? res : (res.items ?? []);
-          if (items.length === 0) {
-            // Fallback mock data
-            items = [
-              {
-                id: 101, title: 'Personal Finance Basics', description: 'Everything you need to know to get started with managing your money.',
-                icon: 'book-open', lessons: 5, difficulty: 'Beginner', topics: ['Budgeting', 'Banking', 'Credit Scores']
-              },
-              {
-                id: 102, title: 'Investing for Beginners', description: 'Learn the fundamentals of stocks, bonds, and building a portfolio.',
-                icon: 'bar-chart', lessons: 8, difficulty: 'Intermediate', topics: ['Stocks & Bonds', 'ETFs & Mutual Funds', 'Risk Tolerance']
-              },
-              {
-                id: 103, title: 'Debt Payoff Strategies', description: 'Actionable plans to eliminate high-interest debt efficiently.',
-                icon: 'target', lessons: 4, difficulty: 'Beginner', topics: ['Snowball Method', 'Avalanche Method', 'Consolidation']
-              }
-            ];
-          }
-          this.modules = items;
-          this.loadingModules = false;
-        },
-        error: () => { this.loadingModules = false; }
-      });
-  }
-
-  loadGuides(): void {
-    this.loadingGuides = true;
-    this.educationService.getGuides()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res: any) => {
-          let items = Array.isArray(res) ? res : (res.items ?? []);
-          if (items.length === 0) {
-            // Fallback mock data
-            items = [
-              {
-                id: 201, title: 'Buying Your First Home', goal: 'Save for down payment, improve credit score, get pre-approved.',
-                icon: 'home', steps: ['Determine your budget', 'Save 20% for down payment', 'Check and improve your credit score', 'Get pre-approved for a mortgage'],
-                tip: 'Don\'t forget closing costs! Set aside an extra 2-5% of the purchase price.'
-              },
-              {
-                id: 202, title: 'Planning for Retirement', goal: 'Understand accounts, set target age, maximize contributions.',
-                icon: 'sunset', steps: ['Calculate your retirement number', 'Open and fund a 401(k) or IRA', 'Take advantage of employer matching', 'Diversify your investments'],
-                tip: 'The earlier you start, the less you have to save monthly thanks to compound interest.'
-              },
-              {
-                id: 203, title: 'Planning a Major Vacation', goal: 'Set travel budget, start a sinking fund, book in advance.',
-                icon: 'plane', steps: ['Estimate total trip cost', 'Set up a dedicated savings bucket', 'Automate weekly transfers', 'Book flights and hotels early'],
-                tip: 'Travel rewards credit cards can heavily subsidize your flights if used responsibly.'
-              }
-            ];
-          }
-          this.guides = items;
-          this.loadingGuides = false;
-        },
-        error: () => { this.loadingGuides = false; }
-      });
+  ngOnDestroy(): void {
+    // No subscriptions to clean up — required only to satisfy the interface.
   }
 
   openArticle(id: number): void {
     this.loadingArticle = true;
-    this.educationService.getArticleById(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: article => { this.activeArticle = article; this.loadingArticle = false; },
-        error: () => { this.loadingArticle = false; }
-      });
+    const found = this.articles.find(a => a.id === id) || null;
+    this.activeArticle = found;
+    this.loadingArticle = false;
   }
 
   closeArticle(): void { this.activeArticle = null; }
 
   openModule(id: number): void {
     this.loadingModule = true;
-    this.educationService.getModuleById(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: mod => { this.activeModule = mod; this.loadingModule = false; },
-        error: () => { this.loadingModule = false; }
-      });
+    const found = this.modules.find(m => m.id === id) || null;
+    this.activeModule = found;
+    this.loadingModule = false;
   }
 
   closeModule(): void { this.activeModule = null; }

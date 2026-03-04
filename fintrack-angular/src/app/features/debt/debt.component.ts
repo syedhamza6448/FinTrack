@@ -85,7 +85,29 @@ export class DebtComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (res: any) => {
-                    this.debts = Array.isArray(res) ? res : (res.debts ?? res.items ?? []);
+                    const raw = Array.isArray(res) ? res : (res.debts ?? res.items ?? []);
+                    this.debts = (raw ?? []).map((r: any) => {
+                        const originalAmount = Number(r.originalAmount ?? r.amount ?? 0) || 0;
+                        const rawBalance = Number(r.balance ?? r.remainingBalance ?? originalAmount);
+                        const balance = isNaN(rawBalance) ? 0 : rawBalance;
+                        const rawMin = Number(r.minimumPayment ?? r.monthlyPayment ?? 0);
+                        const minimumPayment = isNaN(rawMin) ? 0 : rawMin;
+
+                        return {
+                            id: r.id,
+                            name: r.name,
+                            type: r.type ?? r.debtType ?? 'Debt',
+                            originalAmount,
+                            balance,
+                            interestRate: Number(r.interestRate ?? 0) || 0,
+                            minimumPayment,
+                            dueDate: r.dueDate ?? r.expectedPayoffDate ?? r.startDate,
+                            lender: r.lender,
+                            status: r.status ?? (balance <= 0 ? 'Paid Off' : 'Active'),
+                            notes: r.notes
+                        } as Debt;
+                    });
+
                     this.loading = false;
                     this.cdr.markForCheck();
                 },

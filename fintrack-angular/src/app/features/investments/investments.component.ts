@@ -91,7 +91,45 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (res: any) => {
-                    this.investments = Array.isArray(res) ? res : (res.investments ?? res.items ?? []);
+                    const raw = Array.isArray(res) ? res : (res.investments ?? res.items ?? []);
+                    this.investments = (raw ?? []).map((r: any) => {
+                        const quantity = Number(r.quantity ?? r.units ?? 0) || 0;
+                        const buyPrice = Number(r.buyPrice ?? r.purchasePrice ?? 0) || 0;
+                        const currentPrice = Number(r.currentPrice ?? 0) || 0;
+
+                        const computedInvested = quantity && buyPrice ? quantity * buyPrice : 0;
+                        const rawInvested = Number(r.amountInvested ?? r.invested ?? computedInvested);
+                        const amountInvested = isNaN(rawInvested) ? 0 : rawInvested;
+
+                        const computedCurrent = quantity && currentPrice ? quantity * currentPrice : 0;
+                        const rawCurrent = Number(r.currentValue ?? r.current ?? computedCurrent);
+                        const currentValue = isNaN(rawCurrent) ? 0 : rawCurrent;
+
+                        const rawGain = Number(r.gainLoss ?? r.profitLoss ?? (currentValue - amountInvested));
+                        const gainLoss = isNaN(rawGain) ? 0 : rawGain;
+
+                        const rawReturnPct = Number(
+                            r.returnPercent ??
+                            (amountInvested > 0 ? (gainLoss / amountInvested) * 100 : 0)
+                        );
+                        const returnPercent = isNaN(rawReturnPct) ? 0 : rawReturnPct;
+
+                        return {
+                            id: r.id,
+                            name: r.name,
+                            type: r.type ?? r.assetType ?? 'Stocks',
+                            amountInvested,
+                            currentValue,
+                            gainLoss,
+                            returnPercent,
+                            units: quantity || undefined,
+                            purchasePrice: buyPrice || undefined,
+                            currentPrice: currentPrice || undefined,
+                            purchaseDate: r.purchaseDate,
+                            notes: r.notes
+                        } as Investment;
+                    });
+
                     this.loading = false;
                     this.cdr.markForCheck();
                 },

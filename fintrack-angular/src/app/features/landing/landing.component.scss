@@ -490,8 +490,8 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 120px var(--s6) 80px;
-    max-width: 1200px;
+  padding: 120px var(--s6) 96px;
+  max-width: 1120px;
     margin: 0 auto;
     gap: 60px;
     position: relative;
@@ -555,6 +555,7 @@
     position: relative;
     z-index: 1;
     animation: hero-in 0.7s var(--ease-out-expo) both;
+  max-width: 520px;
 }
 
 @keyframes hero-in {

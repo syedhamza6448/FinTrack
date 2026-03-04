@@ -110,7 +110,6 @@ import { AppIconComponent } from './components/app-icon/app-icon.component';
 import { AppDropdownComponent } from './components/app-dropdown/app-dropdown.component';
 import { IconPickerComponent } from './components/icon-picker/icon-picker.component';
 import { ColorPickerComponent } from './components/color-picker/color-picker.component';
-import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 
 @NgModule({
   declarations: [
@@ -118,8 +117,7 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
     AppIconComponent,
     AppDropdownComponent,
     IconPickerComponent,
-    ColorPickerComponent,
-    ToastContainerComponent
+    ColorPickerComponent
   ],
   imports: [
     CommonModule,
@@ -229,7 +227,6 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
     AppDropdownComponent,
     IconPickerComponent,
     ColorPickerComponent,
-    ToastContainerComponent,
     LucideAngularModule
   ]
 })

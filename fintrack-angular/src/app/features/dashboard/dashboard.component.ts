@@ -36,6 +36,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
   get currency() { return this.authService.userCurrency; }
 
+  get budgetRiskAlerts() {
+    if (!this.data?.budgetAlerts?.length) return [];
+    return this.data.budgetAlerts.filter(b => b.percentUsed >= 80 && b.percentUsed < 100);
+  }
+
+  get upcomingGoals() {
+    if (!this.data?.savingsGoals?.length) return [];
+    return this.data.savingsGoals.filter(g => {
+      if (!g.targetDate || g.status !== 'Active') return false;
+      const days = this.daysUntil(g.targetDate);
+      return days >= 3 && days <= 5;
+    });
+  }
+
   get greeting(): string {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -85,6 +99,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+  }
+
+  private daysUntil(dateStr: string): number {
+    const target = new Date(dateStr);
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const end = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    const diffMs = end.getTime() - start.getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
   }
 
   private updatePieChart(): void {

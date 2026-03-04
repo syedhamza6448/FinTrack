@@ -320,6 +320,43 @@
     }
 }
 
+// Theme toggle buttons
+.theme-toggle {
+  display: inline-flex;
+  gap: 6px;
+  padding: 3px;
+  border-radius: var(--r-full);
+  background: var(--bg-base);
+  border: 1px solid var(--glass-border);
+}
+
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-full);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--t-fast);
+
+  &:hover {
+    background: var(--glass-02);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(182, 255, 59, 0.35);
+  }
+}
+
 .spinner {
     width: 16px;
     height: 16px;

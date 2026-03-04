@@ -6,10 +6,10 @@
   <!-- ══ SIDEBAR ══ -->
   <aside class="sidebar" [class.sidebar-collapsed]="sidebarCollapsed">
 
-    <div class="sidebar-logo">
+    <a class="sidebar-logo" routerLink="/">
       <div class="logo-mark">F</div>
       <span class="logo-text" *ngIf="!sidebarCollapsed">Fin<em>Track</em></span>
-    </div>
+    </a>
 
     <nav class="sidebar-nav">
 
@@ -169,7 +169,6 @@
         </a>
       </nav>
     </div>
-</div>
 
-<!-- Smart Toast Notifications -->
-<app-toast-container></app-toast-container>
+  </div>
+</div>

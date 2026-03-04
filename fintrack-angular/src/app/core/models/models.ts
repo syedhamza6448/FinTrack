@@ -224,7 +224,8 @@ export interface Notification {
   id: number;
   title: string;
   message: string;
-  type: 'Alert' | 'Reminder' | 'Insight';
+  /** Logical category used by the notifications UI (budget, savings, transaction, alert, etc.). */
+  type: string;
   isRead: boolean;
   createdAt: string;
 }
