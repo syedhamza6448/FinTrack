@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors }
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
+import { updateFaviconForTheme } from '../../core/utils/favicon';
 import { extractError } from '../../shared/utils/error.util';
 
 function passwordsMatch(g: AbstractControl): ValidationErrors | null {
@@ -167,6 +168,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   private applyTheme(theme: string): void {
     document.documentElement.setAttribute('data-theme', theme);
+    updateFaviconForTheme();
   }
 
   onChangePassword(): void {

@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/api.services';
+import { updateFaviconForTheme } from '../../core/utils/favicon';
 
 @Component({
   selector: 'app-shell',
@@ -56,6 +57,10 @@ export class ShellComponent implements OnInit, OnDestroy {
   get pageTitle(): string {
     const item = this.navItems.find(i => this.currentRoute.startsWith(i.path));
     return item?.label ?? 'FinTrack';
+  }
+
+  get logoUrl(): string {
+    return this.isDark ? 'logo/logoD.png' : 'logo/logoL.png';
   }
 
   constructor(
@@ -116,6 +121,7 @@ export class ShellComponent implements OnInit, OnDestroy {
 
   private applyTheme(): void {
     document.documentElement.setAttribute('data-theme', this.isDark ? 'dark' : 'light');
+    updateFaviconForTheme();
   }
 
   private loadUnreadCount(): void {

@@ -95,6 +95,13 @@ $sidebar-collapsed-w: 56px;
   flex-shrink: 0;
   text-decoration: none;
 
+  .logo-img {
+    height: 32px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+
   .logo-mark {
     width: 30px;
     height: 30px;

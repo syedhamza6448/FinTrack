@@ -46,6 +46,13 @@
     color: var(--text-primary);
     flex-shrink: 0;
 
+    .logo-img {
+        height: 32px;
+        width: auto;
+        display: block;
+        flex-shrink: 0;
+    }
+
     em {
         font-style: normal;
         color: var(--accent);
@@ -1191,6 +1198,13 @@
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 800;
+
+    .logo-img {
+        height: 26px;
+        width: auto;
+        display: block;
+        flex-shrink: 0;
+    }
 }
 
 .footer-copy {

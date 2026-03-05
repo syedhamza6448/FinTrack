@@ -34,6 +34,11 @@ export class RegisterComponent {
   ];
   get registerCurrencyOptions() { return this.currencies.map(c => ({ value: c.value, label: c.label })); }
 
+  get logoUrl(): string {
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    return theme === 'light' ? 'logo/logoL.png' : 'logo/logoD.png';
+  }
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,

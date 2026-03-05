@@ -99,6 +99,11 @@ export class LandingComponent implements OnInit, OnDestroy {
     return this.currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
+  get logoUrl(): string {
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    return theme === 'light' ? 'logo/logoL.png' : 'logo/logoD.png';
+  }
+
   scrollToFeatures(): void {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
   }

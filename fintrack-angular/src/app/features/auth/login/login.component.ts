@@ -29,6 +29,11 @@ export class LoginComponent {
   get email()    { return this.form.get('email')!; }
   get password() { return this.form.get('password')!; }
 
+  get logoUrl(): string {
+    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    return theme === 'light' ? 'logo/logoL.png' : 'logo/logoD.png';
+  }
+
   onSubmit(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading = true;
