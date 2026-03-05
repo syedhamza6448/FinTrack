@@ -4,9 +4,9 @@
     <h1>Debt Tracker</h1>
     <p>{{ debts.length }} debt{{ debts.length !== 1 ? 's' : '' }} tracked</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()">
+  <button class="btn-primary" (click)="openAdd()" title="Add Debt">
     <lucide-angular name="plus" [size]="16"></lucide-angular>
-    Add Debt
+    <span class="btn-label">Add Debt</span>
   </button>
 </div>
 

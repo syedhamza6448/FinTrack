@@ -54,13 +54,20 @@
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-btn" [class.active]="activeTab === 'summary'" (click)="setTab('summary')">Summary Report</button>
-    <button class="tab-btn" [class.active]="activeTab === 'monthly'" (click)="setTab('monthly')">Monthly Trend</button>
-    <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense
-      Breakdown</button>
-    <button class="tab-btn" [class.active]="activeTab === 'income'" (click)="setTab('income')">Income Sources</button>
+  <!-- Tabs (dropdown on small screens) -->
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'summary'" (click)="setTab('summary')">Summary Report</button>
+      <button class="tab-btn" [class.active]="activeTab === 'monthly'" (click)="setTab('monthly')">Monthly Trend</button>
+      <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense Breakdown</button>
+      <button class="tab-btn" [class.active]="activeTab === 'income'" (click)="setTab('income')">Income Sources</button>
+    </div>
+    <select class="tabs-select" [ngModel]="activeTab" (ngModelChange)="setTab($event)" aria-label="Report section">
+      <option value="summary">Summary Report</option>
+      <option value="monthly">Monthly Trend</option>
+      <option value="expenses">Expense Breakdown</option>
+      <option value="income">Income Sources</option>
+    </select>
   </div>
 
   <!-- Summary Report -->

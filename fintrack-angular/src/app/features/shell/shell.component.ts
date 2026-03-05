@@ -27,6 +27,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   tooltipY        = 0;
 
   navItems = [
+    { path: '/',              label: 'Home',          icon: 'home',         group: 'overview' },
     { path: '/dashboard',     label: 'Dashboard',     icon: 'grid',         group: 'overview' },
     { path: '/transactions',  label: 'Transactions',  icon: 'swap',         group: 'overview' },
     { path: '/reports',       label: 'Reports',       icon: 'bar-chart',    group: 'overview' },
@@ -91,6 +92,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   }
 
   isActive(path: string): boolean {
+    if (path === '/') return this.currentRoute === '/' || this.currentRoute === '';
     return this.currentRoute.startsWith(path);
   }
 
@@ -136,7 +138,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   /** Map shell icon key to Lucide kebab-case name for app-icon. */
   getLucideName(icon: string): string {
     const map: Record<string, string> = {
-      'grid': 'layout-grid', 'swap': 'refresh-cw', 'bar-chart': 'bar-chart-2',
+      'home': 'home', 'grid': 'layout-grid', 'swap': 'refresh-cw', 'bar-chart': 'bar-chart-2',
       'wallet': 'wallet', 'target': 'target', 'piggy': 'piggy-bank',
       'trending-up': 'trending-up', 'credit-card': 'credit-card',
       'tag': 'tag', 'bell': 'bell', 'book': 'book', 'settings': 'settings',

@@ -267,7 +267,7 @@
         <p class="footer-copy">© 2026 FinTrack. Your finances, your future.</p>
         <div class="footer-links">
           <a routerLink="/education">Learn</a>
-          <a routerLink="/auth/login">Login</a>
+          <a *ngIf="!isLoggedIn" routerLink="/auth/login">Login</a>
           <a routerLink="/auth/register">Register</a>
         </div>
       </div>

@@ -114,7 +114,7 @@
     }
 }
 
-// Summary
+// Summary — single column on small screens
 .debt-summary {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -123,6 +123,10 @@
 
     @media (max-width: 768px) {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -242,6 +246,24 @@
 
     &.paid-off {
         opacity: 0.6;
+    }
+
+    @media (max-width: 576px) {
+        flex-wrap: wrap;
+
+        .dc-left,
+        .dc-body {
+            flex: 1 1 auto;
+        }
+
+        .dc-actions {
+            flex-basis: 100%;
+            flex-direction: row;
+            justify-content: flex-end;
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 1px solid var(--glass-border);
+        }
     }
 }
 

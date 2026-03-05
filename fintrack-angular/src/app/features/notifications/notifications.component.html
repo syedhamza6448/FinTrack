@@ -8,9 +8,12 @@
   <div class="header-right header-actions">
     <button class="btn-ghost icon-btn" (click)="refresh()" title="Refresh">
       <app-icon name="refresh-cw" [size]="18"></app-icon>
-      <span>Refresh</span>
+      <span class="btn-label">Refresh</span>
     </button>
-    <button class="btn-ghost" *ngIf="unreadCount > 0" (click)="markAllRead()">Mark all read</button>
+    <button class="btn-ghost icon-btn" *ngIf="unreadCount > 0" (click)="markAllRead()" title="Mark all read">
+      <app-icon name="check-circle" [size]="18"></app-icon>
+      <span class="btn-label">Mark all read</span>
+    </button>
   </div>
 </div>
 

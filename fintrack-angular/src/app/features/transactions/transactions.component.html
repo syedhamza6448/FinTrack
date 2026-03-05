@@ -4,9 +4,9 @@
     <h1>Transactions</h1>
     <p>{{ total }} transaction{{ total !== 1 ? 's' : '' }} found</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()">
+  <button class="btn-primary" (click)="openAdd()" title="Add Transaction">
     <lucide-angular name="plus" [size]="16"></lucide-angular>
-    Add Transaction
+    <span class="btn-label">Add Transaction</span>
   </button>
 </div>
 
@@ -55,11 +55,15 @@
     <div class="empty-icon"><app-icon name="banknote" [size]="48"></app-icon></div>
     <h3>No transactions found</h3>
     <p>Try adjusting your filters or add a new transaction</p>
-    <button class="btn-primary" (click)="openAdd()">Add Transaction</button>
+    <button class="btn-primary" (click)="openAdd()" title="Add Transaction">
+      <lucide-angular name="plus" [size]="16"></lucide-angular>
+      <span class="btn-label">Add Transaction</span>
+    </button>
   </div>
 
   <!-- Table -->
-  <table class="txn-table" *ngIf="!loading && transactions.length > 0">
+  <div class="table-scroll-wrap" *ngIf="!loading && transactions.length > 0">
+  <table class="txn-table">
     <thead>
       <tr>
         <th>Description</th>
@@ -104,6 +108,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <!-- Pagination -->
   <div class="pagination" *ngIf="totalPages > 1">

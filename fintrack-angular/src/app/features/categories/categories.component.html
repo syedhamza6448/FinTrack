@@ -4,9 +4,9 @@
     <h1>Categories</h1>
     <p>{{ expenseCategories.length }} expense · {{ incomeCategories.length }} income</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()">
+  <button class="btn-primary" (click)="openAdd()" title="New Category">
     <lucide-angular name="plus" [size]="16"></lucide-angular>
-    New Category
+    <span class="btn-label">New Category</span>
   </button>
 </div>
 

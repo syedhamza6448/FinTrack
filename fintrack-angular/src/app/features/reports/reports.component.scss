@@ -67,7 +67,7 @@
     }
 }
 
-// Summary Cards
+// Summary Cards — vertical stack on small screens
 .summary-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -75,10 +75,6 @@
     margin-bottom: 24px;
 
     @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 400px) {
         grid-template-columns: 1fr;
     }
 }
@@ -224,15 +220,50 @@
     }
 }
 
-// Tabs
+// Tabs (desktop) + dropdown (small screens)
+.tabs-wrap {
+    margin-bottom: 16px;
+}
+
+.tabs-select {
+    display: none;
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-raised);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+
+    &:focus {
+        border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+        display: block;
+    }
+}
+
 .tabs {
     display: flex;
     gap: 4px;
-    margin-bottom: 16px;
     background: var(--bg-raised);
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
     padding: 4px;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 }
 
 .tab-btn {

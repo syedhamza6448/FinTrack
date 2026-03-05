@@ -683,3 +683,14 @@ button {
     gap: 0 !important;
   }
 }
+
+// Page header primary button: icon-only on small screens to prevent overflow
+@media (max-width: 576px) {
+  .page-header .btn-primary {
+    padding: 10px 14px;
+
+    .btn-label {
+      display: none;
+    }
+  }
+}

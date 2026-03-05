@@ -34,6 +34,17 @@
     gap: 8px;
 }
 
+// On small screens show icon only for header btn-ghost
+@media (max-width: 576px) {
+    .page-header .header-actions .btn-ghost .btn-label {
+        display: none;
+    }
+
+    .page-header .header-actions .btn-ghost.icon-btn {
+        padding: 10px 14px;
+    }
+}
+
 // Selection toolbar
 .selection-toolbar {
     display: flex;
