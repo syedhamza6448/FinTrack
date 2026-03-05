@@ -31,6 +31,11 @@ export class BudgetComponent implements OnInit, OnDestroy {
   get currency() { return this.authService.userCurrency; }
   get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
   get budgetCategoryOptions() { return this.expenseCategories.map(c => ({ value: c.id, label: c.name })); }
+  periodOptions = [
+    { value: 'Monthly', label: 'Monthly' },
+    { value: 'Weekly', label: 'Weekly' },
+    { value: 'Annual', label: 'Annual' }
+  ];
   get modalTitle() { return this.editingId ? 'Edit Budget' : 'Set Budget'; }
 
   get totalBudgeted() { return this.budgets.reduce((s, b) => s + b.amount, 0); }
@@ -85,7 +90,13 @@ export class BudgetComponent implements OnInit, OnDestroy {
 
   openEdit(b: Budget): void {
     this.editingId = b.id; this.modalError = '';
-    this.budgetForm.patchValue({ categoryId: b.category.id, amount: b.amount, month: b.month, year: b.year });
+    this.budgetForm.patchValue({
+      categoryId: b.category.id,
+      amount: b.amount,
+      period: b.period || 'Monthly',
+      month: b.month,
+      year: b.year
+    });
     this.showModal = true;
   }
 

@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
-import { InvestmentService } from '../../core/services/api.services';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { InvestmentService, SavingsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
-import { Investment, InvestmentRequest } from '../../core/models/models';
+import { Investment, InvestmentRequest, SavingsGoal } from '../../core/models/models';
 import { extractError } from '../../shared/utils/error.util';
 
 @Component({
@@ -16,6 +16,7 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     investments: Investment[] = [];
+    savingsGoals: SavingsGoal[] = [];
     loading = true;
     submitting = false;
     showModal = false;
@@ -55,9 +56,20 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
     get totalGain() { return this.totalValue - this.totalInvested; }
     get totalGainPct() { return this.totalInvested > 0 ? (this.totalGain / this.totalInvested) * 100 : 0; }
 
+    // Insights: alignment with savings goals
+    get activeGoals() { return this.savingsGoals.filter(g => g.status === 'Active'); }
+    get totalGoalsTarget() { return this.activeGoals.reduce((s, g) => s + g.targetAmount, 0); }
+    get totalSavedInGoals() { return this.savingsGoals.reduce((s, g) => s + g.savedAmount, 0); }
+    get portfolioVsGoalsPct(): number {
+        if (this.totalGoalsTarget <= 0) return 0;
+        return Math.min(100, (this.totalValue / this.totalGoalsTarget) * 100);
+    }
+    get hasGoalsInsight() { return this.activeGoals.length > 0 && this.investments.length > 0; }
+
     constructor(
         private fb: FormBuilder,
         private investService: InvestmentService,
+        private savingsService: SavingsService,
         private authService: AuthService,
         private cdr: ChangeDetectorRef
     ) { }
@@ -87,11 +99,15 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
 
     loadInvestments(): void {
         this.loading = true;
-        this.investService.getAll()
+        forkJoin({
+            investments: this.investService.getAll(),
+            savings: this.savingsService.getAll()
+        })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: (res: any) => {
-                    const raw = Array.isArray(res) ? res : (res.investments ?? res.items ?? []);
+                next: ({ investments: res, savings: goals }) => {
+                    this.savingsGoals = goals ?? [];
+                    const raw = Array.isArray(res) ? res : (res.investments ?? (res as any).items ?? []);
                     this.investments = (raw ?? []).map((r: any) => {
                         const quantity = Number(r.quantity ?? r.units ?? 0) || 0;
                         const buyPrice = Number(r.buyPrice ?? r.purchasePrice ?? 0) || 0;
@@ -135,6 +151,14 @@ export class InvestmentsComponent implements OnInit, OnDestroy {
                 },
                 error: () => { this.loading = false; this.cdr.markForCheck(); }
             });
+    }
+
+    get goalsInsightMessage(): string {
+        if (!this.hasGoalsInsight) return '';
+        const pct = this.portfolioVsGoalsPct;
+        if (pct >= 100) return 'Your portfolio value meets or exceeds your active savings goals total. Great alignment.';
+        const pctStr = Math.round(pct).toString();
+        return `Your investments represent ${pctStr}% of your active savings goals total. Consider increasing savings or investments to reach your goals.`;
     }
 
     openAdd(): void {

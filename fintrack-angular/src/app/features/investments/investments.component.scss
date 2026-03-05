@@ -1,3 +1,50 @@
+// Goals insight card
+.insights-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    padding: var(--s5);
+    margin-bottom: var(--s6);
+    border-left: 4px solid var(--accent);
+}
+
+.insights-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    h3 {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+}
+
+.insights-message {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.insights-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+
+    strong {
+        color: var(--text-primary);
+    }
+}
+
+.insights-pct {
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .page-header {
     display: flex;
     align-items: flex-start;

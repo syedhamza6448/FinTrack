@@ -134,6 +134,70 @@
     gap: 3px;
 }
 
+// Summary Report tab
+.summary-report-card {
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.summary-item {
+    padding: 14px 16px;
+    background: var(--glass-01);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-md);
+
+    &.highlight {
+        background: var(--accent-dim);
+        border-color: var(--glass-border-h);
+    }
+
+    .summary-label {
+        display: block;
+        font-size: 11px;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+    }
+
+    .summary-value {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 700;
+
+        &.positive { color: var(--positive); }
+        &.negative { color: var(--negative); }
+        &.accent { color: var(--accent); }
+    }
+}
+
+.summary-divider {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 16px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--glass-border);
+}
+
 .sc-label {
     font-size: 11px;
     color: var(--text-tertiary);

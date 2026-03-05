@@ -655,7 +655,9 @@
 .cta-primary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--s2);
+    min-height: 48px;
     padding: 14px var(--s7);
     background: var(--accent);
     color: var(--text-inverse);
@@ -667,8 +669,10 @@
     cursor: pointer;
     box-shadow: 0 4px 24px var(--accent-glow), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
     transition: all var(--t-fast) var(--ease-out-expo);
+    text-decoration: none;
 
     svg {
+        flex-shrink: 0;
         transition: transform var(--t-fast) var(--ease-out-expo);
     }
 
@@ -683,7 +687,7 @@
     }
 
     &:active {
-        transform: scale(0.97);
+        transform: scale(0.98);
     }
 }
 
@@ -1166,7 +1170,8 @@
 // ─── FOOTER ──────────────────────────────────
 .landing-footer {
     border-top: 1px solid var(--glass-border);
-    padding: var(--s7) var(--s6);
+    padding: var(--s6) var(--s6);
+    margin-top: 0;
 }
 
 .footer-inner {
@@ -1184,7 +1189,7 @@
     align-items: center;
     gap: var(--s2);
     font-family: var(--font-display);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
 }
 

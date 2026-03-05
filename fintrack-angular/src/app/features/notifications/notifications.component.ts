@@ -3,6 +3,8 @@ import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { DashboardService, NotificationService, TransactionService } from '../../core/services/api.services';
 import { DashboardData, Notification, Transaction } from '../../core/models/models';
 
+const DERIVED_ID_THRESHOLD = 10_000;
+
 @Component({
   selector: 'app-notifications',
   standalone: false,
@@ -15,11 +17,17 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
   loading                        = true;
   filterType                     = '';
+  selectedIds = new Set<number>();
 
   get unreadCount() { return this.notifications.filter(n => !n.isRead).length; }
   get filtered() {
     if (!this.filterType) return this.notifications;
     return this.notifications.filter(n => n.type === this.filterType);
+  }
+  get hasSelection() { return this.selectedIds.size > 0; }
+  get allFilteredSelected() {
+    const list = this.filtered;
+    return list.length > 0 && list.every(n => this.selectedIds.has(n.id));
   }
 
   constructor(
@@ -143,29 +151,97 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     return Math.round(diffMs / (1000 * 60 * 60 * 24));
   }
 
+  refresh(): void {
+    this.loadNotifications();
+  }
+
+  toggleSelection(id: number): void {
+    if (this.selectedIds.has(id)) this.selectedIds.delete(id);
+    else this.selectedIds.add(id);
+    this.selectedIds = new Set(this.selectedIds);
+    this.cdr.markForCheck();
+  }
+
+  isSelected(id: number): boolean { return this.selectedIds.has(id); }
+
+  selectAllFiltered(): void {
+    if (this.allFilteredSelected) {
+      this.filtered.forEach(n => this.selectedIds.delete(n.id));
+    } else {
+      this.filtered.forEach(n => this.selectedIds.add(n.id));
+    }
+    this.selectedIds = new Set(this.selectedIds);
+    this.cdr.markForCheck();
+  }
+
+  bulkMarkRead(): void {
+    const ids = Array.from(this.selectedIds);
+    const apiIds = ids.filter(id => id < DERIVED_ID_THRESHOLD);
+    const derivedIds = ids.filter(id => id >= DERIVED_ID_THRESHOLD);
+    this.notifications.forEach(n => {
+      if (derivedIds.includes(n.id)) n.isRead = true;
+    });
+    if (apiIds.length) {
+      apiIds.forEach(id =>
+        this.notifService.markRead(id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: () => {
+            const n = this.notifications.find(nn => nn.id === id);
+            if (n) n.isRead = true;
+            this.cdr.markForCheck();
+          },
+          error: () => {}
+        })
+      );
+    }
+    this.selectedIds = new Set();
+    this.cdr.markForCheck();
+  }
+
+  bulkDelete(): void {
+    const ids = Array.from(this.selectedIds);
+    ids.forEach(id => this.removeNotif(id));
+    this.selectedIds = new Set();
+    this.cdr.markForCheck();
+  }
+
   markRead(n: Notification): void {
     if (n.isRead) return;
+    if (n.id >= DERIVED_ID_THRESHOLD) {
+      n.isRead = true;
+      this.cdr.markForCheck();
+      return;
+    }
     this.notifService.markRead(n.id)
       .pipe(takeUntil(this.destroy$))
-      .subscribe({ next: () => n.isRead = true, error: () => {} });
+      .subscribe({ next: () => { n.isRead = true; this.cdr.markForCheck(); }, error: () => {} });
   }
 
   markAllRead(): void {
+    this.notifications.forEach(n => { n.isRead = true; });
     this.notifService.markAllRead()
       .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.notifications.forEach(n => n.isRead = true),
-        error: () => {}
-      });
+      .subscribe({ next: () => this.cdr.markForCheck(), error: () => this.cdr.markForCheck() });
   }
 
-  deleteNotif(id: number): void {
-    this.notifService.delete(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.notifications = this.notifications.filter(n => n.id !== id),
-        error: () => {}
-      });
+  /** Remove notification from list. For derived (id >= 10k) remove locally; for API call delete then remove. */
+  removeNotif(id: number): void {
+    if (id >= DERIVED_ID_THRESHOLD) {
+      this.notifications = this.notifications.filter(n => n.id !== id);
+      this.cdr.markForCheck();
+      return;
+    }
+    this.notifService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter(n => n.id !== id);
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
+  }
+
+  deleteNotif(id: number, event?: Event): void {
+    if (event) event.stopPropagation();
+    this.removeNotif(id);
   }
 
   getIcon(type: string): string {

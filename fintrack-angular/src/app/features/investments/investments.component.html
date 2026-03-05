@@ -10,6 +10,20 @@
   </button>
 </div>
 
+<!-- Goals insight -->
+<div class="insights-card" *ngIf="!loading && hasGoalsInsight">
+  <div class="insights-header">
+    <app-icon name="target" [size]="22"></app-icon>
+    <h3>Alignment with financial goals</h3>
+  </div>
+  <p class="insights-message">{{ goalsInsightMessage }}</p>
+  <div class="insights-stats">
+    <span>Portfolio value: <strong><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalValue) }}</strong></span>
+    <span>Active goals total: <strong><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(totalGoalsTarget) }}</strong></span>
+    <span class="insights-pct">{{ portfolioVsGoalsPct | number:'1.0-0' }}% of goals</span>
+  </div>
+</div>
+
 <!-- Portfolio Summary -->
 <div class="portfolio-summary" *ngIf="!loading && investments.length > 0">
   <div class="ps-card">

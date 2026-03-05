@@ -60,6 +60,20 @@
       </div>
 
       <div class="form-field">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrap">
+          <lucide-angular class="input-icon" name="lock" [size]="15"></lucide-angular>
+          <input class="input input-with-icon" [type]="showConfirmPw ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Re-enter password" autocomplete="new-password">
+          <button type="button" class="toggle-pw" (click)="showConfirmPw = !showConfirmPw">
+            <lucide-angular *ngIf="!showConfirmPw" name="eye" [size]="15"></lucide-angular>
+            <lucide-angular *ngIf="showConfirmPw" name="eye-off" [size]="15"></lucide-angular>
+          </button>
+        </div>
+        <span class="form-error" *ngIf="confirmPassword.touched && confirmPassword.errors?.['required']">Please confirm your password</span>
+        <span class="form-error" *ngIf="form.touched && form.errors?.['passwordMismatch']">Passwords do not match</span>
+      </div>
+
+      <div class="form-field">
         <label class="form-label">Currency</label>
         <div class="input-wrap">
           <lucide-angular class="input-icon" name="coins" [size]="15"></lucide-angular>

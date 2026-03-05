@@ -64,6 +64,7 @@
       <div class="bc-cat">
         <span class="bc-icon"><app-icon [name]="b.category?.icon || 'package'" [size]="16"></app-icon></span>
         <span class="bc-name">{{ b.category.name }}</span>
+        <span class="bc-period">{{ b.period || 'Monthly' }}</span>
       </div>
       <div class="bc-actions">
         <button class="btn-icon edit" (click)="openEdit(b)" title="Edit">
@@ -120,7 +121,15 @@
         <span class="form-error" *ngIf="budgetForm.get('categoryId')?.touched && budgetForm.get('categoryId')?.errors?.['required']">Required</span>
       </div>
       <div class="form-field">
-        <label class="form-label">Monthly Limit *</label>
+        <label class="form-label">Period</label>
+        <app-dropdown
+          formControlName="period"
+          [options]="periodOptions"
+          placeholder="Period">
+        </app-dropdown>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Amount Limit *</label>
         <input class="input" type="number" formControlName="amount" placeholder="0.00" min="1">
         <span class="form-error" *ngIf="budgetForm.get('amount')?.touched && budgetForm.get('amount')?.errors?.['required']">Required</span>
       </div>

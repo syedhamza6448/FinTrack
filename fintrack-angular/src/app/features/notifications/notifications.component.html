@@ -5,9 +5,21 @@
     <p *ngIf="unreadCount > 0">{{ unreadCount }} unread</p>
     <p *ngIf="unreadCount === 0">All caught up!</p>
   </div>
-  <div class="header-right" *ngIf="unreadCount > 0">
-    <button class="btn-ghost" (click)="markAllRead()">Mark all read</button>
+  <div class="header-right header-actions">
+    <button class="btn-ghost icon-btn" (click)="refresh()" title="Refresh">
+      <app-icon name="refresh-cw" [size]="18"></app-icon>
+      <span>Refresh</span>
+    </button>
+    <button class="btn-ghost" *ngIf="unreadCount > 0" (click)="markAllRead()">Mark all read</button>
   </div>
+</div>
+
+<!-- Selection toolbar -->
+<div class="selection-toolbar" *ngIf="hasSelection && !loading">
+  <button class="btn-ghost btn-sm" (click)="selectAllFiltered()">{{ allFilteredSelected ? 'Deselect all' : 'Select all' }}</button>
+  <button class="btn-ghost btn-sm" (click)="bulkMarkRead()">Mark read</button>
+  <button class="btn-ghost btn-sm danger" (click)="bulkDelete()">Delete</button>
+  <span class="selection-count">{{ selectedIds.size }} selected</span>
 </div>
 
 <!-- Filter -->
@@ -36,7 +48,12 @@
   <div class="notif-item"
        *ngFor="let n of filtered; trackBy: trackById"
        [class.unread]="!n.isRead"
+       [class.selected]="isSelected(n.id)"
        (click)="markRead(n)">
+
+    <div class="notif-checkbox" (click)="$event.stopPropagation()">
+      <input type="checkbox" [checked]="isSelected(n.id)" (change)="toggleSelection(n.id)">
+    </div>
 
     <div class="notif-icon" [class]="'notif-icon-' + getTypeClass(n.type)">
       <app-icon [name]="getIcon(n.type)" [size]="20"></app-icon>
@@ -50,7 +67,7 @@
 
     <div class="notif-right">
       <div class="unread-dot" *ngIf="!n.isRead"></div>
-      <button class="btn-icon-sm delete" (click)="deleteNotif(n.id); $event.stopPropagation()" title="Delete">
+      <button class="btn-icon-sm delete" (click)="deleteNotif(n.id, $event)" title="Delete">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>

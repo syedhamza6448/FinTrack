@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { ReportsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
+import { NetWorthReport } from '../../core/models/models';
 
 @Component({
   selector: 'app-reports',
@@ -17,13 +18,21 @@ export class ReportsComponent implements OnInit, OnDestroy {
   selectedYear = new Date().getFullYear();
   selectedMonth = this.currentMonthValue();
   selectedPeriod = 'Monthly';
+  reportScope: 'Monthly' | 'Quarterly' | 'Annual' = 'Monthly';
 
   monthlyTrend: any[] = [];
   topExpenseCategories: any[] = [];
   topIncomeCategories: any[] = [];
+  netWorth: NetWorthReport | null = null;
 
   years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   get yearOptions() { return this.years.map(y => ({ value: y, label: String(y) })); }
+
+  reportScopeOptions = [
+    { value: 'Monthly', label: 'Monthly' },
+    { value: 'Quarterly', label: 'Quarterly' },
+    { value: 'Annual', label: 'Annual' }
+  ];
 
   periodOptions = [
     { value: 'Monthly', label: 'Monthly' },
@@ -105,12 +114,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
     forkJoin({
       monthly: this.reportsService.getMonthly(this.selectedYear),
       expenseCategories: this.reportsService.getByCategory(this.selectedMonth, 'Expense'),
-      incomeCategories: this.reportsService.getByCategory(this.selectedMonth, 'Income')
+      incomeCategories: this.reportsService.getByCategory(this.selectedMonth, 'Income'),
+      netWorth: this.reportsService.getNetWorth()
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: res => {
         this.monthlyTrend = res.monthly ?? [];
         this.topExpenseCategories = res.expenseCategories ?? [];
         this.topIncomeCategories = res.incomeCategories ?? [];
+        this.netWorth = res.netWorth ?? null;
         this.updateBarChartData();
         this.updatePieChartData();
         this.loading = false;
@@ -118,6 +129,54 @@ export class ReportsComponent implements OnInit, OnDestroy {
       },
       error: () => { this.loading = false; this.cdr.markForCheck(); }
     });
+  }
+
+  /** Summary totals for the selected report scope (monthly / quarter / year). */
+  get summaryIncome(): number {
+    return this.aggregateTrend('income');
+  }
+  get summaryExpense(): number {
+    return this.aggregateTrend('expense');
+  }
+  get summarySavings(): number {
+    const trend = this.getTrendForScope();
+    return trend.reduce((s, m) => s + (m.savings != null ? m.savings : (m.income ?? 0) - (m.expense ?? 0)), 0);
+  }
+  get summaryNet(): number {
+    return this.summaryIncome - this.summaryExpense;
+  }
+  get summaryScopeLabel(): string {
+    if (this.reportScope === 'Annual') return `Year ${this.selectedYear}`;
+    if (this.reportScope === 'Quarterly') {
+      const [y, m] = this.selectedMonth.split('-').map(Number);
+      const q = Math.floor((m - 1) / 3) + 1;
+      return `Q${q} ${y}`;
+    }
+    const [y, m] = this.selectedMonth.split('-').map(Number);
+    return new Date(y, m - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+  }
+
+  private getTrendForScope(): any[] {
+    const [, moStr] = this.selectedMonth.split('-');
+    const mo = parseInt(moStr, 10);
+    if (this.reportScope === 'Monthly') {
+      const entry = this.monthlyTrend.find((m: any) =>
+        typeof m.month === 'number' ? m.month === mo : String(m.month) === this.selectedMonth
+      );
+      return entry ? [entry] : [];
+    }
+    if (this.reportScope === 'Quarterly') {
+      const startMonth = (Math.floor((mo - 1) / 3) * 3) + 1;
+      return this.monthlyTrend.filter((m: any) => {
+        const num = typeof m.month === 'number' ? m.month : parseInt(String(m.month).split('-')[1], 10) || 0;
+        return num >= startMonth && num < startMonth + 3;
+      });
+    }
+    return this.monthlyTrend;
+  }
+
+  private aggregateTrend(field: 'income' | 'expense'): number {
+    return this.getTrendForScope().reduce((s, m) => s + (m[field] ?? 0), 0);
   }
 
   onFilterChange(): void { this.loadReport(); }

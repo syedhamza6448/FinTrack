@@ -56,10 +56,58 @@
 
   <!-- Tabs -->
   <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'summary'" (click)="setTab('summary')">Summary Report</button>
     <button class="tab-btn" [class.active]="activeTab === 'monthly'" (click)="setTab('monthly')">Monthly Trend</button>
     <button class="tab-btn" [class.active]="activeTab === 'expenses'" (click)="setTab('expenses')">Expense
       Breakdown</button>
     <button class="tab-btn" [class.active]="activeTab === 'income'" (click)="setTab('income')">Income Sources</button>
+  </div>
+
+  <!-- Summary Report -->
+  <div class="card summary-report-card" *ngIf="activeTab === 'summary'">
+    <div class="card-header">
+      <h2 class="card-title">Financial Summary — {{ summaryScopeLabel }}</h2>
+      <app-dropdown class="filter-select" [value]="reportScope" [options]="reportScopeOptions" placeholder="Scope"
+        (valueChange)="reportScope = $event">
+      </app-dropdown>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-item income">
+        <span class="summary-label">Income</span>
+        <span class="summary-value positive"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(summaryIncome) }}</span>
+      </div>
+      <div class="summary-item expense">
+        <span class="summary-label">Expenses</span>
+        <span class="summary-value negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(summaryExpense) }}</span>
+      </div>
+      <div class="summary-item savings">
+        <span class="summary-label">Savings (period)</span>
+        <span class="summary-value accent"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(summarySavings) }}</span>
+      </div>
+      <div class="summary-item net" [class.surplus]="summaryNet >= 0" [class.deficit]="summaryNet < 0">
+        <span class="summary-label">Net</span>
+        <span class="summary-value" [class]="summaryNet >= 0 ? 'positive' : 'negative'"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(summaryNet) }}</span>
+      </div>
+    </div>
+    <div class="summary-divider" *ngIf="netWorth">Current snapshot</div>
+    <div class="summary-grid" *ngIf="netWorth">
+      <div class="summary-item">
+        <span class="summary-label">Savings (total)</span>
+        <span class="summary-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(netWorth.totalSavings) }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Investments</span>
+        <span class="summary-value"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(netWorth.totalInvestments) }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Debt</span>
+        <span class="summary-value negative"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(netWorth.totalDebt) }}</span>
+      </div>
+      <div class="summary-item highlight">
+        <span class="summary-label">Net Worth</span>
+        <span class="summary-value" [class]="netWorth.netWorth >= 0 ? 'positive' : 'negative'"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(netWorth.netWorth) }}</span>
+      </div>
+    </div>
   </div>
 
   <!-- Monthly Trend Chart -->
