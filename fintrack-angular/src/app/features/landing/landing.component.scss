@@ -2409,6 +2409,10 @@ $ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     .footer-links-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .feat-tab {
+        display: none;
+    }
 }
 
 @media (max-width: 900px) {
