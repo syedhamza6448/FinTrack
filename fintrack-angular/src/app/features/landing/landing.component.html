@@ -28,7 +28,7 @@
     </div>
 
     <div class="nav-actions auth-actions" *ngIf="isLoggedIn">
-      <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" title="Dashboard">
+      <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" [appTooltip]="'Dashboard'">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       </button>
       <button class="btn-ghost-nav icon-btn notif-btn" (click)="goToNotifications()">
@@ -38,14 +38,14 @@
       <div class="profile-menu-wrap">
         <button class="profile-trigger" (click)="toggleProfile()" [class.active]="profileOpen">
           <span class="avatar">{{ userInitials }}</span>
-          <span class="profile-name">{{ currentUser?.name?.split(' ')[0] || 'Account' }}</span>
+          <span class="profile-name">{{ displayName }}</span>
           <svg class="chevron" [class.flipped]="profileOpen" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="profile-dropdown" [class.open]="profileOpen">
           <div class="dropdown-header">
             <span class="avatar avatar-lg">{{ userInitials }}</span>
             <div>
-              <div class="dh-name">{{ currentUser?.name || 'User' }}</div>
+              <div class="dh-name">{{ currentUser?.fullName || 'User' }}</div>
               <div class="dh-email">{{ currentUser?.email || '' }}</div>
             </div>
           </div>
@@ -427,7 +427,7 @@
         Take control of your<br><em>financial future</em>
       </h2>
       <h2 class="cta-h2" *ngIf="isLoggedIn">
-        Welcome back,<br><em>{{ currentUser?.name?.split(' ')[0] || 'friend' }}</em>
+        Welcome back,<br><em>{{ currentUser?.fullName?.split(' ')[0] || 'friend' }}</em>
       </h2>
       <p class="cta-body" *ngIf="!isLoggedIn">Join 1,200+ people who finally know exactly where their money goes.</p>
       <p class="cta-body" *ngIf="isLoggedIn">Your dashboard is ready and waiting for you.</p>

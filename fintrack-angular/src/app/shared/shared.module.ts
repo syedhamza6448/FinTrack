@@ -115,6 +115,7 @@ import { AppIconComponent } from './components/app-icon/app-icon.component';
 import { AppDropdownComponent } from './components/app-dropdown/app-dropdown.component';
 import { IconPickerComponent } from './components/icon-picker/icon-picker.component';
 import { ColorPickerComponent } from './components/color-picker/color-picker.component';
+import { TooltipDirective } from './directives/tooltip.directive';
 
 @NgModule({
   declarations: [
@@ -129,6 +130,7 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    TooltipDirective,
     LucideAngularModule.pick({
       Wallet,
       CreditCard,
@@ -232,6 +234,7 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
     RouterModule,
     FormsModule,
     ReactiveFormsModule,
+    TooltipDirective,
     AbsPipe,
     AppIconComponent,
     AppDropdownComponent,

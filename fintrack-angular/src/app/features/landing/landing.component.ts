@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/api.services';
 
 interface Feature {
   icon: string;
@@ -125,7 +126,9 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private notificationService: NotificationService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -134,7 +137,28 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
     ).subscribe(user => {
       this.isLoggedIn  = !!user;
       this.currentUser = user;
+      this.cdr.markForCheck();
+      if (user) {
+        this.loadUnreadNotificationCount();
+      } else {
+        this.unreadCount = 0;
+      }
     });
+  }
+
+  private loadUnreadNotificationCount(): void {
+    this.notificationService.getUnreadCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.unreadCount = res.count ?? 0;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.unreadCount = 0;
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -176,9 +200,14 @@ export class LandingComponent implements OnInit, OnDestroy, AfterViewInit {
   toggleProfile(): void { this.profileOpen = !this.profileOpen; }
   toggleMenu():    void { this.menuOpen    = !this.menuOpen; }
 
+  get displayName(): string {
+    if (!this.currentUser?.fullName) return 'Account';
+    return this.currentUser.fullName.split(' ')[0];
+  }
+
   get userInitials(): string {
-    if (!this.currentUser?.name) return 'U';
-    return this.currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    if (!this.currentUser?.fullName) return 'U';
+    return this.currentUser.fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   get logoUrl(): string {

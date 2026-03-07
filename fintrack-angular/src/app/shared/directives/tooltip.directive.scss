@@ -1,0 +1,60 @@
+.app-tooltip {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.3px;
+  max-width: 200px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.app-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.app-tooltip.tooltip-top::before {
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px 4px 0 4px;
+  border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+}
+
+.app-tooltip.tooltip-bottom::before {
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 4px 4px 4px;
+  border-color: transparent transparent rgba(0, 0, 0, 0.9) transparent;
+}
+
+.app-tooltip.tooltip-left::before {
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 4px 0 4px 4px;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.9);
+}
+
+.app-tooltip.tooltip-right::before {
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 4px 4px 4px 0;
+  border-color: transparent rgba(0, 0, 0, 0.9) transparent transparent;
+}

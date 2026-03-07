@@ -87,9 +87,28 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.expenseService.getTopCategories(f.month || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: cats => { this.topCategories = cats ?? []; this.loadingCats = false; this.cdr.markForCheck(); },
+        next: cats => {
+          this.topCategories = cats ?? [];
+          this.calculateCategoryPercentages();
+          this.loadingCats = false;
+          this.cdr.markForCheck();
+        },
         error: () => { this.loadingCats = false; this.cdr.markForCheck(); }
       });
+  }
+
+  private calculateCategoryPercentages(): void {
+    if (!this.topCategories || this.topCategories.length === 0) return;
+
+    const totalExpenses = this.topCategories.reduce((sum, cat) => sum + (cat.total ?? 0), 0);
+
+    this.topCategories.forEach(cat => {
+      if (totalExpenses > 0) {
+        cat.percentage = (((cat.total ?? 0) / totalExpenses) * 100);
+      } else {
+        cat.percentage = 0;
+      }
+    });
   }
 
   loadCategories(): void {
