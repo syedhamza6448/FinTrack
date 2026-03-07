@@ -130,7 +130,12 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   openDeposit(id: number): void {
     this.depositGoalId = id;
+    const goal = this.goals.find(x => x.id === id);
+    const remaining = goal ? goal.targetAmount - goal.savedAmount : 0;
     this.depositForm.reset({ amount: null });
+    this.depositForm.get('amount')?.setValidators([Validators.required, Validators.min(0.01), Validators.max(remaining)]);
+    this.depositForm.get('amount')?.updateValueAndValidity();
+    this.modalError = '';
     this.showDepositModal = true;
   }
 
@@ -138,8 +143,15 @@ export class SavingsComponent implements OnInit, OnDestroy {
 
   onDeposit(): void {
     if (this.depositForm.invalid || !this.depositGoalId) return;
-    this.submitting = true;
+    const goal = this.goals.find(x => x.id === this.depositGoalId);
+    if (!goal) return;
+    const remaining = goal.targetAmount - goal.savedAmount;
     const amount = this.depositForm.value.amount;
+    if (amount > remaining) {
+      this.modalError = `Cannot deposit more than ${this.formatCurrency(remaining)} (remaining to reach target)`;
+      return;
+    }
+    this.submitting = true;
     this.savingsService.deposit(this.depositGoalId, amount)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -183,7 +195,7 @@ export class SavingsComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(n: number): string {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);

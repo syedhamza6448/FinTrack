@@ -323,14 +323,14 @@ export class EducationComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(n: number): string {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n ?? 0);
   }
 
   formatDate(d: string): string {
-    return new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   formatContent(content: string): string {

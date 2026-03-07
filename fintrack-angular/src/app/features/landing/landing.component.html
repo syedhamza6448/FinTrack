@@ -1,275 +1,522 @@
-<!-- ══════════════════════════════════════════
-     FINTRACK — LANDING PAGE
-     Navbar: guest → login/signup | auth → dashboard/notifs/profile
-     ══════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════
+     FINTRACK — LANDING PAGE v3 REDESIGN
+     Sections: Navbar · Hero+3D · Ticker · Stats · Features
+               How-it-works · Testimonials · CTA · Footer
+     ══════════════════════════════════════════════════════════ -->
 
-<!-- ─── NAVBAR ─── -->
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
 <header class="navbar" [class.scrolled]="scrolled">
-    <div class="nav-inner">
-  
-      <!-- Logo -->
-      <a class="nav-logo" routerLink="/">
-        <img [src]="logoUrl" alt="FinTrack" class="logo-img" />
-        <span class="logo-text">Fin<em>Track</em></span>
-      </a>
-  
-      <!-- Desktop Nav Links (center) -->
-      <nav class="nav-links" [class.open]="menuOpen">
-        <a class="nav-link" (click)="scrollToFeatures(); menuOpen=false">Features</a>
-        <a class="nav-link" routerLink="/education" (click)="menuOpen=false">Learn</a>
-        <a class="nav-link" routerLink="/reports" (click)="menuOpen=false">Reports</a>
-      </nav>
-  
-      <!-- ── GUEST NAV ── -->
-      <div class="nav-actions" *ngIf="!isLoggedIn">
-        <button class="btn-ghost-nav" (click)="goToLogin()">Log in</button>
-        <button class="btn-primary-nav" (click)="goToSignup()">Get started free</button>
-      </div>
-  
-      <!-- ── AUTH NAV ── -->
-      <div class="nav-actions auth-actions" *ngIf="isLoggedIn">
-  
-        <!-- Dashboard shortcut -->
-        <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" title="Dashboard">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-          </svg>
-          <span class="btn-label">Dashboard</span>
+  <div class="nav-inner">
+
+    <a class="nav-logo" routerLink="/">
+      <img [src]="logoUrl" alt="FinTrack" class="logo-img" />
+      <span class="logo-text">Fin<em>Track</em></span>
+    </a>
+
+    <nav class="nav-links">
+      <a class="nav-link" (click)="scrollToFeatures()">Features</a>
+      <a class="nav-link" routerLink="/education">Learn</a>
+      <a class="nav-link" routerLink="/reports">Reports</a>
+    </nav>
+
+    <div class="nav-actions" *ngIf="!isLoggedIn">
+      <button class="btn-ghost-nav" (click)="goToLogin()">Log in</button>
+      <button class="btn-primary-nav" (click)="goToSignup()">
+        Get started free
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+
+    <div class="nav-actions auth-actions" *ngIf="isLoggedIn">
+      <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" title="Dashboard">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </button>
+      <button class="btn-ghost-nav icon-btn notif-btn" (click)="goToNotifications()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+      </button>
+      <div class="profile-menu-wrap">
+        <button class="profile-trigger" (click)="toggleProfile()" [class.active]="profileOpen">
+          <span class="avatar">{{ userInitials }}</span>
+          <span class="profile-name">{{ currentUser?.name?.split(' ')[0] || 'Account' }}</span>
+          <svg class="chevron" [class.flipped]="profileOpen" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-  
-        <!-- Notifications -->
-        <button class="btn-ghost-nav icon-btn notif-btn" (click)="goToNotifications()" title="Notifications">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
-        </button>
-  
-        <!-- Profile menu -->
-        <div class="profile-menu-wrap">
-          <button class="profile-trigger" (click)="toggleProfile()" [class.active]="profileOpen">
-            <span class="avatar">{{ userInitials }}</span>
-            <span class="profile-name">{{ currentUser?.name?.split(' ')[0] || 'Account' }}</span>
-            <svg class="chevron" [class.flipped]="profileOpen" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+        <div class="profile-dropdown" [class.open]="profileOpen">
+          <div class="dropdown-header">
+            <span class="avatar avatar-lg">{{ userInitials }}</span>
+            <div>
+              <div class="dh-name">{{ currentUser?.name || 'User' }}</div>
+              <div class="dh-email">{{ currentUser?.email || '' }}</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" (click)="goToDashboard(); profileOpen=false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
           </button>
-  
-          <div class="profile-dropdown" [class.open]="profileOpen">
-            <div class="dropdown-header">
-              <span class="avatar avatar-lg">{{ userInitials }}</span>
-              <div>
-                <div class="dh-name">{{ currentUser?.name || 'User' }}</div>
-                <div class="dh-email">{{ currentUser?.email || '' }}</div>
+          <button class="dropdown-item" (click)="goToNotifications(); profileOpen=false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifications
+          </button>
+          <button class="dropdown-item" (click)="goToProfile()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile & Settings
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item danger" (click)="logout()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="mobile-menu-wrap" [class.open]="menuOpen">
+    <nav class="mobile-nav">
+      <a class="mobile-nav-link" (click)="scrollToFeatures(); menuOpen=false">Features</a>
+      <a class="mobile-nav-link" routerLink="/education" (click)="menuOpen=false">Learn</a>
+      <a class="mobile-nav-link" routerLink="/reports" (click)="menuOpen=false">Reports</a>
+    </nav>
+    <div class="mobile-nav-footer" *ngIf="!isLoggedIn">
+      <button class="btn-ghost-nav full" (click)="goToLogin(); menuOpen=false">Log in</button>
+      <button class="btn-primary-nav full" (click)="goToSignup(); menuOpen=false">Get started free</button>
+    </div>
+    <div class="mobile-nav-footer" *ngIf="isLoggedIn">
+      <button class="btn-primary-nav full" (click)="goToDashboard(); menuOpen=false">Go to Dashboard</button>
+    </div>
+  </div>
+</header>
+
+<!-- ─── MAIN ──────────────────────────────────────────────── -->
+<main class="landing-main">
+
+  <!-- ══ SECTION 1: HERO ══ -->
+  <section class="hero">
+
+    <!-- Atmosphere layers -->
+    <div class="hero-atmo" aria-hidden="true">
+      <div class="atmo-blob blob-1"></div>
+      <div class="atmo-blob blob-2"></div>
+      <div class="atmo-blob blob-3"></div>
+      <div class="atmo-grid"></div>
+      <div class="atmo-noise"></div>
+    </div>
+
+    <div class="hero-layout" [class.visible]="heroVisible">
+
+      <!-- Left: copy -->
+      <div class="hero-copy">
+        <div class="hero-kicker">
+          <span class="kicker-dot"></span>
+          Personal Finance · Reimagined for Nigeria
+        </div>
+
+        <h1 class="hero-h1">
+          <span class="h1-line">Your money.</span>
+          <span class="h1-line h1-accented">Finally <em>clear</em>.</span>
+          <span class="h1-line">Fully yours.</span>
+        </h1>
+
+        <p class="hero-sub">
+          One dashboard. Every account, budget, goal, investment and debt —
+          tracked automatically, visualised beautifully. No spreadsheets. No confusion.
+        </p>
+
+        <div class="hero-ctas" *ngIf="!isLoggedIn">
+          <button class="btn-lime" (click)="goToSignup()">
+            Start for free
+            <span class="btn-arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </button>
+          <button class="btn-outline" (click)="goToLogin()">Log in</button>
+        </div>
+        <div class="hero-ctas" *ngIf="isLoggedIn">
+          <button class="btn-lime" (click)="goToDashboard()">
+            Go to Dashboard
+            <span class="btn-arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </button>
+          <button class="btn-outline" (click)="scrollToFeatures()">Explore features</button>
+        </div>
+
+        <div class="hero-trust">
+          <div class="trust-faces">
+            <span class="trust-face tf1">AO</span>
+            <span class="trust-face tf2">BK</span>
+            <span class="trust-face tf3">CI</span>
+            <span class="trust-face tf4">DF</span>
+          </div>
+          <div class="trust-text">
+            <span class="trust-stars">★★★★★</span>
+            Trusted by <strong>1,200+</strong> users tracking their finances
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: 3D model + floating UI cards -->
+      <div class="hero-visual">
+        <!-- 3D Globe/Coin model via CSS + SVG -->
+        <div class="scene-3d" aria-hidden="true">
+          <div class="coin-wrapper">
+            <div class="coin">
+              <div class="coin-face coin-front">
+                <svg viewBox="0 0 120 120" width="120" height="120">
+                  <defs>
+                    <radialGradient id="cg1" cx="40%" cy="35%" r="60%">
+                      <stop offset="0%" stop-color="#d4ff70"/>
+                      <stop offset="100%" stop-color="#8cb800"/>
+                    </radialGradient>
+                    <filter id="inset">
+                      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                  </defs>
+                  <circle cx="60" cy="60" r="58" fill="url(#cg1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+                  <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(12,26,43,0.2)" stroke-width="1.5"/>
+                  <text x="60" y="52" text-anchor="middle" font-size="13" font-weight="800" fill="#0C1A2B" font-family="Outfit,sans-serif">FIN</text>
+                  <text x="60" y="70" text-anchor="middle" font-size="13" font-weight="800" fill="#0C1A2B" font-family="Outfit,sans-serif">TRACK</text>
+                  <path d="M30 80 Q60 90 90 80" stroke="rgba(12,26,43,0.2)" stroke-width="1.5" fill="none"/>
+                  <circle cx="60" cy="60" r="55" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                </svg>
+              </div>
+              <div class="coin-edge"></div>
+            </div>
+            <!-- Orbit rings -->
+            <div class="orbit orbit-1">
+              <div class="orbit-dot"></div>
+            </div>
+            <div class="orbit orbit-2">
+              <div class="orbit-dot"></div>
+            </div>
+          </div>
+
+          <!-- Particles -->
+          <div class="particle p1"></div>
+          <div class="particle p2"></div>
+          <div class="particle p3"></div>
+          <div class="particle p4"></div>
+          <div class="particle p5"></div>
+          <div class="particle p6"></div>
+        </div>
+
+        <!-- Floating dashboard card -->
+        <div class="float-card fc-main">
+          <div class="fc-row">
+            <span class="fc-label">Net Worth</span>
+            <span class="fc-live"><span class="live-dot"></span>Live</span>
+          </div>
+          <div class="fc-amount">$24,850,000</div>
+          <div class="fc-delta positive">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            +8.2% this month
+          </div>
+          <svg class="fc-spark" viewBox="0 0 160 36" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="spg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#B6FF3B" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#B6FF3B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="spark-line" d="M0,30 C20,26 36,22 56,16 S90,10 110,6 S140,2 160,1" fill="none" stroke="#B6FF3B" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M0,30 C20,26 36,22 56,16 S90,10 110,6 S140,2 160,1 L160,36 L0,36Z" fill="url(#spg)"/>
+          </svg>
+          <div class="fc-bars">
+            <div class="fc-bar-row">
+              <span>Savings</span>
+              <div class="bar-track"><div class="bar-fill" style="width:72%;background:var(--accent)"></div></div>
+              <span>72%</span>
+            </div>
+            <div class="fc-bar-row">
+              <span>Budget</span>
+              <div class="bar-track"><div class="bar-fill" style="width:54%;background:var(--info)"></div></div>
+              <span>54%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chip: Income -->
+        <div class="float-chip chip-a">
+          <div class="chip-icon" style="color:var(--positive)">$</div>
+          <div>
+            <div class="chip-label">Income</div>
+            <div class="chip-val" style="color:var(--positive)">$1,840,000</div>
+          </div>
+        </div>
+
+        <!-- Chip: Goal -->
+        <div class="float-chip chip-b">
+          <div class="chip-icon" style="color:var(--accent)">✓</div>
+          <div>
+            <div class="chip-label">Goal reached</div>
+            <div class="chip-val" style="color:var(--accent)">Emergency Fund</div>
+          </div>
+        </div>
+
+        <!-- Chip: Alert -->
+        <div class="float-chip chip-c">
+          <div class="chip-icon" style="color:var(--warning)">!</div>
+          <div>
+            <div class="chip-label">Budget alert</div>
+            <div class="chip-val" style="color:var(--warning)">Food 87% used</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <button class="scroll-hint" (click)="scrollToFeatures()" aria-label="Scroll down">
+      <div class="scroll-wheel-wrap">
+        <div class="scroll-wheel"></div>
+      </div>
+      <span>Scroll to explore</span>
+    </button>
+  </section>
+
+  <!-- ══ SECTION 2: LIVE TICKER ══ -->
+  <div class="ticker-section" aria-hidden="true">
+    <div class="ticker-mask">
+      <div class="ticker-track">
+        <ng-container *ngFor="let _ of [1,2,3]">
+          <span class="tick-item" *ngFor="let t of tickerItems" [class.neg]="!t.positive">
+            <span class="tick-dot"></span>
+            <span class="tick-label">{{ t.label }}</span>
+            <span class="tick-val">{{ t.val }}</span>
+          </span>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3: STATS ══ -->
+  <section class="stats-section">
+    <div class="stats-inner">
+      <div class="stat-card reveal" *ngFor="let s of stats; let i = index" [style.--d]="(i * 80) + 'ms'">
+        <div class="stat-num">{{ s.value }}<sup>{{ s.suffix }}</sup></div>
+        <div class="stat-lbl">{{ s.label }}</div>
+        <div class="stat-glow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 4: FEATURES — SCROLL TABS ══ -->
+  <section class="features-section" id="features">
+    <div class="features-container">
+
+      <div class="section-head reveal">
+        <div class="eyebrow">— Everything you need</div>
+        <h2 class="section-h2">Built for serious<br><em>financial clarity</em></h2>
+        <p class="section-lead">8 purpose-built modules. No bloat, no noise — just what you need to finally understand your money.</p>
+      </div>
+
+      <!-- Scrollable feature tabs + detail panel -->
+      <div class="feat-layout reveal">
+
+        <!-- Left: tab list -->
+        <div class="feat-tabs">
+          <button
+            class="feat-tab"
+            *ngFor="let f of features; let i = index"
+            [class.active]="activeFeature === i"
+            [class]="'feat-tab fc-' + f.color"
+            (click)="setActiveFeature(i)">
+            <div class="tab-icon" [class]="'ti-' + f.color">
+              <app-icon [name]="f.icon" [size]="20"></app-icon>
+            </div>
+            <span class="tab-label">{{ f.title }}</span>
+            <svg class="tab-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+        <!-- Right: detail panel -->
+        <div class="feat-detail">
+          <ng-container *ngFor="let f of features; let i = index">
+            <div class="feat-panel" [class.active]="activeFeature === i" [class]="'fp-' + f.color">
+              <div class="fp-icon-wrap" [class]="'fpw-' + f.color">
+                <app-icon [name]="f.icon" [size]="40"></app-icon>
+              </div>
+              <h3 class="fp-title">{{ f.title }}</h3>
+              <p class="fp-desc">{{ f.desc }}</p>
+              <div class="fp-tags">
+                <span class="fp-tag">Real-time</span>
+                <span class="fp-tag">Mobile-ready</span>
+                <span class="fp-tag">Free</span>
               </div>
             </div>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item" (click)="goToDashboard(); profileOpen=false">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              Dashboard
-            </button>
-            <button class="dropdown-item" (click)="goToNotifications(); profileOpen=false">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              Notifications
-              <span class="item-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-            </button>
-            <button class="dropdown-item" (click)="goToProfile()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              Profile & Settings
-            </button>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item danger" (click)="logout()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Sign out
-            </button>
-          </div>
+          </ng-container>
         </div>
       </div>
-  
-      <!-- Mobile hamburger -->
-      <button class="hamburger" (click)="toggleMenu()" [class.open]="menuOpen" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-  
-    </div>
-  
-    <!-- Mobile menu drawer -->
-    <div class="mobile-menu-wrap" [class.open]="menuOpen">
-      <nav class="mobile-nav">
-        <a class="mobile-nav-link" (click)="scrollToFeatures(); menuOpen=false">Features</a>
-        <a class="mobile-nav-link" routerLink="/education" (click)="menuOpen=false">Learn</a>
-        <a class="mobile-nav-link" routerLink="/reports" (click)="menuOpen=false">Reports</a>
-      </nav>
-      <div class="mobile-nav-footer" *ngIf="!isLoggedIn">
-        <button class="btn-ghost-nav full" (click)="goToLogin(); menuOpen=false">Log in</button>
-        <button class="btn-primary-nav full" (click)="goToSignup(); menuOpen=false">Get started free</button>
+
+      <!-- Also: feature grid (small cards below) -->
+      <div class="feat-mini-grid reveal">
+        <div class="feat-mini" *ngFor="let f of features; let i = index"
+             [class]="'fm-' + f.color"
+             [style.--d]="(i * 60) + 'ms'"
+             (click)="setActiveFeature(i)">
+          <div class="fm-icon" [class]="'fmi-' + f.color">
+            <app-icon [name]="f.icon" [size]="22"></app-icon>
+          </div>
+          <span class="fm-title">{{ f.title }}</span>
+        </div>
       </div>
-      <div class="mobile-nav-footer" *ngIf="isLoggedIn">
-        <button class="btn-primary-nav full" (click)="goToDashboard(); menuOpen=false">Go to Dashboard</button>
-        <button class="btn-ghost-nav full danger" (click)="logout()">Sign out</button>
+
+    </div>
+  </section>
+
+  <!-- ══ SECTION 5: HOW IT WORKS ══ -->
+  <section class="how-section">
+    <div class="how-container">
+      <div class="section-head reveal">
+        <div class="eyebrow">— Simple by design</div>
+        <h2 class="section-h2">Up and running<br>in <em>3 steps</em></h2>
+      </div>
+      <div class="how-steps">
+        <div class="how-step reveal" *ngFor="let s of howSteps; let i = index; let last = last" [style.--d]="(i * 120) + 'ms'">
+          <div class="hs-num">{{ s.num }}</div>
+          <div class="hs-connector" *ngIf="!last"></div>
+          <div class="hs-icon-wrap">
+            <app-icon [name]="s.icon" [size]="28"></app-icon>
+          </div>
+          <h3 class="hs-title">{{ s.title }}</h3>
+          <p class="hs-desc">{{ s.desc }}</p>
+        </div>
       </div>
     </div>
-  </header>
-  
-  <!-- ─── HERO ─── -->
-  <main class="landing-main">
-    <section class="hero">
-      <div class="hero-bg">
-        <div class="hero-orb orb-1"></div>
-        <div class="hero-orb orb-2"></div>
-        <div class="hero-grid"></div>
+  </section>
+
+  <!-- ══ SECTION 6: TESTIMONIALS ══ -->
+  <section class="testimonials-section">
+    <div class="test-container">
+      <div class="section-head reveal">
+        <div class="eyebrow">— What users say</div>
+        <h2 class="section-h2">Loved by thousands<br>across <em>Nigeria</em></h2>
       </div>
-  
-      <div class="hero-content">
-        <div class="hero-badge">
-          <span class="badge-dot"></span>
-          Personal Finance · Reimagined
-        </div>
-  
-        <h1 class="hero-title">
-          Your money,<br>
-          <em>finally</em> under<br>
-          control.
-        </h1>
-  
-        <p class="hero-sub">
-          FinTrack gives you a complete 360° view of your finances: set category budgets with alerts,
-          track income and expenses, hit savings goals, monitor investments and debt, and generate
-          monthly, quarterly, or annual reports. All in one clean, fast dashboard.
-        </p>
-  
-        <div class="hero-cta" *ngIf="!isLoggedIn">
-          <button class="cta-primary" (click)="goToSignup()">
-            Start for free
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-          <button class="cta-secondary" (click)="goToLogin()">Log in to your account</button>
-        </div>
-  
-        <div class="hero-cta" *ngIf="isLoggedIn">
-          <button class="cta-primary" (click)="goToDashboard()">
-            Go to Dashboard
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-          <button class="cta-secondary" (click)="scrollToFeatures()">Explore features</button>
-        </div>
-  
-        <div class="hero-scroll-hint" (click)="scrollToFeatures()">
-          <div class="scroll-wheel"></div>
-          <span>Scroll to explore</span>
-        </div>
-      </div>
-  
-      <!-- Floating dashboard preview card -->
-      <div class="hero-preview">
-        <div class="preview-card">
-          <div class="pc-header">
-            <span class="pc-title">Total Balance</span>
-            <span class="pc-badge">● Live</span>
+      <div class="test-grid">
+        <div class="test-card reveal" *ngFor="let t of testimonials; let i = index" [style.--d]="(i * 80) + 'ms'">
+          <div class="test-stars">
+            <span *ngFor="let s of starArray">★</span>
           </div>
-          <div class="pc-amount">₦24,500,000</div>
-          <div class="pc-delta">↑ 8.2% vs last month</div>
-          <div class="pc-bars">
-            <div class="pc-bar-row">
-              <span>Savings</span>
-              <div class="pc-track"><div class="pc-fill fill-accent" style="width:72%"></div></div>
-              <span class="pc-pct">72%</span>
-            </div>
-            <div class="pc-bar-row">
-              <span>Budget</span>
-              <div class="pc-track"><div class="pc-fill fill-info" style="width:54%"></div></div>
-              <span class="pc-pct">54%</span>
-            </div>
-            <div class="pc-bar-row">
-              <span>Debt</span>
-              <div class="pc-track"><div class="pc-fill fill-negative" style="width:38%"></div></div>
-              <span class="pc-pct">38%</span>
+          <p class="test-quote">"{{ t.quote }}"</p>
+          <div class="test-author">
+            <div class="test-avatar">{{ t.avatar }}</div>
+            <div>
+              <div class="test-name">{{ t.name }}</div>
+              <div class="test-role">{{ t.role }}</div>
             </div>
           </div>
         </div>
-  
-        <div class="preview-card mini" style="top: 260px; right: -32px;">
-          <div class="mc-icon" style="background:var(--positive-dim);color:var(--positive)">₦</div>
-          <div>
-            <div class="mc-label">Income this month</div>
-            <div class="mc-val">₦1,840,000</div>
-          </div>
-        </div>
-  
-        <div class="preview-card mini" style="top: 340px; left: -32px;">
-          <div class="mc-icon" style="background:var(--accent-dim);color:var(--accent)"><app-icon name="target" [size]="20"></app-icon></div>
-          <div>
-            <div class="mc-label">Goal reached</div>
-            <div class="mc-val">Emergency Fund</div>
-          </div>
-        </div>
       </div>
-    </section>
-  
-    <!-- ─── STATS STRIP ─── -->
-    <section class="stats-strip">
-      <div class="stats-inner">
-        <div class="stat-item" *ngFor="let s of stats">
-          <div class="stat-value">{{ s.value }}<span class="stat-suffix">{{ s.suffix }}</span></div>
-          <div class="stat-label">{{ s.label }}</div>
-        </div>
-      </div>
-    </section>
-  
-    <!-- ─── FEATURES ─── -->
-    <section class="features" id="features">
-      <div class="section-wrap">
-        <div class="section-eyebrow">Everything you need</div>
-        <h2 class="section-title">Built for serious financial clarity</h2>
-        <p class="section-sub">Dashboard, transactions, budgets, savings goals, investments, debt tracking, reports, and education — all in one place. No bloat, no noise.</p>
-  
-        <div class="features-grid">
-          <div class="feature-card" *ngFor="let f of features; let i = index" [style.--delay]="i * 80 + 'ms'">
-            <div class="feature-icon" [class]="'icon-' + f.color"><app-icon [name]="f.icon" [size]="28"></app-icon></div>
-            <h3 class="feature-title">{{ f.title }}</h3>
-            <p class="feature-desc">{{ f.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  
-    <!-- ─── CTA BOTTOM ─── -->
-    <section class="cta-section">
+    </div>
+  </section>
+
+  <!-- ══ SECTION 7: FINAL CTA ══ -->
+  <section class="cta-section">
+    <div class="cta-atmo" aria-hidden="true">
       <div class="cta-glow"></div>
-      <div class="cta-inner">
-        <h2 class="cta-title" *ngIf="!isLoggedIn">Ready to take control?</h2>
-        <h2 class="cta-title" *ngIf="isLoggedIn">Welcome back, {{ currentUser?.name?.split(' ')[0] }}</h2>
-        <p class="cta-sub" *ngIf="!isLoggedIn">Join thousands of people who finally understand where their money goes.</p>
-        <p class="cta-sub" *ngIf="isLoggedIn">Your dashboard is ready and waiting for you.</p>
-        <div class="cta-buttons">
-          <button class="cta-primary" *ngIf="!isLoggedIn" (click)="goToSignup()">
-            Create free account
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-          <button class="cta-primary" *ngIf="isLoggedIn" (click)="goToDashboard()">
-            Go to Dashboard
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-          <button class="cta-secondary" *ngIf="!isLoggedIn" (click)="goToLogin()">Already have an account</button>
-        </div>
+      <div class="cta-grid"></div>
+    </div>
+    <div class="cta-inner reveal">
+      <div class="eyebrow">— Start today. Free forever.</div>
+      <h2 class="cta-h2" *ngIf="!isLoggedIn">
+        Take control of your<br><em>financial future</em>
+      </h2>
+      <h2 class="cta-h2" *ngIf="isLoggedIn">
+        Welcome back,<br><em>{{ currentUser?.name?.split(' ')[0] || 'friend' }}</em>
+      </h2>
+      <p class="cta-body" *ngIf="!isLoggedIn">Join 1,200+ people who finally know exactly where their money goes.</p>
+      <p class="cta-body" *ngIf="isLoggedIn">Your dashboard is ready and waiting for you.</p>
+      <div class="cta-btns">
+        <button class="btn-lime large" *ngIf="!isLoggedIn" (click)="goToSignup()">
+          Create free account
+          <span class="btn-arrow">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </button>
+        <button class="btn-lime large" *ngIf="isLoggedIn" (click)="goToDashboard()">
+          Go to Dashboard
+          <span class="btn-arrow">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </button>
+        <button class="btn-outline large" *ngIf="!isLoggedIn" (click)="goToLogin()">Log in to account</button>
       </div>
-    </section>
-  
-    <!-- ─── FOOTER ─── -->
-    <footer class="landing-footer">
-      <div class="footer-inner">
-        <div class="footer-logo">
+      <p class="cta-note">No credit card. No hidden fees. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <!-- ══ SECTION 8: FOOTER ══ -->
+  <footer class="site-footer">
+
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="footer-logo" routerLink="/">
           <img [src]="logoUrl" alt="FinTrack" class="logo-img" />
           <span class="logo-text">Fin<em>Track</em></span>
-        </div>
-        <p class="footer-copy">© 2026 FinTrack. Your finances, your future.</p>
-        <div class="footer-links">
-          <a routerLink="/education">Learn</a>
-          <a *ngIf="!isLoggedIn" routerLink="/auth/login">Login</a>
-          <a routerLink="/auth/register">Register</a>
+        </a>
+        <p class="footer-tagline">
+          Your complete financial operating system. Track, plan, and grow — all in one place.
+        </p>
+        <div class="footer-social">
+          <!-- Twitter/X -->
+          <a class="social-btn" href="#" aria-label="Twitter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.737-8.828-8.162-10.672h7.155l4.267 5.639zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <!-- LinkedIn -->
+          <a class="social-btn" href="#" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <!-- GitHub -->
+          <a class="social-btn" href="#" aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          </a>
         </div>
       </div>
-    </footer>
-  </main>
+
+      <div class="footer-links-grid">
+        <div class="footer-col">
+          <h4 class="footer-col-title">Product</h4>
+          <a class="footer-link" *ngFor="let l of footerProduct" [routerLink]="l.route">{{ l.label }}</a>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Tools</h4>
+          <a class="footer-link" *ngFor="let l of footerTools" [routerLink]="l.route">{{ l.label }}</a>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Account</h4>
+          <a class="footer-link" *ngFor="let l of footerAccount" [routerLink]="l.route">{{ l.label }}</a>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Stay updated</h4>
+          <p class="footer-newsletter-text">Get financial tips and product updates.</p>
+          <div class="footer-newsletter">
+            <input class="newsletter-input" type="email" placeholder="Enter your email" />
+            <button class="newsletter-btn">→</button>
+          </div>
+          <p class="footer-legal-small">No spam, ever. Unsubscribe anytime.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 FinTrack · Built with purpose for financial clarity.</p>
+      <div class="footer-badges">
+        <span class="footer-badge">🔒 Secure</span>
+        <span class="footer-badge">⚡ Fast</span>
+        <span class="footer-badge">♾ Free</span>
+      </div>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+
+  </footer>
+
+</main>

@@ -196,14 +196,14 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     }
 
     formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('en-NG', {
+        return new Intl.NumberFormat('en-US', {
             style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
         }).format(amount);
     }
 
     formatDate(d: string): string {
-        return new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+        return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
     getTypeClass(type: string): string { return type === 'Income' ? 'income' : 'expense'; }

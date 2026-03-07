@@ -173,15 +173,27 @@ export class DebtComponent implements OnInit, OnDestroy {
 
     openPayment(id: number): void {
         this.payingId = id;
+        const debt = this.debts.find(d => d.id === id);
+        const maxPayment = debt ? debt.balance : 0;
         this.paymentForm.reset({ amount: null });
+        this.paymentForm.get('amount')?.setValidators([Validators.required, Validators.min(0.01), Validators.max(maxPayment)]);
+        this.paymentForm.get('amount')?.updateValueAndValidity();
+        this.modalError = '';
         this.showPaymentModal = true;
     }
     closePayment(): void { this.showPaymentModal = false; }
 
     onPayment(): void {
         if (this.paymentForm.invalid || !this.payingId) return;
+        const debt = this.debts.find(d => d.id === this.payingId);
+        if (!debt) return;
+        const amount = this.paymentForm.value.amount;
+        if (amount > debt.balance) {
+            this.modalError = `Cannot pay more than the remaining balance of ${this.formatCurrency(debt.balance)}`;
+            return;
+        }
         this.submitting = true;
-        this.debtService.recordPayment(this.payingId, this.paymentForm.value.amount)
+        this.debtService.recordPayment(this.payingId, amount)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: () => { this.submitting = false; this.showPaymentModal = false; this.loadDebts(); },
@@ -222,7 +234,7 @@ export class DebtComponent implements OnInit, OnDestroy {
     }
 
     formatCurrency(n: number): string {
-        return new Intl.NumberFormat('en-NG', {
+        return new Intl.NumberFormat('en-US', {
             style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
         }).format(n);

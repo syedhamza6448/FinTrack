@@ -266,6 +266,8 @@
           *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.errors?.['required']">Required</span>
         <span class="form-error"
           *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.errors?.['min']">Must be > 0</span>
+        <span class="form-error"
+          *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.errors?.['max']">Cannot exceed remaining balance</span>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-ghost" (click)="closePayment()">Cancel</button>

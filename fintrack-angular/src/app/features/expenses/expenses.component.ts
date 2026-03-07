@@ -83,8 +83,8 @@ export class ExpensesComponent implements OnInit, OnDestroy {
 
   loadTopCategories(): void {
     this.loadingCats = true;
-    const month = this.filterForm.get('month')?.value;
-    this.expenseService.getTopCategories(month || undefined)
+    const f = this.filterForm.value;
+    this.expenseService.getTopCategories(f.month || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: cats => { this.topCategories = cats ?? []; this.loadingCats = false; this.cdr.markForCheck(); },
@@ -110,7 +110,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
 
   // ─── Helpers ────────────────────────────────
   formatCurrency(n: number): string {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);

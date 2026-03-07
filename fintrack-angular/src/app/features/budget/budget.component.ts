@@ -144,7 +144,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
   getBarWidth(pct: number): string { return `${Math.min(pct, 100)}%`; }
 
   formatCurrency(n: number): string {
-    return new Intl.NumberFormat('en-NG', {
+    return new Intl.NumberFormat('en-US', {
       style: 'decimal',
       minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n);

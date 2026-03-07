@@ -67,7 +67,7 @@ export class AuthService {
     this.currentUserSubject.next(updated);
   }
 
-  get userCurrency(): string { return this.getCurrentUser()?.currency ?? 'NGN'; }
+  get userCurrency(): string { return this.getCurrentUser()?.currency ?? 'USD'; }
   get userTheme(): string    { return this.getCurrentUser()?.theme    ?? 'dark'; }
 
   private storeAuth(res: AuthResponse): void {
