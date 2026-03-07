@@ -111,12 +111,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private updatePieChart(): void {
-    const colors = ['#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0', '#00bcd4', '#795548'];
+    const defaultColors = ['#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0', '#00bcd4', '#795548'];
     this.pieChartData = {
       labels: this.topCategories.map(c => c.categoryName ?? ''),
       datasets: [{
         data: this.topCategories.map(c => c.total ?? 0),
-        backgroundColor: this.topCategories.map((_, i) => colors[i % colors.length])
+        backgroundColor: this.topCategories.map((cat, i) => cat.color ?? defaultColors[i % defaultColors.length])
       }]
     };
   }

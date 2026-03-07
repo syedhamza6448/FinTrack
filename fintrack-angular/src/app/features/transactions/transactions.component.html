@@ -81,7 +81,7 @@
           <div class="txn-notes" *ngIf="txn.notes">{{ txn.notes }}</div>
         </td>
         <td>
-          <span class="category-chip">
+          <span class="category-chip" [style.color]="txn.category?.color || null">
             <app-icon [name]="txn.category?.icon" [size]="14"></app-icon>
             {{ txn.category?.name }}
           </span>

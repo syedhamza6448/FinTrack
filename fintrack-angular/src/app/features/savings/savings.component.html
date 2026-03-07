@@ -53,7 +53,7 @@
 
     <div class="gc-header">
       <div class="gc-icon-wrap">
-        <span class="gc-icon"><app-icon [name]="g.icon || 'target'" [size]="18"></app-icon></span>
+        <span class="gc-icon" [style.color]="g.color || '#B6FF3B'"><app-icon [name]="g.icon || 'target'" [size]="18"></app-icon></span>
       </div>
       <div class="gc-title-wrap">
         <span class="gc-name">{{ g.name }}</span>
@@ -89,11 +89,11 @@
       <div class="gc-ring-wrap">
         <svg class="gc-ring" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="34" fill="none" stroke="var(--glass-02)" stroke-width="7" />
-          <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"
+          <circle cx="40" cy="40" r="34" fill="none" [attr.stroke]="g.color || '#B6FF3B'" stroke-width="7" stroke-linecap="round"
             [style.stroke-dasharray]="213.6" [style.stroke-dashoffset]="213.6 - (213.6 * g.progressPercent / 100)"
             transform="rotate(-90 40 40)" />
         </svg>
-        <span class="gc-ring-pct">{{ g.progressPercent | number:'1.0-0' }}%</span>
+        <span class="gc-ring-pct" [style.color]="g.color || '#B6FF3B'">{{ g.progressPercent | number:'1.0-0' }}%</span>
       </div>
       <div class="gc-amounts">
         <div class="gc-saved">
@@ -112,7 +112,7 @@
     </div>
 
     <div class="gc-bar-track">
-      <div class="gc-bar-fill" [style.width]="getBarWidth(g.progressPercent)"
+      <div class="gc-bar-fill" [style.width]="getBarWidth(g.progressPercent)" [style.background]="g.color || '#B6FF3B'"
         [class.completed]="g.status === 'Completed'"></div>
     </div>
 

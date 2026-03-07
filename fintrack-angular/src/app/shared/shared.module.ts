@@ -47,6 +47,8 @@ import {
   Music,
   Clapperboard,
   Gamepad2,
+  Film,
+  Database,
   // Shopping & Food
   Utensils,
   Coffee,
@@ -93,6 +95,7 @@ import {
   Map,
   Newspaper,
   Zap,
+  Download,
   // Layout / Navigation
   LayoutGrid,
   LayoutDashboard,
@@ -103,7 +106,9 @@ import {
   Mail,
   Lock,
   Moon,
-  Sun
+  Sun,
+  UserPlus,
+  Lightbulb
 } from 'lucide-angular';
 import { AbsPipe } from './pipes/abs.pipe';
 import { AppIconComponent } from './components/app-icon/app-icon.component';
@@ -163,6 +168,8 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
       Music,
       Clapperboard,
       Gamepad2,
+      Film,
+      Database,
       Utensils,
       Coffee,
       ShoppingCart,
@@ -206,6 +213,7 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
       Map,
       Newspaper,
       Zap,
+      Download,
       LayoutGrid,
       LayoutDashboard,
       Settings,
@@ -214,7 +222,9 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
       Mail,
       Lock,
       Moon,
-      Sun
+      Sun,
+      UserPlus,
+      Lightbulb
     })
   ],
   exports: [

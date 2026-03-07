@@ -62,7 +62,7 @@
 
     <div class="bc-header">
       <div class="bc-cat">
-        <span class="bc-icon"><app-icon [name]="b.category?.icon || 'package'" [size]="16"></app-icon></span>
+        <span class="bc-icon" [style.color]="b.category?.color || null"><app-icon [name]="b.category?.icon || 'package'" [size]="16"></app-icon></span>
         <span class="bc-name">{{ b.category.name }}</span>
         <span class="bc-period">{{ b.period || 'Monthly' }}</span>
       </div>
@@ -83,7 +83,8 @@
 
     <div class="bc-track">
       <div class="bc-fill" [class]="getStatusClass(b.status)"
-           [style.width]="getBarWidth(b.percentUsed)"></div>
+           [style.width]="getBarWidth(b.percentUsed)"
+           [style.background]="b.category?.color || null"></div>
     </div>
 
     <div class="bc-footer">

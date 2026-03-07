@@ -124,12 +124,12 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     return `${Math.min(percentage, 100)}%`;
   }
 
-  getCategoryColor(index: number): string {
+  getCategoryColor(cat: CategoryReport): string {
+    if (cat.color) return cat.color;
     const colors = [
-      'var(--negative)', 'var(--accent)', 'var(--info)',
-      'var(--positive)', 'var(--purple)'
+      '#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0'
     ];
-    return colors[index % colors.length];
+    return colors[Math.abs(cat.categoryId ?? 0) % colors.length];
   }
 
   private currentMonthValue(): string {

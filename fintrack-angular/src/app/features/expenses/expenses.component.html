@@ -53,7 +53,7 @@
     <div class="cat-bars" *ngIf="!loadingCats && topCategories.length > 0">
       <div class="cat-bar-item" *ngFor="let cat of topCategories; let i = index; trackBy: trackByIndex">
         <div class="cat-bar-top">
-          <span class="cat-bar-name"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
+          <span class="cat-bar-name" [style.color]="getCategoryColor(cat)"><app-icon [name]="cat.icon" [size]="14"></app-icon> {{ cat.categoryName }}</span>
           <div class="cat-bar-right">
             <span class="cat-bar-pct">{{ cat.percentage | number:'1.0-0' }}%</span>
             <span class="cat-bar-amount"><span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(cat.total) }}</span>
@@ -62,7 +62,7 @@
         <div class="cat-bar-track">
           <div class="cat-bar-fill"
                [style.width]="getBarWidth(cat.percentage)"
-               [style.background]="getCategoryColor(i)">
+               [style.background]="getCategoryColor(cat)">
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@
           <div class="txn-notes" *ngIf="exp.notes">{{ exp.notes }}</div>
         </td>
         <td>
-          <span class="category-chip"><app-icon [name]="exp.category?.icon" [size]="14"></app-icon> {{ exp.category?.name }}</span>
+          <span class="category-chip" [style.color]="exp.category?.color || null"><app-icon [name]="exp.category?.icon" [size]="14"></app-icon> {{ exp.category?.name }}</span>
         </td>
         <td class="text-secondary">{{ formatDate(exp.date) }}</td>
         <td class="text-right">

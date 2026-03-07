@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { ReportsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
@@ -108,6 +108,155 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void { this.loadReport(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  downloadPDF(): void {
+    const monthLabel = this.summaryScopeLabel;
+    const docTitle = `FinTrack Report - ${monthLabel}`;
+
+    const html = `
+      <html>
+        <head>
+          <title>${docTitle}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+            h1 { color: #333; border-bottom: 3px solid #4caf50; padding-bottom: 10px; }
+            h2 { color: #666; margin-top: 30px; border-left: 4px solid #2196f3; padding-left: 10px; }
+            .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+            .summary-card { background: #f9f9f9; padding: 15px; border-radius: 6px; border-left: 4px solid #666; }
+            .summary-label { font-size: 12px; color: #999; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+            .summary-value { font-size: 20px; font-weight: bold; color: #333; }
+            .summary-card.income { border-left-color: #4caf50; }
+            .summary-card.expense { border-left-color: #f44336; }
+            .summary-card.savings { border-left-color: #2196f3; }
+            .category-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .category-table th { background: #f5f5f5; padding: 12px; text-align: left; border-bottom: 2px solid #ddd; font-weight: bold; }
+            .category-table td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+            .category-name { font-weight: 500; color: #333; }
+            .category-amount { color: #4caf50; font-weight: bold; }
+            .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+            .chart-placeholder { background: #f9f9f9; padding: 20px; border-radius: 6px; text-align: center; color: #999; margin: 20px 0; }
+            .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>📊 FinTrack Financial Report</h1>
+            <p><strong>Period:</strong> ${monthLabel}</p>
+            <p><strong>Generated:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+
+            <h2>Summary Report</h2>
+            <div class="summary">
+              <div class="summary-card income">
+                <div class="summary-label">Total Income</div>
+                <div class="summary-value">${this.currency}${this.formatCurrency(this.summaryIncome)}</div>
+              </div>
+              <div class="summary-card expense">
+                <div class="summary-label">Total Expenses</div>
+                <div class="summary-value">${this.currency}${this.formatCurrency(this.summaryExpense)}</div>
+              </div>
+              <div class="summary-card savings">
+                <div class="summary-label">Net Savings</div>
+                <div class="summary-value">${this.currency}${this.formatCurrency(this.summaryNet)}</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">Savings Rate</div>
+                <div class="summary-value">${this.savingsRate.toFixed(1)}%</div>
+              </div>
+            </div>
+
+            <h2>Monthly Trend</h2>
+            <table class="category-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Income</th>
+                  <th>Expenses</th>
+                  <th>Savings</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.monthlyTrend.map((m: any) => `
+                  <tr>
+                    <td>${this.getMonthLabel(m)}</td>
+                    <td class="category-amount">${this.currency}${this.formatCurrency(m.income ?? 0)}</td>
+                    <td class="category-amount" style="color: #f44336;">${this.currency}${this.formatCurrency(m.expense ?? 0)}</td>
+                    <td class="category-amount">${this.currency}${this.formatCurrency((m.income ?? 0) - (m.expense ?? 0))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <h2>Expense Breakdown by Category</h2>
+            <table class="category-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.topExpenseCategories.map((c: any, i: number) => {
+                  const total = this.summaryExpense;
+                  const pct = total > 0 ? ((c.total ?? 0) / total * 100).toFixed(1) : '0.0';
+                  return `
+                    <tr>
+                      <td class="category-name">${c.categoryName}</td>
+                      <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
+                      <td>${pct}%</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+
+            <h2>Income Sources</h2>
+            <table class="category-table">
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Amount</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${this.topIncomeCategories.map((c: any) => {
+                  const total = this.summaryIncome;
+                  const pct = total > 0 ? ((c.total ?? 0) / total * 100).toFixed(1) : '0.0';
+                  return `
+                    <tr>
+                      <td class="category-name">${c.categoryName}</td>
+                      <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
+                      <td>${pct}%</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+
+            <div class="footer">
+              <p>This report was generated by FinTrack Financial Manager. For more information, visit your dashboard.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    this.generatePDFFromHTML(html, `FinTrack-Report-${this.selectedMonth}.pdf`);
+  }
+
+  private generatePDFFromHTML(html: string, filename: string): void {
+    const printWindow = window.open('', '', 'height=1000,width=1200');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 250);
+    }
+  }
 
   loadReport(): void {
     this.loading = true;

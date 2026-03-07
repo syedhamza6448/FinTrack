@@ -12,6 +12,10 @@
     <app-dropdown class="filter-select" [value]="selectedYear" [options]="yearOptions" placeholder="Year"
       (valueChange)="selectedYear = $event; onFilterChange()">
     </app-dropdown>
+    <button class="btn-primary" (click)="downloadPDF()" title="Download Report as PDF">
+      <lucide-angular name="download" [size]="16"></lucide-angular>
+      <span class="btn-label">Download PDF</span>
+    </button>
   </div>
 </div>
 

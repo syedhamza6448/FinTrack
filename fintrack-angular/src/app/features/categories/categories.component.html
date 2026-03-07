@@ -38,7 +38,7 @@
   <div class="cat-card" *ngFor="let c of filteredCategories; trackBy: trackById" [class.default-cat]="c.isDefault">
 
     <div class="cat-icon-wrap" [style.background]="c.color ? c.color + '22' : null">
-      <span class="cat-icon">
+      <span class="cat-icon" [style.color]="c.color || null">
         <lucide-angular [name]="c.icon || 'tag'" [size]="20"></lucide-angular>
       </span>
     </div>
