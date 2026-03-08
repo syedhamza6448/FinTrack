@@ -419,6 +419,6 @@ FodyWeavers.xsd
 .env
 
 # ── FinTrack Angular — project-specific ignores ──────────────
-fintrack-angular/.vscode/
-fintrack-angular/.orchids/
-fintrack-angular/tmpclaude-*/
+/fintrack-angular/.vscode/
+/fintrack-angular/.orchids/
+/fintrack-angular/tmpclaude-*/
