@@ -71,11 +71,11 @@
       <div class="user-pill user-pill-collapsed" *ngIf="sidebarCollapsed">
         <div class="user-avatar">{{ currentUser?.fullName?.[0] ?? 'U' }}</div>
       </div>
-      <button class="collapse-toggle-btn" (click)="toggleSidebarCollapse()" [appTooltip]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      <button class="collapse-toggle-btn" (click)="toggleSidebarCollapse()">
         <svg *ngIf="!sidebarCollapsed" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         <svg *ngIf="sidebarCollapsed" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button class="logout-btn" (click)="logout()" [appTooltip]="'Logout'">
+      <button class="logout-btn" (click)="logout()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>

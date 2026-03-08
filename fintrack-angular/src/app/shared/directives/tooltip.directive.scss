@@ -1,22 +1,25 @@
 .app-tooltip {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.9);
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.92);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-  white-space: nowrap;
+  line-height: 1.4;
+  white-space: normal;
   pointer-events: none;
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s ease, visibility 0.2s ease;
   z-index: 9999;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   letter-spacing: 0.3px;
-  max-width: 200px;
-  word-wrap: break-word;
-  white-space: normal;
+  max-width: 220px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  user-select: none;
+  cursor: default;
 }
 
 .app-tooltip::before {
@@ -25,36 +28,37 @@
   width: 0;
   height: 0;
   border-style: solid;
+  z-index: 1;
 }
 
 .app-tooltip.tooltip-top::before {
-  bottom: -4px;
+  bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 4px 4px 0 4px;
-  border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+  border-width: 5px 5px 0 5px;
+  border-color: rgba(0, 0, 0, 0.92) transparent transparent transparent;
 }
 
 .app-tooltip.tooltip-bottom::before {
-  top: -4px;
+  top: -5px;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 0 4px 4px 4px;
-  border-color: transparent transparent rgba(0, 0, 0, 0.9) transparent;
+  border-width: 0 5px 5px 5px;
+  border-color: transparent transparent rgba(0, 0, 0, 0.92) transparent;
 }
 
 .app-tooltip.tooltip-left::before {
-  right: -4px;
+  right: -5px;
   top: 50%;
   transform: translateY(-50%);
-  border-width: 4px 0 4px 4px;
-  border-color: transparent transparent transparent rgba(0, 0, 0, 0.9);
+  border-width: 5px 0 5px 5px;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.92);
 }
 
 .app-tooltip.tooltip-right::before {
-  left: -4px;
+  left: -5px;
   top: 50%;
   transform: translateY(-50%);
-  border-width: 4px 4px 4px 0;
-  border-color: transparent rgba(0, 0, 0, 0.9) transparent transparent;
+  border-width: 5px 5px 5px 0;
+  border-color: transparent rgba(0, 0, 0, 0.92) transparent transparent;
 }

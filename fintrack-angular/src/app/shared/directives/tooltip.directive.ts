@@ -27,26 +27,70 @@ export class TooltipDirective implements OnInit {
 
     const rect = this.el.nativeElement.getBoundingClientRect();
     const tooltipRect = this.tooltipElement.getBoundingClientRect();
+    const offset = 8;
+    const padding = 10;
     let top = 0;
     let left = 0;
+    let position = this.tooltipPosition;
 
-    switch (this.tooltipPosition) {
+    // Calculate position based on viewport
+    switch (position) {
       case 'top':
-        top = rect.top - tooltipRect.height - 8;
+        top = rect.top - tooltipRect.height - offset;
         left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+        // Fallback to bottom if not enough space at top
+        if (top < padding) {
+          position = 'bottom';
+          top = rect.bottom + offset;
+        }
         break;
       case 'bottom':
-        top = rect.bottom + 8;
+        top = rect.bottom + offset;
         left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+        // Fallback to top if not enough space at bottom
+        if (top + tooltipRect.height > window.innerHeight - padding) {
+          position = 'top';
+          top = rect.top - tooltipRect.height - offset;
+        }
         break;
       case 'left':
         top = rect.top + rect.height / 2 - tooltipRect.height / 2;
-        left = rect.left - tooltipRect.width - 8;
+        left = rect.left - tooltipRect.width - offset;
+        // Fallback to right if not enough space at left
+        if (left < padding) {
+          position = 'right';
+          left = rect.right + offset;
+        }
         break;
       case 'right':
         top = rect.top + rect.height / 2 - tooltipRect.height / 2;
-        left = rect.right + 8;
+        left = rect.right + offset;
+        // Fallback to left if not enough space at right
+        if (left + tooltipRect.width > window.innerWidth - padding) {
+          position = 'left';
+          left = rect.left - tooltipRect.width - offset;
+        }
         break;
+    }
+
+    // Clamp horizontal position to viewport
+    if (left < padding) {
+      left = padding;
+    } else if (left + tooltipRect.width > window.innerWidth - padding) {
+      left = window.innerWidth - tooltipRect.width - padding;
+    }
+
+    // Clamp vertical position to viewport
+    if (top < padding) {
+      top = padding;
+    } else if (top + tooltipRect.height > window.innerHeight - padding) {
+      top = window.innerHeight - tooltipRect.height - padding;
+    }
+
+    // Update arrow position class if it changed
+    if (position !== this.tooltipPosition) {
+      this.renderer.removeClass(this.tooltipElement, `tooltip-${this.tooltipPosition}`);
+      this.renderer.addClass(this.tooltipElement, `tooltip-${position}`);
     }
 
     this.renderer.setStyle(this.tooltipElement, 'position', 'fixed');

@@ -432,6 +432,49 @@ namespace FinTrack.Controllers.Api
 
             return NoContent();
         }
+
+        // DELETE api/settings/account
+        [HttpDelete("account")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var user = await _userManager.FindByIdAsync(UserId);
+            if (user == null) return NotFound();
+
+            // Delete all user data from the database
+            var transactions = await _db.Transactions.Where(t => t.UserId == UserId).ToListAsync();
+            _db.Transactions.RemoveRange(transactions);
+
+            var categories = await _db.Categories.Where(c => c.UserId == UserId).ToListAsync();
+            _db.Categories.RemoveRange(categories);
+
+            var budgets = await _db.Budgets.Where(b => b.UserId == UserId).ToListAsync();
+            _db.Budgets.RemoveRange(budgets);
+
+            var savingsGoals = await _db.SavingsGoals.Where(s => s.UserId == UserId).ToListAsync();
+            _db.SavingsGoals.RemoveRange(savingsGoals);
+
+            var investments = await _db.Investments.Where(i => i.UserId == UserId).ToListAsync();
+            _db.Investments.RemoveRange(investments);
+
+            var debts = await _db.Debts.Where(d => d.UserId == UserId).ToListAsync();
+            _db.Debts.RemoveRange(debts);
+
+            var notifications = await _db.Notifications.Where(n => n.UserId == UserId).ToListAsync();
+            _db.Notifications.RemoveRange(notifications);
+
+            await _db.SaveChangesAsync();
+
+            // Delete the user account
+            var deleteResult = await _userManager.DeleteAsync(user);
+            if (!deleteResult.Succeeded)
+                return BadRequest(new
+                {
+                    message = "Account deletion failed",
+                    errors = deleteResult.Errors.Select(e => e.Description)
+                });
+
+            return NoContent();
+        }
     }
 
     public class ProfileDto

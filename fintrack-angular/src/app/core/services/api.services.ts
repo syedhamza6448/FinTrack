@@ -296,6 +296,10 @@ export class SettingsService {
   changePassword(data: ChangePasswordRequest): Observable<void> {
     return this.http.put<void>(`${this.url}/password`, data);
   }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.url}/account`);
+  }
 }
 
 @Injectable({ providedIn: 'root' })

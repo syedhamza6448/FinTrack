@@ -4,7 +4,7 @@
     <h1>Categories</h1>
     <p>{{ expenseCategories.length }} expense · {{ incomeCategories.length }} income</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()" [appTooltip]="'New Category'">
+  <button class="btn-primary" (click)="openAdd()">
     <lucide-angular name="plus" [size]="16"></lucide-angular>
     <span class="btn-label">New Category</span>
   </button>
@@ -46,17 +46,16 @@
     <div class="cat-info">
       <div class="cat-name-row">
         <span class="cat-name">{{ c.name }}</span>
-        <lucide-angular *ngIf="c.isDefault" name="lock" [size]="12" class="lock-icon"
-          [appTooltip]="'System default (cannot be changed or deleted)'"></lucide-angular>
+        <lucide-angular *ngIf="c.isDefault" name="lock" [size]="12" class="lock-icon"></lucide-angular>
       </div>
       <span class="cat-type" [class]="c.type === 'Income' ? 'income' : 'expense'">{{ c.type }}</span>
     </div>
 
     <div class="cat-actions">
-      <button class="btn-icon edit" (click)="openEdit(c)" [appTooltip]="'Edit'" *ngIf="!c.isDefault">
+      <button class="btn-icon edit" (click)="openEdit(c)" *ngIf="!c.isDefault">
         <lucide-angular name="pencil" [size]="13"></lucide-angular>
       </button>
-      <button class="btn-icon delete" (click)="confirmDelete(c.id)" [appTooltip]="'Delete'" *ngIf="!c.isDefault">
+      <button class="btn-icon delete" (click)="confirmDelete(c.id)" *ngIf="!c.isDefault">
         <lucide-angular name="trash-2" [size]="13"></lucide-angular>
       </button>
     </div>

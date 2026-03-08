@@ -4,7 +4,7 @@
     <h1>Debt Tracker</h1>
     <p>{{ debts.length }} debt{{ debts.length !== 1 ? 's' : '' }} tracked</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()" [appTooltip]="'Add Debt'">
+  <button class="btn-primary" (click)="openAdd()">
     <lucide-angular name="plus" [size]="16"></lucide-angular>
     <span class="btn-label">Add Debt</span>
   </button>
@@ -78,13 +78,13 @@
     </div>
 
     <div class="dc-actions">
-      <button class="btn-icon pay" (click)="openPayment(d.id)" [appTooltip]="'Make Payment'">
+      <button class="btn-icon pay" (click)="openPayment(d.id)">
         <lucide-angular name="banknote" [size]="13"></lucide-angular>
       </button>
-      <button class="btn-icon edit" (click)="openEdit(d)" [appTooltip]="'Edit'">
+      <button class="btn-icon edit" (click)="openEdit(d)">
         <lucide-angular name="pencil" [size]="13"></lucide-angular>
       </button>
-      <button class="btn-icon delete" (click)="confirmDelete(d.id)" [appTooltip]="'Delete'">
+      <button class="btn-icon delete" (click)="confirmDelete(d.id)">
         <lucide-angular name="trash-2" [size]="13"></lucide-angular>
       </button>
     </div>

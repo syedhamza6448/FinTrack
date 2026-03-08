@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../../core/services/api.services';
@@ -25,12 +25,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   savingProfile = false;
   savingPrefs = false;
   savingPassword = false;
+  deletingAccount = false;
   profileSuccess = '';
   profileError = '';
   prefsSuccess = '';
   prefsError = '';
   passwordSuccess = '';
   passwordError = '';
+  deleteAccountError = '';
+  deleteConfirmation = false;
   showCurrentPw = false;
   showNewPw = false;
   showConfirmPw = false;
@@ -60,7 +63,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private settingsService: SettingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -100,6 +104,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
             theme: s.theme ?? 'dark'
           });
           this.applyTheme(s.theme ?? 'dark');
+          this.cdr.markForCheck();
         },
         error: () => { }
       });
@@ -110,6 +115,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   setTab(tab: string): void {
     this.activeTab = tab;
     this.profileSuccess = this.profileError = this.prefsSuccess = this.prefsError = this.passwordSuccess = this.passwordError = '';
+    this.deleteConfirmation = false;
+    this.deleteAccountError = '';
   }
 
   onSaveProfile(): void {
@@ -188,6 +195,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
         error: (err: any) => {
           this.savingPassword = false;
           this.passwordError = extractError(err);
+        }
+      });
+  }
+
+  onDeleteAccount(): void {
+    this.deletingAccount = true;
+    this.deleteAccountError = '';
+
+    this.settingsService.deleteAccount()
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => {
+          this.deletingAccount = false;
+          this.authService.logout();
+        },
+        error: (err: any) => {
+          this.deletingAccount = false;
+          this.deleteAccountError = extractError(err);
+          this.deleteConfirmation = false;
         }
       });
   }

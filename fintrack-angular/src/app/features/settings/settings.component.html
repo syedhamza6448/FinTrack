@@ -90,7 +90,7 @@
                     <div class="form-field">
                         <label class="form-label">Date of Birth</label>
                         <div class="input-wrap">
-                            <lucide-angular class="input-icon" name="calendar-days" [size]="15"></lucide-angular>
+                            <lucide-angular class="input-icon" name="calendar" [size]="15"></lucide-angular>
                             <input class="input input-with-icon" type="date" formControlName="dateOfBirth">
                         </div>
                     </div>
@@ -247,6 +247,54 @@
                 </div>
 
             </form>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+                <div class="danger-zone-header">
+                    <lucide-angular name="alert-triangle" [size]="20"></lucide-angular>
+                    <div>
+                        <h3>Danger Zone</h3>
+                        <p>Irreversible actions</p>
+                    </div>
+                </div>
+
+                <div class="alert error" *ngIf="deleteAccountError">
+                    <lucide-angular name="alert-circle" [size]="16"></lucide-angular>
+                    {{ deleteAccountError }}
+                </div>
+
+                <div *ngIf="!deleteConfirmation" class="danger-action">
+                    <div class="danger-description">
+                        <h4>Delete Account</h4>
+                        <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                    </div>
+                    <button type="button" class="btn-danger" (click)="deleteConfirmation = true" [disabled]="deletingAccount">
+                        Delete Account
+                    </button>
+                </div>
+
+                <div *ngIf="deleteConfirmation" class="danger-confirm">
+                    <div class="confirm-message">
+                        <lucide-angular name="alert-circle" [size]="20" class="warn-icon"></lucide-angular>
+                        <div>
+                            <h4>Are you sure?</h4>
+                            <p>This will permanently delete your account and all your data. This action cannot be reversed.</p>
+                        </div>
+                    </div>
+                    <div class="confirm-actions">
+                        <button type="button" class="btn-secondary" (click)="deleteConfirmation = false" [disabled]="deletingAccount">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn-danger" (click)="onDeleteAccount()" [disabled]="deletingAccount">
+                            <ng-container *ngIf="!deletingAccount">Delete My Account</ng-container>
+                            <ng-container *ngIf="deletingAccount">
+                                <lucide-angular name="loader-2" [size]="15" class="spin"></lucide-angular>
+                                Deleting...
+                            </ng-container>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

@@ -6,11 +6,11 @@
     <p *ngIf="unreadCount === 0">All caught up!</p>
   </div>
   <div class="header-right header-actions">
-    <button class="btn-ghost icon-btn" (click)="refresh()" [appTooltip]="'Refresh'">
+    <button class="btn-ghost icon-btn" (click)="refresh()">
       <app-icon name="refresh-cw" [size]="18"></app-icon>
       <span class="btn-label">Refresh</span>
     </button>
-    <button class="btn-ghost icon-btn" *ngIf="unreadCount > 0" (click)="markAllRead()" [appTooltip]="'Mark all read'">
+    <button class="btn-ghost icon-btn" *ngIf="unreadCount > 0" (click)="markAllRead()">
       <app-icon name="check-circle" [size]="18"></app-icon>
       <span class="btn-label">Mark all read</span>
     </button>
@@ -70,7 +70,7 @@
 
     <div class="notif-right">
       <div class="unread-dot" *ngIf="!n.isRead"></div>
-      <button class="btn-icon-sm delete" (click)="deleteNotif(n.id, $event)" [appTooltip]="'Delete'">
+      <button class="btn-icon-sm delete" (click)="deleteNotif(n.id, $event)">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>

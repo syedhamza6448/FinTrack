@@ -69,6 +69,7 @@ import {
   Building,
   Building2,
   Landmark,
+  Calendar,
   // UI icons
   Search,
   ChevronDown,
@@ -190,6 +191,7 @@ import { TooltipDirective } from './directives/tooltip.directive';
       Building,
       Building2,
       Landmark,
+      Calendar,
       Search,
       ChevronDown,
       ChevronUp,

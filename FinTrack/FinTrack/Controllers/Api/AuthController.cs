@@ -159,16 +159,16 @@ namespace FinTrack.Controllers.Api
 
             var defaults = new[]
             {
-                new Category { UserId = userId, Name = "Salary",        Type = "Income",  Icon = "💼", Color = "#3ecf8e", isDefault = true },
-                new Category { UserId = userId, Name = "Freelance",     Type = "Income",  Icon = "💻", Color = "#5b9cf6", isDefault = true },
-                new Category { UserId = userId, Name = "Food & Dining", Type = "Expense", Icon = "🍽️", Color = "#f5a623", isDefault = true },
-                new Category { UserId = userId, Name = "Transport",     Type = "Expense", Icon = "🚗", Color = "#5b9cf6", isDefault = true },
-                new Category { UserId = userId, Name = "Housing",       Type = "Expense", Icon = "🏠", Color = "#a78bfa", isDefault = true },
-                new Category { UserId = userId, Name = "Healthcare",    Type = "Expense", Icon = "🏥", Color = "#f25c6e", isDefault = true },
-                new Category { UserId = userId, Name = "Entertainment", Type = "Expense", Icon = "🎬", Color = "#f5a623", isDefault = true },
-                new Category { UserId = userId, Name = "Shopping",      Type = "Expense", Icon = "🛍️", Color = "#a78bfa", isDefault = true },
-                new Category { UserId = userId, Name = "Education",     Type = "Expense", Icon = "📚", Color = "#5b9cf6", isDefault = true },
-                new Category { UserId = userId, Name = "Savings",       Type = "Expense", Icon = "💰", Color = "#3ecf8e", isDefault = true },
+                new Category { UserId = userId, Name = "Salary",        Type = "Income",  Icon = "briefcase", Color = "#3ecf8e", isDefault = true },
+                new Category { UserId = userId, Name = "Freelance",     Type = "Income",  Icon = "laptop", Color = "#5b9cf6", isDefault = true },
+                new Category { UserId = userId, Name = "Food & Dining", Type = "Expense", Icon = "utensils", Color = "#f5a623", isDefault = true },
+                new Category { UserId = userId, Name = "Transport",     Type = "Expense", Icon = "car", Color = "#5b9cf6", isDefault = true },
+                new Category { UserId = userId, Name = "Housing",       Type = "Expense", Icon = "home", Color = "#a78bfa", isDefault = true },
+                new Category { UserId = userId, Name = "Healthcare",    Type = "Expense", Icon = "heart-pulse", Color = "#f25c6e", isDefault = true },
+                new Category { UserId = userId, Name = "Entertainment", Type = "Expense", Icon = "clapperboard", Color = "#f5a623", isDefault = true },
+                new Category { UserId = userId, Name = "Shopping",      Type = "Expense", Icon = "shopping-bag", Color = "#a78bfa", isDefault = true },
+                new Category { UserId = userId, Name = "Education",     Type = "Expense", Icon = "graduation-cap", Color = "#5b9cf6", isDefault = true },
+                new Category { UserId = userId, Name = "Savings",       Type = "Expense", Icon = "wallet", Color = "#3ecf8e", isDefault = true },
             };
 
             db.Categories.AddRange(defaults);

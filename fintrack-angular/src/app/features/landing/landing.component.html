@@ -28,7 +28,7 @@
     </div>
 
     <div class="nav-actions auth-actions" *ngIf="isLoggedIn">
-      <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()" [appTooltip]="'Dashboard'">
+      <button class="btn-ghost-nav icon-btn" (click)="goToDashboard()">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       </button>
       <button class="btn-ghost-nav icon-btn notif-btn" (click)="goToNotifications()">
