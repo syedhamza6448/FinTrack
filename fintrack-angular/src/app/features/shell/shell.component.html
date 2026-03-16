@@ -138,7 +138,7 @@
       </ng-container>
     </nav>
 
-    <!-- More menu overlay (mobile): all nav links -->
+    <!-- More menu overlay (mobile) -->
     <div class="more-menu-backdrop" *ngIf="moreMenuOpen" (click)="moreMenuOpen = false"></div>
     <div class="more-menu-panel" *ngIf="moreMenuOpen">
       <div class="more-menu-header">
@@ -172,3 +172,100 @@
 
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURE 5 — FLOATING AI CHAT
+     Lives outside .app-shell so it floats above everything
+     ══════════════════════════════════════════════════════════ -->
+
+<!-- Chat Panel -->
+<div class="ai-chat-panel" [class.open]="chatOpen">
+
+  <!-- Header -->
+  <div class="ai-chat-header">
+    <div class="ai-chat-header-info">
+      <div class="ai-chat-avatar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+      </div>
+      <div>
+        <div class="ai-chat-name">FinTrack AI</div>
+        <div class="ai-chat-status">
+          <span class="ai-status-dot"></span>
+          Online
+        </div>
+      </div>
+    </div>
+    <div class="ai-chat-header-actions">
+      <button class="ai-chat-action-btn" (click)="clearChat()" title="Clear chat">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
+      <button class="ai-chat-action-btn" (click)="closeChat()" title="Close">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="ai-chat-body" #chatBody>
+    <div
+      *ngFor="let msg of chatMessages"
+      class="ai-chat-msg"
+      [class.user]="msg.role === 'user'"
+      [class.ai]="msg.role === 'ai'">
+
+      <div class="ai-msg-avatar" *ngIf="msg.role === 'ai'">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+      </div>
+
+      <div class="ai-msg-bubble">
+        <!-- Loading dots -->
+        <div class="ai-typing-dots" *ngIf="msg.loading">
+          <span></span><span></span><span></span>
+        </div>
+        <!-- Message text -->
+        <span *ngIf="!msg.loading">{{ msg.text }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="ai-chat-footer">
+    <div class="ai-chat-input-wrap">
+      <textarea
+        class="ai-chat-input"
+        [(ngModel)]="chatInput"
+        (keydown)="onChatKeydown($event)"
+        placeholder="Ask about your finances..."
+        rows="1"
+        [disabled]="chatSending">
+      </textarea>
+      <button
+        class="ai-chat-send"
+        (click)="sendMessage()"
+        [disabled]="chatSending || !chatInput.trim()">
+        <svg *ngIf="!chatSending" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span *ngIf="chatSending" class="ai-send-spinner"></span>
+      </button>
+    </div>
+    <p class="ai-chat-hint">Press Enter to send · Shift+Enter for new line</p>
+  </div>
+
+</div>
+
+<!-- Floating Chat Toggle Button -->
+<button
+  class="ai-chat-fab"
+  [class.chat-open]="chatOpen"
+  (click)="toggleChat()"
+  title="FinTrack AI Assistant">
+  <!-- Sparkle icon when closed -->
+  <svg *ngIf="!chatOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 3c.3 3.5 3.2 6.2 6.5 6.5-3.3.3-6.2 3-6.5 6.5-.3-3.5-3.2-6.2-6.5-6.5 3.3-.3 6.2-3 6.5-6.5z"/>
+    <path d="M5 3c.1 1.2 1.1 2.2 2.3 2.3C6.1 5.4 5.1 6.4 5 7.6 4.9 6.4 3.9 5.4 2.7 5.3 3.9 5.2 4.9 4.2 5 3z"/>
+    <path d="M19 15c.1 1.2 1.1 2.2 2.3 2.3-1.2.1-2.2 1.1-2.3 2.3-.1-1.2-1.1-2.2-2.3-2.3 1.2-.1 2.2-1.1 2.3-2.3z"/>
+  </svg>
+  <!-- X icon when open -->
+  <svg *ngIf="chatOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+</button>

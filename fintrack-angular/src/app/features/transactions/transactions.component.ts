@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { TransactionService, CategoryService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
+import { AiService } from '../../core/services/ai.service';
 import { Transaction, Category, PaginationParams } from '../../core/models/models';
 import { today } from '../../shared/utils/date.util';
 import { extractError } from '../../shared/utils/error.util';
@@ -40,34 +41,46 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     deletingId: number | null = null;
     showDeleteConfirm = false;
 
+    // ── Feature 6: Natural Language ──────────────────────────
+    nlText = '';
+    nlParsing = false;
+    nlError = '';
+
+    // ── Feature 13: Receipt Scanner ──────────────────────────
+    receiptScanning = false;
+    receiptError = '';
+
+    // ── Feature 14: Bank Statement ───────────────────────────
+    showStatementModal = false;
+    statementParsing = false;
+    statementError = '';
+    statementTransactions: any[] = [];
+    statementImporting = false;
+    statementImportDone = false;
+
     get currency() { return this.authService.userCurrency; }
     get incomeCategories() { return this.categories.filter(c => c.type === 'Income'); }
     get expenseCategories() { return this.categories.filter(c => c.type === 'Expense'); }
     get modalTitle(): string { return this.editingId ? 'Edit Transaction' : 'Add Transaction'; }
+
     filterTypeOptions = [
         { value: '', label: 'All Types' },
         { value: 'Income', label: 'Income' },
         { value: 'Expense', label: 'Expense' }
     ];
+
     get filterCategoryOptions() {
         return [
             { value: '', label: 'All Categories' },
-      ...this.incomeCategories.map(c => ({
-        value: c.id,
-        label: `${c.name} (Income)`,
-        icon: c.icon
-      })),
-      ...this.expenseCategories.map(c => ({
-        value: c.id,
-        label: `${c.name} (Expense)`,
-        icon: c.icon
-      }))
+            ...this.incomeCategories.map(c => ({ value: c.id, label: `${c.name} (Income)`, icon: c.icon })),
+            ...this.expenseCategories.map(c => ({ value: c.id, label: `${c.name} (Expense)`, icon: c.icon }))
         ];
     }
+
     get modalCategoryOptions() {
         const type = this.txnForm?.get('type')?.value;
         const cats = type === 'Income' ? this.incomeCategories : this.expenseCategories;
-    return cats.map(c => ({ value: c.id, label: c.name, icon: c.icon }));
+        return cats.map(c => ({ value: c.id, label: c.name, icon: c.icon }));
     }
 
     constructor(
@@ -75,6 +88,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         private txnService: TransactionService,
         private categoryService: CategoryService,
         private authService: AuthService,
+        private aiService: AiService,
         private cdr: ChangeDetectorRef
     ) { }
 
@@ -101,7 +115,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
             amount: [null, [Validators.required, Validators.min(0.01)]],
             type: ['Expense', Validators.required],
             categoryId: [null, Validators.required],
-        date: [this.todayValue(), Validators.required],
+            date: [this.todayValue(), Validators.required],
             notes: ['']
         });
     }
@@ -146,12 +160,14 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
     openAdd(): void {
         this.editingId = null; this.modalError = '';
+        this.nlText = ''; this.nlError = ''; this.receiptError = '';
         this.txnForm.reset({ description: '', amount: null, type: 'Expense', categoryId: null, date: this.todayValue(), notes: '' });
         this.showModal = true;
     }
 
     openEdit(txn: Transaction): void {
         this.editingId = txn.id; this.modalError = '';
+        this.nlText = ''; this.nlError = ''; this.receiptError = '';
         this.txnForm.patchValue({
             description: txn.description, amount: txn.amount, type: txn.type,
             categoryId: txn.categoryId, date: txn.date.substring(0, 10), notes: txn.notes ?? ''
@@ -164,10 +180,8 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     onSubmit(): void {
         if (this.txnForm.invalid) { this.txnForm.markAllAsTouched(); return; }
         this.submitting = true; this.modalError = '';
-
-    const done = () => { this.submitting = false; this.showModal = false; this.loadTransactions(); };
-    const fail = (err: any) => { this.submitting = false; this.modalError = extractError(err); };
-
+        const done = () => { this.submitting = false; this.showModal = false; this.loadTransactions(); };
+        const fail = (err: any) => { this.submitting = false; this.modalError = extractError(err); };
         if (this.editingId) {
             this.txnService.update(this.editingId, this.txnForm.value)
                 .pipe(takeUntil(this.destroy$)).subscribe({ next: done, error: fail });
@@ -182,12 +196,10 @@ export class TransactionsComponent implements OnInit, OnDestroy {
 
     doDelete(): void {
         if (!this.deletingId) return;
-        this.txnService.delete(this.deletingId)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: () => { this.showDeleteConfirm = false; this.deletingId = null; this.loadTransactions(); },
-                error: () => { this.showDeleteConfirm = false; }
-            });
+        this.txnService.delete(this.deletingId).pipe(takeUntil(this.destroy$)).subscribe({
+            next: () => { this.showDeleteConfirm = false; this.deletingId = null; this.loadTransactions(); },
+            error: () => { this.showDeleteConfirm = false; }
+        });
     }
 
     goToPage(p: number): void {
@@ -195,10 +207,176 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         this.page = p; this.loadTransactions();
     }
 
+    // ════════════════════════════════════════════════════════
+    // FEATURE 6 — Natural Language Transaction Entry
+    // ════════════════════════════════════════════════════════
+    parseNaturalLanguage(): void {
+        if (!this.nlText.trim()) return;
+        this.nlParsing = true;
+        this.nlError = '';
+        this.aiService.parseTransaction(this.nlText).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (parsed) => {
+                // Find matching category by name
+                const match = this.categories.find(
+                    c => c.name.toLowerCase() === parsed.category?.toLowerCase()
+                );
+                this.txnForm.patchValue({
+                    description: parsed.description,
+                    amount: parsed.amount,
+                    type: parsed.type,
+                    categoryId: match?.id ?? null,
+                    date: parsed.date
+                });
+                this.nlParsing = false;
+                this.nlText = '';
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.nlError = 'Could not parse. Try rephrasing e.g. "Spent 5000 on groceries today"';
+                this.nlParsing = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    onNlKeydown(event: KeyboardEvent): void {
+        if (event.key === 'Enter') { this.parseNaturalLanguage(); }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // FEATURE 13 — Receipt Scanner
+    // ════════════════════════════════════════════════════════
+    onReceiptSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        input.value = ''; // reset so same file can be selected again
+
+        this.receiptScanning = true;
+        this.receiptError = '';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        this.aiService.scanReceipt(formData).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (parsed) => {
+                const match = this.categories.find(
+                    c => c.name.toLowerCase() === parsed.category?.toLowerCase()
+                );
+                this.txnForm.patchValue({
+                    description: parsed.description,
+                    amount: parsed.amount,
+                    type: parsed.type,
+                    categoryId: match?.id ?? null,
+                    date: parsed.date
+                });
+                this.receiptScanning = false;
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.receiptError = 'Could not read receipt. Try a clearer image.';
+                this.receiptScanning = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    // ════════════════════════════════════════════════════════
+    // FEATURE 14 — Bank Statement Parser
+    // ════════════════════════════════════════════════════════
+    onStatementSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        input.value = '';
+
+        this.statementParsing = true;
+        this.statementError = '';
+        this.statementTransactions = [];
+        this.statementImportDone = false;
+        this.showStatementModal = true;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        this.aiService.parseStatement(formData).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (res) => {
+                this.statementTransactions = res.transactions ?? [];
+                this.statementParsing = false;
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.statementError = 'Could not parse the statement. Try a clearer image or PDF.';
+                this.statementParsing = false;
+                this.cdr.markForCheck();
+            }
+        });
+    }
+
+    removeStatementTxn(index: number): void {
+        this.statementTransactions.splice(index, 1);
+    }
+
+    importAllStatementTxns(): void {
+        if (this.statementTransactions.length === 0) return;
+        this.statementImporting = true;
+
+        // Map parsed transactions to API format
+        const toImport = this.statementTransactions
+            .map(t => {
+                const match = this.categories.find(
+                    c => c.name.toLowerCase() === t.category?.toLowerCase()
+                );
+                return {
+                    description: t.description,
+                    amount: t.amount,
+                    type: t.type,
+                    categoryId: match?.id as number,
+                    date: t.date,
+                    notes: 'Imported from bank statement'
+                };
+            })
+            .filter(t => t.categoryId);
+
+        // Import one by one sequentially
+        let completed = 0;
+        const total = toImport.length;
+
+        toImport.forEach(txn => {
+            this.txnService.create(txn).pipe(takeUntil(this.destroy$)).subscribe({
+                next: () => {
+                    completed++;
+                    if (completed === total) {
+                        this.statementImporting = false;
+                        this.statementImportDone = true;
+                        this.loadTransactions();
+                        this.cdr.markForCheck();
+                    }
+                },
+                error: () => {
+                    completed++;
+                    if (completed === total) {
+                        this.statementImporting = false;
+                        this.statementImportDone = true;
+                        this.loadTransactions();
+                        this.cdr.markForCheck();
+                    }
+                }
+            });
+        });
+    }
+
+    closeStatementModal(): void {
+        this.showStatementModal = false;
+        this.statementTransactions = [];
+        this.statementError = '';
+        this.statementImportDone = false;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
     formatCurrency(amount: number): string {
         return new Intl.NumberFormat('en-US', {
-            style: 'decimal',
-      minimumFractionDigits: 0, maximumFractionDigits: 0
+            style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0
         }).format(amount);
     }
 
@@ -207,7 +385,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     }
 
     getTypeClass(type: string): string { return type === 'Income' ? 'income' : 'expense'; }
-  private todayValue(): string { return today(); }
+    private todayValue(): string { return today(); }
     private currentMonthValue(): string {
         const d = new Date();
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;

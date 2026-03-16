@@ -418,7 +418,48 @@ FodyWeavers.xsd
 *.msp
 .env
 
-# ── FinTrack Angular — project-specific ignores ──────────────
-/fintrack-angular/.vscode/
-/fintrack-angular/.orchids/
-/fintrack-angular/tmpclaude-*/
+# ════════════════════════════════════════════════════════════
+# FinTrack — Project Specific Ignores
+# ════════════════════════════════════════════════════════════
+
+# ── Backend: FinTrack/FinTrack/ ──────────────────────────────
+
+# Build output folders
+FinTrack/FinTrack/bin/
+FinTrack/FinTrack/obj/
+
+# Visual Studio local settings
+FinTrack/.vs/
+FinTrack/FinTrack/*.csproj.user
+
+# Sensitive config — contains DB connection string + JWT secret
+# Keep appsettings.Development.json (has no secrets)
+# NEVER push appsettings.json to GitHub
+FinTrack/FinTrack/appsettings.json
+
+# EF Core migration snapshots (optional — remove ! if you want to track them)
+# FinTrack/FinTrack/Migrations/
+
+# ── Frontend: fintrack-angular/ ──────────────────────────────
+
+# Production build output
+fintrack-angular/dist/
+
+# Dependencies — always reinstalled via npm install
+fintrack-angular/node_modules/
+
+# Angular CLI cache
+fintrack-angular/.angular/
+
+# Bun lock file (if using npm, keep package-lock.json instead)
+# fintrack-angular/bun.lock
+
+fintrack-angular/src/environments/environment.prod.ts
+
+# ── Previously added ─────────────────────────────────────────
+fintrack-angular/.vscode/
+fintrack-angular/.orchids/
+fintrack-angular/tmpclaude-*/
+
+# ── Root level ───────────────────────────────────────────────
+.github/workflows/*.secret

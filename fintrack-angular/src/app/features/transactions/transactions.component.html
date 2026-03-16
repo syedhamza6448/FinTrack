@@ -4,20 +4,26 @@
     <h1>Transactions</h1>
     <p>{{ total }} transaction{{ total !== 1 ? 's' : '' }} found</p>
   </div>
-  <button class="btn-primary" (click)="openAdd()">
-    <lucide-angular name="plus" [size]="16"></lucide-angular>
-    <span class="btn-label">Add Transaction</span>
-  </button>
+  <div class="header-actions">
+    <!-- Feature 14: Import Bank Statement -->
+    <!-- <label class="btn-ghost btn-icon-label" title="Import Bank Statement">
+      <lucide-angular name="file-up" [size]="15"></lucide-angular>
+      <span class="btn-label">Import Statement</span>
+      <input type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" (change)="onStatementSelected($event)" hidden>
+    </label> -->
+    <button class="btn-primary" (click)="openAdd()">
+      <lucide-angular name="plus" [size]="16"></lucide-angular>
+      <span class="btn-label">Add Transaction</span>
+    </button>
+  </div>
 </div>
 
 <!-- ══ FILTERS ══ -->
 <div class="filters-card" [formGroup]="filterForm">
-
   <div class="search-wrap">
     <lucide-angular class="search-icon" name="search" [size]="15"></lucide-angular>
     <input class="search-input" type="text" formControlName="search" placeholder="Search transactions...">
   </div>
-
   <div class="filter-row">
     <app-dropdown
       class="filter-select"
@@ -26,7 +32,6 @@
       placeholder="All Types"
       (valueChange)="applyFilters()">
     </app-dropdown>
-
     <app-dropdown
       class="filter-select"
       formControlName="categoryId"
@@ -34,12 +39,9 @@
       placeholder="All Categories"
       (valueChange)="applyFilters()">
     </app-dropdown>
-
     <input class="filter-select" type="month" formControlName="month" (change)="applyFilters()">
-
     <button class="btn-ghost" (click)="clearFilters()">Clear</button>
   </div>
-
 </div>
 
 <!-- ══ TABLE ══ -->
@@ -63,51 +65,51 @@
 
   <!-- Table -->
   <div class="table-scroll-wrap" *ngIf="!loading && transactions.length > 0">
-  <table class="txn-table">
-    <thead>
-      <tr>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Date</th>
-        <th>Type</th>
-        <th class="text-right">Amount</th>
-        <th class="text-right">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let txn of transactions; trackBy: trackById">
-        <td>
-          <div class="txn-desc">{{ txn.description }}</div>
-          <div class="txn-notes" *ngIf="txn.notes">{{ txn.notes }}</div>
-        </td>
-        <td>
-          <span class="category-chip" [style.color]="txn.category?.color || null">
-            <app-icon [name]="txn.category?.icon" [size]="14"></app-icon>
-            {{ txn.category?.name }}
-          </span>
-        </td>
-        <td class="text-secondary">{{ formatDate(txn.date) }}</td>
-        <td>
-          <span class="type-badge" [class]="getTypeClass(txn.type)">{{ txn.type }}</span>
-        </td>
-        <td class="text-right">
-          <span class="amount" [class]="getTypeClass(txn.type)">
-            {{ txn.type === 'Income' ? '+' : '-' }}<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(txn.amount) }}
-          </span>
-        </td>
-        <td class="text-right">
-          <div class="action-btns">
-            <button class="btn-icon edit" (click)="openEdit(txn)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-            <button class="btn-icon delete" (click)="confirmDelete(txn.id)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <table class="txn-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th class="text-right">Amount</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let txn of transactions; trackBy: trackById">
+          <td>
+            <div class="txn-desc">{{ txn.description }}</div>
+            <div class="txn-notes" *ngIf="txn.notes">{{ txn.notes }}</div>
+          </td>
+          <td>
+            <span class="category-chip" [style.color]="txn.category?.color || null">
+              <app-icon [name]="txn.category?.icon" [size]="14"></app-icon>
+              {{ txn.category?.name }}
+            </span>
+          </td>
+          <td class="text-secondary">{{ formatDate(txn.date) }}</td>
+          <td>
+            <span class="type-badge" [class]="getTypeClass(txn.type)">{{ txn.type }}</span>
+          </td>
+          <td class="text-right">
+            <span class="amount" [class]="getTypeClass(txn.type)">
+              {{ txn.type === 'Income' ? '+' : '-' }}<span class="currency-suffix">{{ currency }}</span>{{ formatCurrency(txn.amount) }}
+            </span>
+          </td>
+          <td class="text-right">
+            <div class="action-btns">
+              <button class="btn-icon edit" (click)="openEdit(txn)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn-icon delete" (click)="confirmDelete(txn.id)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <!-- Pagination -->
@@ -115,10 +117,7 @@
     <button class="page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <button class="page-btn"
-            *ngFor="let p of pages"
-            [class.active]="p === page"
-            (click)="goToPage(p)">{{ p }}</button>
+    <button class="page-btn" *ngFor="let p of pages" [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
     <button class="page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
@@ -137,6 +136,40 @@
       </button>
     </div>
 
+    <!-- ── Feature 6: Natural Language Input ── -->
+    <div class="ai-nl-bar" *ngIf="!editingId">
+      <div class="ai-nl-input-wrap">
+        <lucide-angular class="ai-nl-icon" name="sparkles" [size]="15"></lucide-angular>
+        <input
+          class="ai-nl-input"
+          type="text"
+          [(ngModel)]="nlText"
+          (keydown)="onNlKeydown($event)"
+          placeholder='Try: "Spent 5000 on groceries today"'
+          [disabled]="nlParsing">
+        <button
+          class="ai-nl-btn"
+          (click)="parseNaturalLanguage()"
+          [disabled]="nlParsing || !nlText.trim()">
+          <span *ngIf="!nlParsing">Auto-fill</span>
+          <span *ngIf="nlParsing" class="spinner-sm"></span>
+        </button>
+      </div>
+      <p class="ai-nl-error" *ngIf="nlError">{{ nlError }}</p>
+
+      <!-- Feature 13: Receipt Scanner trigger -->
+      <!-- <div class="ai-receipt-row">
+        <label class="ai-receipt-btn" [class.scanning]="receiptScanning">
+          <lucide-angular name="scan" [size]="13"></lucide-angular>
+          <span *ngIf="!receiptScanning">Scan Receipt</span>
+          <span *ngIf="receiptScanning">Scanning...</span>
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" (change)="onReceiptSelected($event)" hidden [disabled]="receiptScanning">
+        </label>
+        <span class="ai-receipt-hint">or upload a receipt image / PDF to auto-fill</span>
+        <p class="ai-nl-error" *ngIf="receiptError">{{ receiptError }}</p>
+      </div> -->
+    </div>
+
     <div class="form-server-error" *ngIf="modalError">
       <lucide-angular name="alert-circle" [size]="15"></lucide-angular>
       {{ modalError }}
@@ -146,21 +179,13 @@
 
       <!-- Type toggle -->
       <div class="segment-control">
-        <button
-          type="button"
-          class="segment"
-          [class.active]="txnForm.get('type')?.value === 'Expense'"
-          (click)="txnForm.patchValue({ type: 'Expense', categoryId: null })"
-        >
+        <button type="button" class="segment" [class.active]="txnForm.get('type')?.value === 'Expense'"
+          (click)="txnForm.patchValue({ type: 'Expense', categoryId: null })">
           <lucide-angular name="trending-down" [size]="14"></lucide-angular>
           Expense
         </button>
-        <button
-          type="button"
-          class="segment"
-          [class.active]="txnForm.get('type')?.value === 'Income'"
-          (click)="txnForm.patchValue({ type: 'Income', categoryId: null })"
-        >
+        <button type="button" class="segment" [class.active]="txnForm.get('type')?.value === 'Income'"
+          (click)="txnForm.patchValue({ type: 'Income', categoryId: null })">
           <lucide-angular name="trending-up" [size]="14"></lucide-angular>
           Income
         </button>
@@ -170,19 +195,9 @@
         <label class="form-label">Description *</label>
         <div class="input-wrap">
           <lucide-angular class="input-icon" name="receipt" [size]="15"></lucide-angular>
-          <input
-            class="input input-with-icon"
-            type="text"
-            formControlName="description"
-            placeholder="e.g. Grocery shopping"
-          />
+          <input class="input input-with-icon" type="text" formControlName="description" placeholder="e.g. Grocery shopping"/>
         </div>
-        <span
-          class="form-error"
-          *ngIf="txnForm.get('description')?.touched && txnForm.get('description')?.errors?.['required']"
-        >
-          Required
-        </span>
+        <span class="form-error" *ngIf="txnForm.get('description')?.touched && txnForm.get('description')?.errors?.['required']">Required</span>
       </div>
 
       <div class="form-row">
@@ -190,50 +205,24 @@
           <label class="form-label">Amount *</label>
           <div class="input-wrap">
             <lucide-angular class="input-icon" name="banknote" [size]="15"></lucide-angular>
-            <input
-              class="input input-with-icon"
-              type="number"
-              formControlName="amount"
-              placeholder="0.00"
-              min="0.01"
-              step="0.01"
-            />
+            <input class="input input-with-icon" type="number" formControlName="amount" placeholder="0.00" min="0.01" step="0.01"/>
           </div>
-          <span
-            class="form-error"
-            *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['required']"
-          >
-            Required
-          </span>
-          <span
-            class="form-error"
-            *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['min']"
-          >
-            Must be greater than 0
-          </span>
+          <span class="form-error" *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['required']">Required</span>
+          <span class="form-error" *ngIf="txnForm.get('amount')?.touched && txnForm.get('amount')?.errors?.['min']">Must be greater than 0</span>
         </div>
         <div class="form-field">
           <label class="form-label">Date *</label>
           <div class="input-wrap">
             <lucide-angular class="input-icon" name="calendar-days" [size]="15"></lucide-angular>
-            <input class="input input-with-icon" type="date" formControlName="date" />
+            <input class="input input-with-icon" type="date" formControlName="date"/>
           </div>
-          <span
-            class="form-error"
-            *ngIf="txnForm.get('date')?.touched && txnForm.get('date')?.errors?.['required']"
-          >
-            Required
-          </span>
+          <span class="form-error" *ngIf="txnForm.get('date')?.touched && txnForm.get('date')?.errors?.['required']">Required</span>
         </div>
       </div>
 
       <div class="form-field">
         <label class="form-label">Category *</label>
-        <app-dropdown
-          formControlName="categoryId"
-          [options]="modalCategoryOptions"
-          placeholder="Select a category">
-        </app-dropdown>
+        <app-dropdown formControlName="categoryId" [options]="modalCategoryOptions" placeholder="Select a category"></app-dropdown>
         <span class="form-error" *ngIf="txnForm.get('categoryId')?.touched && txnForm.get('categoryId')?.errors?.['required']">Required</span>
       </div>
 
@@ -241,12 +230,7 @@
         <label class="form-label">Notes (optional)</label>
         <div class="input-wrap">
           <lucide-angular class="input-icon" name="pencil" [size]="15"></lucide-angular>
-          <textarea
-            class="input input-with-icon textarea"
-            formControlName="notes"
-            placeholder="Any additional details..."
-            rows="2"
-          ></textarea>
+          <textarea class="input input-with-icon textarea" formControlName="notes" placeholder="Any additional details..." rows="2"></textarea>
         </div>
       </div>
 
@@ -273,5 +257,78 @@
       <button class="btn-ghost" (click)="cancelDelete()">Cancel</button>
       <button class="btn-danger" (click)="doDelete()">Delete</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ FEATURE 14: BANK STATEMENT PREVIEW MODAL ══ -->
+<div class="modal-backdrop" *ngIf="showStatementModal" (click)="closeStatementModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <lucide-angular name="file-text" [size]="18"></lucide-angular>
+        Import Bank Statement
+      </h2>
+      <button class="modal-close" (click)="closeStatementModal()">
+        <lucide-angular name="x" [size]="18"></lucide-angular>
+      </button>
+    </div>
+
+    <!-- Parsing / loading state -->
+    <div class="statement-loading" *ngIf="statementParsing">
+      <div class="spinner-lg"></div>
+      <p>Reading your bank statement with AI...</p>
+    </div>
+
+    <!-- Error -->
+    <div class="form-server-error" *ngIf="statementError">
+      <lucide-angular name="alert-circle" [size]="15"></lucide-angular>
+      {{ statementError }}
+    </div>
+
+    <!-- Success / done -->
+    <div class="statement-done" *ngIf="statementImportDone">
+      <lucide-angular name="circle-check" [size]="40"></lucide-angular>
+      <p>All transactions imported successfully!</p>
+      <button class="btn-primary" (click)="closeStatementModal()">Done</button>
+    </div>
+
+    <!-- Transaction preview list -->
+    <div class="statement-preview" *ngIf="!statementParsing && !statementError && !statementImportDone">
+
+      <p class="statement-info" *ngIf="statementTransactions.length > 0">
+        Found <strong>{{ statementTransactions.length }}</strong> transaction(s). Review and remove any incorrect ones before importing.
+      </p>
+      <p class="statement-info" *ngIf="statementTransactions.length === 0">
+        No transactions were found. Try uploading a clearer image or PDF.
+      </p>
+
+      <div class="statement-list" *ngIf="statementTransactions.length > 0">
+        <div class="statement-item" *ngFor="let txn of statementTransactions; let i = index">
+          <div class="statement-item-info">
+            <span class="statement-desc">{{ txn.description }}</span>
+            <span class="statement-meta">{{ txn.category }} · {{ txn.date }}</span>
+          </div>
+          <span class="amount" [class]="getTypeClass(txn.type)">
+            {{ txn.type === 'Income' ? '+' : '-' }}{{ currency }}{{ formatCurrency(txn.amount) }}
+          </span>
+          <button class="btn-icon delete" (click)="removeStatementTxn(i)" title="Remove">
+            <lucide-angular name="x" [size]="13"></lucide-angular>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer" *ngIf="statementTransactions.length > 0">
+        <button class="btn-ghost" (click)="closeStatementModal()">Cancel</button>
+        <button class="btn-primary" (click)="importAllStatementTxns()" [disabled]="statementImporting">
+          <span *ngIf="!statementImporting">
+            <lucide-angular name="download" [size]="14"></lucide-angular>
+            Import All {{ statementTransactions.length }} Transactions
+          </span>
+          <span *ngIf="statementImporting" class="spinner"></span>
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>

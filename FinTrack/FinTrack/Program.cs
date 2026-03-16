@@ -1,5 +1,7 @@
-﻿using FinTrack.Data;
+﻿using FinTrack;
+using FinTrack.Data;
 using FinTrack.Models;
+using FinTrack.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +11,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── Database ────────────────────────────────────────────────
+// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ─── Identity ────────────────────────────────────────────────
+// Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -26,7 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// ─── JWT Authentication ──────────────────────────────────────
+// JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT Key not configured.");
 
@@ -50,10 +52,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ─── Authorization ───────────────────────────────────────────
+// Authorization 
 builder.Services.AddAuthorization();
 
-// ─── Controllers ─────────────────────────────────────────────
+//Controllers 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -63,7 +65,7 @@ builder.Services.AddControllers()
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
 
-// ─── CORS ────────────────────────────────────────────────────
+//CORS 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularClient", policy =>
@@ -79,7 +81,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ─── Swagger ─────────────────────────────────────────────────
+//Swagger 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -116,6 +118,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+//AI Integration
+builder.Services.AddHttpClient<GeminiService>();
+
 var app = builder.Build();
 
 
@@ -135,11 +140,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    using var scope = app.Services.CreateScope();
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    db.Database.Migrate();
+//}
+
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    await DataSeeder.SeedAsync(scope.ServiceProvider);
 }
 
-app.Run();
+await app.RunAsync();

@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef 
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { ReportsService } from '../../core/services/api.services';
 import { AuthService } from '../../core/services/auth.service';
+import { AiService } from '../../core/services/ai.service';
 import { NetWorthReport } from '../../core/models/models';
 
 @Component({
@@ -25,6 +26,12 @@ export class ReportsComponent implements OnInit, OnDestroy {
   topIncomeCategories: any[] = [];
   netWorth: NetWorthReport | null = null;
 
+  // ── Feature 12: AI Monthly Report ────────────────────────
+  aiReport: string = '';
+  aiReportMonth: string = '';   // tracks which month the report was generated for
+  aiReportLoading = false;
+  aiReportError = '';
+
   years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   get yearOptions() { return this.years.map(y => ({ value: y, label: String(y) })); }
 
@@ -45,7 +52,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   barChartData: { labels: string[]; datasets: { label: string; data: number[]; backgroundColor: string; borderColor?: string }[] } = {
     labels: [],
     datasets: [
-      { label: 'Income', data: [], backgroundColor: 'rgba(76, 175, 80, 0.8)', borderColor: 'rgb(76, 175, 80)' },
+      { label: 'Income',   data: [], backgroundColor: 'rgba(76, 175, 80, 0.8)', borderColor: 'rgb(76, 175, 80)' },
       { label: 'Expenses', data: [], backgroundColor: 'rgba(244, 67, 54, 0.8)', borderColor: 'rgb(244, 67, 54)' }
     ]
   };
@@ -84,7 +91,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
     return current?.expense ?? 0;
   }
 
-  /** Resolve trend entry for selectedMonth (YYYY-MM); API may return month as number (1–12) or string. */
   private getMonthlyTrendEntry(): any {
     const [y, mo] = this.selectedMonth.split('-');
     const monthNum = parseInt(mo, 10);
@@ -92,6 +98,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       typeof m.month === 'number' ? m.month === monthNum : String(m.month) === this.selectedMonth
     );
   }
+
   get monthlyNet(): number { return this.monthlyIncome - this.monthlyExpense; }
   get savingsRate(): number { return this.monthlyIncome > 0 ? (this.monthlyNet / this.monthlyIncome) * 100 : 0; }
 
@@ -100,18 +107,64 @@ export class ReportsComponent implements OnInit, OnDestroy {
     return Math.max(...this.monthlyTrend.map(m => Math.max(m.income ?? 0, m.expense ?? 0)), 1);
   }
 
+  // Parsed AI report paragraphs for display
+  get aiReportParagraphs(): string[] {
+    if (!this.aiReport) return [];
+    return this.aiReport.split('\n\n').filter(p => p.trim().length > 0);
+  }
+
+  // Label for current selected month e.g. "March 2026"
+  get selectedMonthLabel(): string {
+    const [y, m] = this.selectedMonth.split('-').map(Number);
+    return new Date(y, m - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+  }
+
   constructor(
     private reportsService: ReportsService,
     private authService: AuthService,
+    private aiService: AiService,
     private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void { this.loadReport(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
+  // ════════════════════════════════════════════════════════
+  // FEATURE 12 — Generate AI Monthly Report
+  // ════════════════════════════════════════════════════════
+  generateAiReport(): void {
+    const [y, m] = this.selectedMonth.split('-').map(Number);
+    this.aiReportLoading = true;
+    this.aiReportError   = '';
+    this.aiReport        = '';
+
+    this.aiService.getMonthlyReport(m, y).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.aiReport        = res.report ?? '';
+        this.aiReportMonth   = this.selectedMonth;
+        this.aiReportLoading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.aiReportError   = 'Could not generate the AI report. Please try again in a moment.';
+        this.aiReportLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  // Whether the current report is stale (different month selected after generation)
+  get aiReportIsStale(): boolean {
+    return !!this.aiReport && this.aiReportMonth !== this.selectedMonth;
+  }
+
   downloadPDF(): void {
     const monthLabel = this.summaryScopeLabel;
-    const docTitle = `FinTrack Report - ${monthLabel}`;
+    const docTitle   = `FinTrack Report - ${monthLabel}`;
+    const aiSection  = this.aiReport
+      ? `<h2>🤖 AI Financial Analysis</h2>
+         ${this.aiReportParagraphs.map(p => `<p>${p}</p>`).join('')}`
+      : '';
 
     const html = `
       <html>
@@ -135,8 +188,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
             .category-name { font-weight: 500; color: #333; }
             .category-amount { color: #4caf50; font-weight: bold; }
             .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; }
-            .chart-placeholder { background: #f9f9f9; padding: 20px; border-radius: 6px; text-align: center; color: #999; margin: 20px 0; }
-            .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 20px 0; }
+            .ai-section { background: #f0f7ff; border: 1px solid #2196f3; border-radius: 8px; padding: 20px; margin: 20px 0; }
+            .ai-section p { line-height: 1.7; color: #333; margin-bottom: 12px; }
           </style>
         </head>
         <body>
@@ -165,22 +218,19 @@ export class ReportsComponent implements OnInit, OnDestroy {
               </div>
             </div>
 
+            ${aiSection ? `<div class="ai-section">${aiSection}</div>` : ''}
+
             <h2>Monthly Trend</h2>
             <table class="category-table">
               <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Income</th>
-                  <th>Expenses</th>
-                  <th>Savings</th>
-                </tr>
+                <tr><th>Month</th><th>Income</th><th>Expenses</th><th>Savings</th></tr>
               </thead>
               <tbody>
                 ${this.monthlyTrend.map((m: any) => `
                   <tr>
                     <td>${this.getMonthLabel(m)}</td>
                     <td class="category-amount">${this.currency}${this.formatCurrency(m.income ?? 0)}</td>
-                    <td class="category-amount" style="color: #f44336;">${this.currency}${this.formatCurrency(m.expense ?? 0)}</td>
+                    <td class="category-amount" style="color:#f44336;">${this.currency}${this.formatCurrency(m.expense ?? 0)}</td>
                     <td class="category-amount">${this.currency}${this.formatCurrency((m.income ?? 0) - (m.expense ?? 0))}</td>
                   </tr>
                 `).join('')}
@@ -190,23 +240,16 @@ export class ReportsComponent implements OnInit, OnDestroy {
             <h2>Expense Breakdown by Category</h2>
             <table class="category-table">
               <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Amount</th>
-                  <th>Percentage</th>
-                </tr>
+                <tr><th>Category</th><th>Amount</th><th>Percentage</th></tr>
               </thead>
               <tbody>
-                ${this.topExpenseCategories.map((c: any, i: number) => {
-                  const total = this.summaryExpense;
-                  const pct = total > 0 ? ((c.total ?? 0) / total * 100).toFixed(1) : '0.0';
-                  return `
-                    <tr>
-                      <td class="category-name">${c.categoryName}</td>
-                      <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
-                      <td>${pct}%</td>
-                    </tr>
-                  `;
+                ${this.topExpenseCategories.map((c: any) => {
+                  const pct = this.summaryExpense > 0 ? ((c.total ?? 0) / this.summaryExpense * 100).toFixed(1) : '0.0';
+                  return `<tr>
+                    <td class="category-name">${c.categoryName}</td>
+                    <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
+                    <td>${pct}%</td>
+                  </tr>`;
                 }).join('')}
               </tbody>
             </table>
@@ -214,29 +257,22 @@ export class ReportsComponent implements OnInit, OnDestroy {
             <h2>Income Sources</h2>
             <table class="category-table">
               <thead>
-                <tr>
-                  <th>Source</th>
-                  <th>Amount</th>
-                  <th>Percentage</th>
-                </tr>
+                <tr><th>Source</th><th>Amount</th><th>Percentage</th></tr>
               </thead>
               <tbody>
                 ${this.topIncomeCategories.map((c: any) => {
-                  const total = this.summaryIncome;
-                  const pct = total > 0 ? ((c.total ?? 0) / total * 100).toFixed(1) : '0.0';
-                  return `
-                    <tr>
-                      <td class="category-name">${c.categoryName}</td>
-                      <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
-                      <td>${pct}%</td>
-                    </tr>
-                  `;
+                  const pct = this.summaryIncome > 0 ? ((c.total ?? 0) / this.summaryIncome * 100).toFixed(1) : '0.0';
+                  return `<tr>
+                    <td class="category-name">${c.categoryName}</td>
+                    <td class="category-amount">${this.currency}${this.formatCurrency(c.total ?? 0)}</td>
+                    <td>${pct}%</td>
+                  </tr>`;
                 }).join('')}
               </tbody>
             </table>
 
             <div class="footer">
-              <p>This report was generated by FinTrack Financial Manager. For more information, visit your dashboard.</p>
+              <p>This report was generated by FinTrack Financial Manager.</p>
             </div>
           </div>
         </body>
@@ -251,26 +287,28 @@ export class ReportsComponent implements OnInit, OnDestroy {
     if (printWindow) {
       printWindow.document.write(html);
       printWindow.document.close();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
+      setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
     }
   }
 
   loadReport(): void {
     this.loading = true;
+    // Reset AI report when month changes
+    if (this.aiReportMonth && this.aiReportMonth !== this.selectedMonth) {
+      this.aiReport = '';
+      this.aiReportMonth = '';
+    }
     forkJoin({
-      monthly: this.reportsService.getMonthly(this.selectedYear),
+      monthly:           this.reportsService.getMonthly(this.selectedYear),
       expenseCategories: this.reportsService.getByCategory(this.selectedMonth, 'Expense'),
-      incomeCategories: this.reportsService.getByCategory(this.selectedMonth, 'Income'),
-      netWorth: this.reportsService.getNetWorth()
+      incomeCategories:  this.reportsService.getByCategory(this.selectedMonth, 'Income'),
+      netWorth:          this.reportsService.getNetWorth()
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: res => {
-        this.monthlyTrend = res.monthly ?? [];
-        this.topExpenseCategories = res.expenseCategories ?? [];
-        this.topIncomeCategories = res.incomeCategories ?? [];
-        this.netWorth = res.netWorth ?? null;
+        this.monthlyTrend          = res.monthly ?? [];
+        this.topExpenseCategories  = res.expenseCategories ?? [];
+        this.topIncomeCategories   = res.incomeCategories ?? [];
+        this.netWorth              = res.netWorth ?? null;
         this.updateBarChartData();
         this.updatePieChartData();
         this.loading = false;
@@ -280,20 +318,13 @@ export class ReportsComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Summary totals for the selected report scope (monthly / quarter / year). */
-  get summaryIncome(): number {
-    return this.aggregateTrend('income');
-  }
-  get summaryExpense(): number {
-    return this.aggregateTrend('expense');
-  }
+  get summaryIncome(): number  { return this.aggregateTrend('income'); }
+  get summaryExpense(): number { return this.aggregateTrend('expense'); }
   get summarySavings(): number {
-    const trend = this.getTrendForScope();
-    return trend.reduce((s, m) => s + (m.savings != null ? m.savings : (m.income ?? 0) - (m.expense ?? 0)), 0);
+    return this.getTrendForScope().reduce((s, m) => s + (m.savings != null ? m.savings : (m.income ?? 0) - (m.expense ?? 0)), 0);
   }
-  get summaryNet(): number {
-    return this.summaryIncome - this.summaryExpense;
-  }
+  get summaryNet(): number { return this.summaryIncome - this.summaryExpense; }
+
   get summaryScopeLabel(): string {
     if (this.reportScope === 'Annual') return `Year ${this.selectedYear}`;
     if (this.reportScope === 'Quarterly') {
@@ -338,52 +369,37 @@ export class ReportsComponent implements OnInit, OnDestroy {
       this.barChartData.datasets[1].data = [];
       return;
     }
-
     if (this.selectedPeriod === 'Monthly') {
-      this.barChartData.labels = this.monthlyTrend.map((m: any) => this.getMonthLabel(m));
-      this.barChartData.datasets[0].data = this.monthlyTrend.map((m: any) => m.income ?? 0);
-      this.barChartData.datasets[1].data = this.monthlyTrend.map((m: any) => m.expense ?? 0);
+      this.barChartData.labels              = this.monthlyTrend.map((m: any) => this.getMonthLabel(m));
+      this.barChartData.datasets[0].data    = this.monthlyTrend.map((m: any) => m.income ?? 0);
+      this.barChartData.datasets[1].data    = this.monthlyTrend.map((m: any) => m.expense ?? 0);
     } else if (this.selectedPeriod === 'Quarterly') {
       const qData = [
-        { label: 'Q1', income: 0, expense: 0 },
-        { label: 'Q2', income: 0, expense: 0 },
-        { label: 'Q3', income: 0, expense: 0 },
-        { label: 'Q4', income: 0, expense: 0 }
+        { label: 'Q1', income: 0, expense: 0 }, { label: 'Q2', income: 0, expense: 0 },
+        { label: 'Q3', income: 0, expense: 0 }, { label: 'Q4', income: 0, expense: 0 }
       ];
       this.monthlyTrend.forEach((m: any) => {
         const monthNum = typeof m.month === 'number' ? m.month : parseInt(String(m.month).split('-')[1] || '1', 10);
         const qIndex = Math.floor((monthNum - 1) / 3);
-        if (qIndex >= 0 && qIndex < 4) {
-          qData[qIndex].income += (m.income ?? 0);
-          qData[qIndex].expense += (m.expense ?? 0);
-        }
+        if (qIndex >= 0 && qIndex < 4) { qData[qIndex].income += (m.income ?? 0); qData[qIndex].expense += (m.expense ?? 0); }
       });
-      this.barChartData.labels = qData.map(q => q.label);
+      this.barChartData.labels           = qData.map(q => q.label);
       this.barChartData.datasets[0].data = qData.map(q => q.income);
       this.barChartData.datasets[1].data = qData.map(q => q.expense);
     } else if (this.selectedPeriod === 'Half-Yearly') {
-      const hData = [
-        { label: 'H1', income: 0, expense: 0 },
-        { label: 'H2', income: 0, expense: 0 }
-      ];
+      const hData = [{ label: 'H1', income: 0, expense: 0 }, { label: 'H2', income: 0, expense: 0 }];
       this.monthlyTrend.forEach((m: any) => {
         const monthNum = typeof m.month === 'number' ? m.month : parseInt(String(m.month).split('-')[1] || '1', 10);
         const hIndex = Math.floor((monthNum - 1) / 6);
-        if (hIndex >= 0 && hIndex < 2) {
-          hData[hIndex].income += (m.income ?? 0);
-          hData[hIndex].expense += (m.expense ?? 0);
-        }
+        if (hIndex >= 0 && hIndex < 2) { hData[hIndex].income += (m.income ?? 0); hData[hIndex].expense += (m.expense ?? 0); }
       });
-      this.barChartData.labels = hData.map(h => h.label);
+      this.barChartData.labels           = hData.map(h => h.label);
       this.barChartData.datasets[0].data = hData.map(h => h.income);
       this.barChartData.datasets[1].data = hData.map(h => h.expense);
     } else if (this.selectedPeriod === 'Yearly') {
       const yData = { label: String(this.selectedYear), income: 0, expense: 0 };
-      this.monthlyTrend.forEach((m: any) => {
-        yData.income += (m.income ?? 0);
-        yData.expense += (m.expense ?? 0);
-      });
-      this.barChartData.labels = [yData.label];
+      this.monthlyTrend.forEach((m: any) => { yData.income += (m.income ?? 0); yData.expense += (m.expense ?? 0); });
+      this.barChartData.labels           = [yData.label];
       this.barChartData.datasets[0].data = [yData.income];
       this.barChartData.datasets[1].data = [yData.expense];
     }
@@ -398,10 +414,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
         backgroundColor: this.topExpenseCategories.map((_: any, i: number) => colors[i % colors.length])
       }]
     };
-  }
-
-  getBarHeight(value: number): string {
-    return `${Math.round((value / this.maxTrendValue) * 100)}%`;
   }
 
   getCategoryBarWidth(pct: number): string { return `${Math.min(pct, 100)}%`; }
@@ -425,8 +437,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   formatCurrency(n: number): string {
     return new Intl.NumberFormat('en-US', {
-      style: 'decimal',
-      minimumFractionDigits: 0, maximumFractionDigits: 0
+      style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0
     }).format(n ?? 0);
   }
 

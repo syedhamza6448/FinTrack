@@ -1,5 +1,6 @@
 ﻿using FinTrack.Data;
 using FinTrack.Models;
+using FinTrack.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,13 @@ namespace FinTrack.Controllers.Api
     public class TransactionsController : ControllerBase
     {
         private readonly AppDbContext _db;
-        public TransactionsController(AppDbContext db) => _db = db;
+        private readonly GeminiService _gemini;
+
+        public TransactionsController(AppDbContext db, GeminiService gemini)
+        {
+            _db = db;
+            _gemini = gemini;
+        }
 
         private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
@@ -25,7 +32,7 @@ namespace FinTrack.Controllers.Api
             [FromQuery] string? type = null,
             [FromQuery] int? categoryId = null,
             [FromQuery] string? search = null,
-            [FromQuery] string? month = null)  // format: "2026-02"
+            [FromQuery] string? month = null)
         {
             var query = _db.Transactions
                 .Include(t => t.Category)
@@ -45,8 +52,9 @@ namespace FinTrack.Controllers.Api
             if (!string.IsNullOrEmpty(month) &&
                 DateTime.TryParse(month + "-01", out var monthDate))
             {
-                query = query.Where(t => t.Date.Year == monthDate.Year &&
-                                         t.Date.Month == monthDate.Month);
+                var startDate = new DateTime(monthDate.Year, monthDate.Month, 1);
+                var endDate = startDate.AddMonths(1);
+                query = query.Where(t => t.Date >= startDate && t.Date < endDate);
             }
 
             var total = await query.CountAsync();
@@ -116,7 +124,7 @@ namespace FinTrack.Controllers.Api
             _db.Transactions.Add(transaction);
             await _db.SaveChangesAsync();
 
-            // Auto-generate budget alert notification if over budget
+            // ── Feature 11: AI Smart Notification on budget threshold ──
             await CheckBudgetAlert(transaction);
 
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, new { transaction.Id });
@@ -165,8 +173,9 @@ namespace FinTrack.Controllers.Api
             if (!string.IsNullOrEmpty(month) &&
                 DateTime.TryParse(month + "-01", out var monthDate))
             {
-                query = query.Where(t => t.Date.Year == monthDate.Year &&
-                                         t.Date.Month == monthDate.Month);
+                var startDate = new DateTime(monthDate.Year, monthDate.Month, 1);
+                var endDate = startDate.AddMonths(1);
+                query = query.Where(t => t.Date >= startDate && t.Date < endDate);
             }
 
             var totalIncome = await query.Where(t => t.Type == "Income").SumAsync(t => t.Amount);
@@ -183,11 +192,18 @@ namespace FinTrack.Controllers.Api
             });
         }
 
-        // ─── Private Helpers ─────────────────────────────────────────
+        // ════════════════════════════════════════════════════════
+        // FEATURE 11 — AI Smart Notification
+        // Triggered automatically after every expense transaction.
+        // Fires at 80% (WARNING) and 100%+ (EXCEEDED) of budget.
+        // Only one notification per category per month per threshold.
+        // ════════════════════════════════════════════════════════
         private async Task CheckBudgetAlert(Transaction t)
         {
+            // Only check expense transactions
             if (t.Type != "Expense") return;
 
+            // Find matching budget for this category + month
             var budget = await _db.Budgets
                 .FirstOrDefaultAsync(b =>
                     b.UserId == UserId &&
@@ -197,38 +213,93 @@ namespace FinTrack.Controllers.Api
 
             if (budget == null) return;
 
+            // Calculate total spent this month for this category
+            var spentStart = new DateTime(t.Date.Year, t.Date.Month, 1);
+            var spentEnd = spentStart.AddMonths(1);
             var spent = await _db.Transactions
-                .Where(x => x.UserId == UserId &&
-                             x.CategoryId == t.CategoryId &&
-                             x.Type == "Expense" &&
-                             x.Date.Month == t.Date.Month &&
-                             x.Date.Year == t.Date.Year)
+                .Where(x =>
+                    x.UserId == UserId &&
+                    x.CategoryId == t.CategoryId &&
+                    x.Type == "Expense" &&
+                    x.Date >= spentStart &&
+                    x.Date < spentEnd)
                 .SumAsync(x => x.Amount);
 
-            var percent = spent / budget.Amount * 100;
+            var utilisationPct = (int)Math.Round(spent / budget.Amount * 100);
 
-            if (percent >= 90)
+            // Determine which threshold was crossed
+            string? status = null;
+            if (utilisationPct >= 100) status = "EXCEEDED";
+            else if (utilisationPct >= 80) status = "WARNING";
+
+            if (status == null) return;
+
+            // Load the category name
+            var category = await _db.Categories.FindAsync(t.CategoryId);
+            if (category == null) return;
+
+            // Prevent duplicate notifications — one per category per month per status
+            var notifStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var notifEnd = notifStart.AddMonths(1);
+            var statusKeyword = status == "EXCEEDED" ? "Exceeded" : "Warning";
+            var alreadyNotified = await _db.Notifications
+                .AnyAsync(n =>
+                    n.UserId == UserId &&
+                    n.Type == "Alert" &&
+                    n.CreatedAt >= notifStart &&
+                    n.CreatedAt < notifEnd &&
+                    n.Title.Contains(category.Name) &&
+                    n.Title.Contains(statusKeyword));
+
+            if (alreadyNotified) return;
+
+            // ── Generate AI notification message ─────────────────
+            string title;
+            string message;
+
+            try
             {
-                var category = await _db.Categories.FindAsync(t.CategoryId);
-                var existing = await _db.Notifications
-                    .AnyAsync(n =>
-                        n.UserId == UserId &&
-                        n.Type == "Alert" &&
-                        n.CreatedAt.Month == DateTime.UtcNow.Month &&
-                        n.Title.Contains(category!.Name));
+                var aiRequest = new SmartNotifRequest(
+                    Category: category.Name,
+                    AmountSpent: spent,
+                    BudgetLimit: budget.Amount,
+                    UtilisationPct: utilisationPct,
+                    Status: status
+                );
 
-                if (!existing)
-                {
-                    _db.Notifications.Add(new Notification
-                    {
-                        UserId = UserId,
-                        Title = $"{category!.Name} budget at {Math.Round(percent)}%",
-                        Message = $"You've used {Math.Round(percent)}% of your {category.Name} budget this month.",
-                        Type = "Alert"
-                    });
-                    await _db.SaveChangesAsync();
-                }
+                var prompt = $$"""
+                    Write a 1-2 sentence finance notification. No markdown, no emojis.
+                    Category: {{aiRequest.Category}}, Spent: {{aiRequest.AmountSpent:N2}}, Budget: {{aiRequest.BudgetLimit:N2}}, Usage: {{aiRequest.UtilisationPct}}%, Status: {{aiRequest.Status}}
+                    Notification text only:
+                    """;
+
+                message = (await _gemini.AskAsync(prompt)).Trim();
+                title = status == "EXCEEDED"
+                    ? $"{category.Name} Budget Exceeded"
+                    : $"{category.Name} Budget Warning";
             }
+            catch
+            {
+                // Fallback to plain message if AI call fails —
+                // transaction save must never fail because of notification errors
+                title = status == "EXCEEDED"
+                    ? $"{category.Name} Budget Exceeded"
+                    : $"{category.Name} Budget Warning";
+                message = status == "EXCEEDED"
+                    ? $"You've exceeded your {category.Name} budget — spent {spent:N2} of {budget.Amount:N2}."
+                    : $"You've used {utilisationPct}% of your {category.Name} budget this month ({spent:N2} of {budget.Amount:N2}).";
+            }
+
+            // Save notification to database
+            _db.Notifications.Add(new Notification
+            {
+                UserId = UserId,
+                Title = title,
+                Message = message,
+                Type = "Alert"
+            });
+
+            await _db.SaveChangesAsync();
         }
     }
 
@@ -236,15 +307,20 @@ namespace FinTrack.Controllers.Api
     {
         [System.ComponentModel.DataAnnotations.Required]
         public int CategoryId { get; set; }
+
         [System.ComponentModel.DataAnnotations.Required]
         public string Description { get; set; } = "";
+
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.Range(0.01, double.MaxValue)]
         public decimal Amount { get; set; }
+
         [System.ComponentModel.DataAnnotations.Required]
-        public string Type { get; set; } = ""; // "Income" or "Expense"
+        public string Type { get; set; } = "";
+
         [System.ComponentModel.DataAnnotations.Required]
         public DateTime Date { get; set; }
+
         public string? Notes { get; set; }
     }
 }
