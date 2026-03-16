@@ -463,3 +463,5 @@ fintrack-angular/tmpclaude-*/
 
 # ── Root level ───────────────────────────────────────────────
 .github/workflows/*.secret
+
+**/tmp-claude-*
