@@ -14,19 +14,6 @@
 
 ---
 
-## Project Info
-
-| Field | Detail |
-|---|---|
-| **Project Name** | Online Personal Finance Dashboard (FinTrack) |
-| **Team** | Syed Hamza Imran · Fareeha Fatima Khokhar · Anamta Sajid · Safa Noor Fatima |
-| **Enrollment Nos.** | Student1595738 · Student1595710 · Student1589118 · Student1610740 |
-| **Curriculum** | ACCP Prime 2 — 3rd Semester |
-| **Centre** | Aptech Computer Education, Malir Centre |
-| **Duration** | 21 Feb 2026 — 24 Mar 2026 |
-
----
-
 ## Overview
 
 FinTrack is a full-stack personal finance dashboard built as an **Aptech eProject** submission. It solves the problem of scattered financial data — most people manage money across multiple apps, spreadsheets, and bank portals with no single overview. FinTrack brings everything together: every transaction you log feeds your budget progress, category breakdowns, and monthly reports automatically. Every deposit updates your savings goal in real time. Every payment reduces your debt balance on screen.
