@@ -129,7 +129,7 @@ All visual tokens are defined as CSS custom properties in `styles.scss` and refe
 
 ### Typography
 
-Single typeface throughout: **Outfit** (Google Fonts), weights 300–900.
+Typeface throughout: **Syne(Headings)** & **DM Sans(Body)** (Google Fonts), weights 300–900.
 
 ### Icons
 
